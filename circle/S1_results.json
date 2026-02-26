@@ -1,0 +1,2302 @@
+[
+  {
+    "scenario_id": 0,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 9,
+    "retrieved_inst_idx": 10,
+    "query_obstacle_center": [
+      -0.6112156024794766,
+      3.585979199113824
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      5.0
+    ],
+    "A_dist_cluster": 0.266758451765562,
+    "A_dist_dyn": 0.19166866202120716,
+    "dist_obstacle": 1.7644919309060765,
+    "success": true,
+    "cost": 332.0210007914514,
+    "runtime_sec": 0.0002442499971948564,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4480389999807812
+  },
+  {
+    "scenario_id": 1,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 33,
+    "retrieved_inst_idx": 28,
+    "query_obstacle_center": [
+      1.9736802905936388,
+      -4.058226521123505
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.0545564568907708,
+    "A_dist_dyn": 0.05424926610005964,
+    "dist_obstacle": 0.990552699654041,
+    "success": true,
+    "cost": 129.30230409456658,
+    "runtime_sec": 0.0002137500050594099,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4707748749642633
+  },
+  {
+    "scenario_id": 2,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 23,
+    "retrieved_inst_idx": 0,
+    "query_obstacle_center": [
+      2.6113970199035297,
+      2.8606430527695377
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.11981338921049856,
+    "A_dist_dyn": 0.08778023073461964,
+    "dist_obstacle": 1.5225291625772952,
+    "success": false,
+    "cost": 118.53815919088656,
+    "runtime_sec": 0.00019491699640639126,
+    "collision_free_wrt_query_obstacle": false,
+    "success_db": false,
+    "runtime_sec_db": 0.576578333042562
+  },
+  {
+    "scenario_id": 3,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 45,
+    "retrieved_inst_idx": 21,
+    "query_obstacle_center": [
+      -3.7188636732445413,
+      -0.49614062104432843
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.14823663074905982,
+    "A_dist_dyn": 0.14023033299233548,
+    "dist_obstacle": 1.7353505441877553,
+    "success": true,
+    "cost": 233.29406975222517,
+    "runtime_sec": 0.00019412500114412978,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4532653340138495
+  },
+  {
+    "scenario_id": 4,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 21,
+    "retrieved_inst_idx": 3,
+    "query_obstacle_center": [
+      4.267649888486018,
+      1.4386512008066452
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.08728796790290143,
+    "A_dist_dyn": 0.07083597764840147,
+    "dist_obstacle": 0.767025252847587,
+    "success": true,
+    "cost": 110.46786508725938,
+    "runtime_sec": 0.00019050000264542177,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4509972910163924
+  },
+  {
+    "scenario_id": 5,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 18,
+    "retrieved_inst_idx": 27,
+    "query_obstacle_center": [
+      3.227616132708299,
+      -0.5658580117266885
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.17632846827957208,
+    "A_dist_dyn": 0.10615633037318503,
+    "dist_obstacle": 1.9100635932676222,
+    "success": true,
+    "cost": 192.86163866021204,
+    "runtime_sec": 0.0001899999988381751,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4522631249856204
+  },
+  {
+    "scenario_id": 6,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 26,
+    "retrieved_inst_idx": 28,
+    "query_obstacle_center": [
+      0.5458478701583482,
+      -4.3618274389582465
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.054552935376345355,
+    "A_dist_dyn": 0.03924273840954108,
+    "dist_obstacle": 1.2897670302317958,
+    "success": true,
+    "cost": 117.57572016088746,
+    "runtime_sec": 0.0001892910004244186,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4921430829563178
+  },
+  {
+    "scenario_id": 7,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 14,
+    "retrieved_inst_idx": 0,
+    "query_obstacle_center": [
+      3.27631171992582,
+      1.3166439912206487
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.10576809734672374,
+    "A_dist_dyn": 0.08125809611440793,
+    "dist_obstacle": 1.6472622956918703,
+    "success": true,
+    "cost": 189.98243248065845,
+    "runtime_sec": 0.00018820800323737785,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": false,
+    "runtime_sec_db": 0.5563949579955079
+  },
+  {
+    "scenario_id": 8,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 2,
+    "retrieved_inst_idx": 10,
+    "query_obstacle_center": [
+      -1.4547403187013161,
+      4.706980243949033
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      5.0
+    ],
+    "A_dist_cluster": 0.14302554080226632,
+    "A_dist_dyn": 0.1214461040727376,
+    "dist_obstacle": 0.36162598689543735,
+    "success": true,
+    "cost": 229.24455545004568,
+    "runtime_sec": 0.0001892080035759136,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4816370000480674
+  },
+  {
+    "scenario_id": 9,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 30,
+    "retrieved_inst_idx": 3,
+    "query_obstacle_center": [
+      3.9312112132219763,
+      2.783834970737619
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.039729214944227584,
+    "A_dist_dyn": 0.039729214944227584,
+    "dist_obstacle": 1.546083597469169,
+    "success": true,
+    "cost": 129.8750553165878,
+    "runtime_sec": 0.00018791599723044783,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48154887498822063
+  },
+  {
+    "scenario_id": 10,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 35,
+    "retrieved_inst_idx": 19,
+    "query_obstacle_center": [
+      -0.3327899627296578,
+      -4.561962342127712
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.054985694547421596,
+    "A_dist_dyn": 0.04506661588063104,
+    "dist_obstacle": 1.4039601315636063,
+    "success": true,
+    "cost": 128.57905468853426,
+    "runtime_sec": 0.00019041600171476603,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.49422329204389825
+  },
+  {
+    "scenario_id": 11,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 11,
+    "retrieved_inst_idx": 12,
+    "query_obstacle_center": [
+      -3.4571050793245215,
+      1.8304895324245463
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.2736085852283735,
+    "A_dist_dyn": 0.23329869684992982,
+    "dist_obstacle": 1.5515678095369583,
+    "success": true,
+    "cost": 200.00105980448623,
+    "runtime_sec": 0.0001882920041680336,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4918720840360038
+  },
+  {
+    "scenario_id": 12,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 46,
+    "retrieved_inst_idx": 30,
+    "query_obstacle_center": [
+      4.675097324342101,
+      -1.7417464186184803
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.2801300332001605,
+    "A_dist_dyn": 0.22266136885481244,
+    "dist_obstacle": 0.3334647174781883,
+    "success": true,
+    "cost": 269.15288829227967,
+    "runtime_sec": 0.00018937500135507435,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48322337499121204
+  },
+  {
+    "scenario_id": 13,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 38,
+    "retrieved_inst_idx": 18,
+    "query_obstacle_center": [
+      -1.2954029396513111,
+      -0.30444188724192056
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.052295011917634256,
+    "A_dist_dyn": 0.033328666478353135,
+    "dist_obstacle": 1.4119111532515531,
+    "success": true,
+    "cost": 126.04265859576626,
+    "runtime_sec": 0.000188209000043571,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4583897920092568
+  },
+  {
+    "scenario_id": 14,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 32,
+    "retrieved_inst_idx": 21,
+    "query_obstacle_center": [
+      -3.7007849466452836,
+      -0.24295073774066278
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.10232613920148251,
+    "A_dist_dyn": 0.06238453769864606,
+    "dist_obstacle": 1.927414537960408,
+    "success": true,
+    "cost": 126.94192626501439,
+    "runtime_sec": 0.00018974999693455175,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4868852500221692
+  },
+  {
+    "scenario_id": 15,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 9,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -2.7309065094911587,
+      1.698139946825103
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.24556360306198832,
+    "A_dist_dyn": 0.17589897196407286,
+    "dist_obstacle": 1.0647051283895606,
+    "success": true,
+    "cost": 332.0210007884133,
+    "runtime_sec": 0.00019225000141886994,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48583912500180304
+  },
+  {
+    "scenario_id": 16,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 43,
+    "retrieved_inst_idx": 0,
+    "query_obstacle_center": [
+      3.3267819605783746,
+      2.0026510200224914
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.16147021252649427,
+    "A_dist_dyn": 0.061146682680800535,
+    "dist_obstacle": 1.6937733835373279,
+    "success": false,
+    "cost": 230.3349452318084,
+    "runtime_sec": 0.00018950000230688602,
+    "collision_free_wrt_query_obstacle": false,
+    "success_db": true,
+    "runtime_sec_db": 0.4514484999817796
+  },
+  {
+    "scenario_id": 17,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 24,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -1.8763335861795891,
+      3.3225980139520104
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.09911423023139719,
+    "A_dist_dyn": 0.07350264956990096,
+    "dist_obstacle": 1.669152133288123,
+    "success": true,
+    "cost": 106.85203723509613,
+    "runtime_sec": 0.00018737500067800283,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4547421250026673
+  },
+  {
+    "scenario_id": 18,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 25,
+    "retrieved_inst_idx": 18,
+    "query_obstacle_center": [
+      -1.1252162096982552,
+      -2.116718960697559
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.0807607247750987,
+    "A_dist_dyn": 0.04563119972110772,
+    "dist_obstacle": 0.7040707810396412,
+    "success": true,
+    "cost": 106.35873798909469,
+    "runtime_sec": 0.00018537500000093132,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.5084969169693068
+  },
+  {
+    "scenario_id": 19,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 43,
+    "retrieved_inst_idx": 28,
+    "query_obstacle_center": [
+      1.8249550397497547,
+      -3.602475163906902
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.13528220753937853,
+    "A_dist_dyn": 0.07471634439074501,
+    "dist_obstacle": 1.4064604070326088,
+    "success": true,
+    "cost": 230.3349452358203,
+    "runtime_sec": 0.0001866249949671328,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48396729200612754
+  },
+  {
+    "scenario_id": 20,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 48,
+    "retrieved_inst_idx": 12,
+    "query_obstacle_center": [
+      -4.926377302489945,
+      2.869243775021384
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.10411906519210824,
+    "A_dist_dyn": 0.10195144140111215,
+    "dist_obstacle": 1.204828619815885,
+    "success": true,
+    "cost": 243.7754061029666,
+    "runtime_sec": 0.00018583300698082894,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4530885419808328
+  },
+  {
+    "scenario_id": 21,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 9,
+    "retrieved_inst_idx": 0,
+    "query_obstacle_center": [
+      1.6485085659203218,
+      2.0516537862633513
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.37566923120523643,
+    "A_dist_dyn": 0.1938244860164722,
+    "dist_obstacle": 0.3854150994422329,
+    "success": false,
+    "cost": 329.0267068350888,
+    "runtime_sec": 0.00018637500033946708,
+    "collision_free_wrt_query_obstacle": false,
+    "success_db": false,
+    "runtime_sec_db": 0.6413400830351748
+  },
+  {
+    "scenario_id": 22,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 13,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -0.41084224461660046,
+      0.6874119595289372
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.11537111416563879,
+    "A_dist_dyn": 0.08324932935454332,
+    "dist_obstacle": 1.5924932528801443,
+    "success": true,
+    "cost": 179.73784697692795,
+    "runtime_sec": 0.0001857090028352104,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48569308302830905
+  },
+  {
+    "scenario_id": 23,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 31,
+    "retrieved_inst_idx": 22,
+    "query_obstacle_center": [
+      -3.6020300187234255,
+      -3.8546992646402654
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      -5.0
+    ],
+    "A_dist_cluster": 0.11676086109769951,
+    "A_dist_dyn": 0.08210824830467509,
+    "dist_obstacle": 1.807217154346974,
+    "success": true,
+    "cost": 128.39418304059754,
+    "runtime_sec": 0.00018695799371926114,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.45171499997377396
+  },
+  {
+    "scenario_id": 24,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 25,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -0.28903793856867477,
+      0.6523610648118883
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.08548860857919935,
+    "A_dist_dyn": 0.05399214791974854,
+    "dist_obstacle": 1.7107532745650016,
+    "success": true,
+    "cost": 106.35873798917477,
+    "runtime_sec": 0.00018529200315242633,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.585132792009972
+  },
+  {
+    "scenario_id": 25,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 39,
+    "retrieved_inst_idx": 0,
+    "query_obstacle_center": [
+      2.649988574160256,
+      1.347183200005908
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.03979748442319461,
+    "A_dist_dyn": 0.027290589369016918,
+    "dist_obstacle": 1.0339205284867916,
+    "success": true,
+    "cost": 125.3341965550822,
+    "runtime_sec": 0.00018637499306350946,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": false,
+    "runtime_sec_db": 0.6126245829509571
+  },
+  {
+    "scenario_id": 26,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 21,
+    "retrieved_inst_idx": 27,
+    "query_obstacle_center": [
+      0.5920716074541357,
+      -1.960499019373878
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.09999993048549438,
+    "A_dist_dyn": 0.08587308133615108,
+    "dist_obstacle": 1.1140430838982118,
+    "success": true,
+    "cost": 110.46786508722788,
+    "runtime_sec": 0.00018616700253915042,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4489587080315687
+  },
+  {
+    "scenario_id": 27,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 38,
+    "retrieved_inst_idx": 21,
+    "query_obstacle_center": [
+      -4.691821654320606,
+      -0.6328261076763759
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.07006932145242178,
+    "A_dist_dyn": 0.041977633075926425,
+    "dist_obstacle": 1.078795714748184,
+    "success": true,
+    "cost": 126.04265859587684,
+    "runtime_sec": 0.00018637500033946708,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.5009349589818157
+  },
+  {
+    "scenario_id": 28,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 49,
+    "retrieved_inst_idx": 10,
+    "query_obstacle_center": [
+      -0.9147135627536382,
+      3.5340307326816607
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      5.0
+    ],
+    "A_dist_cluster": 0.187595639453806,
+    "A_dist_dyn": 0.1322205437514607,
+    "dist_obstacle": 1.6475737808081028,
+    "success": true,
+    "cost": 216.26255612249048,
+    "runtime_sec": 0.00018699999782256782,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48343620798550546
+  },
+  {
+    "scenario_id": 29,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 19,
+    "retrieved_inst_idx": 19,
+    "query_obstacle_center": [
+      -2.6606051413465925,
+      -4.41697258310934
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.14280769229993803,
+    "A_dist_dyn": 0.07510385343953238,
+    "dist_obstacle": 1.1523170832263372,
+    "success": true,
+    "cost": 166.01646112876998,
+    "runtime_sec": 0.00018529199587646872,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.49932195799192414
+  },
+  {
+    "scenario_id": 30,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 46,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -2.064062422333164,
+      1.6191651472689506
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.12046702242695286,
+    "A_dist_dyn": 0.11688856089711522,
+    "dist_obstacle": 0.4002246631166524,
+    "success": true,
+    "cost": 269.1528882911552,
+    "runtime_sec": 0.000184959004400298,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4848954170010984
+  },
+  {
+    "scenario_id": 31,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 18,
+    "retrieved_inst_idx": 0,
+    "query_obstacle_center": [
+      0.5703215234127832,
+      2.8389820910641355
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.13338970471913372,
+    "A_dist_dyn": 0.0826079667366687,
+    "dist_obstacle": 1.605084461147324,
+    "success": true,
+    "cost": 193.77087795770663,
+    "runtime_sec": 0.00018545899365562946,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": false,
+    "runtime_sec_db": 0.6432571249897592
+  },
+  {
+    "scenario_id": 32,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 49,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -0.9361313855992943,
+      3.140203846660347
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.21834524695914753,
+    "A_dist_dyn": 0.09637892852741864,
+    "dist_obstacle": 1.644686480064791,
+    "success": true,
+    "cost": 216.26255612286684,
+    "runtime_sec": 0.00018554200505604967,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.45154383400222287
+  },
+  {
+    "scenario_id": 33,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 39,
+    "retrieved_inst_idx": 19,
+    "query_obstacle_center": [
+      -3.330270800922961,
+      -4.772879268661395
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.04546065710862255,
+    "A_dist_dyn": 0.030327227357629067,
+    "dist_obstacle": 1.6790361944039256,
+    "success": true,
+    "cost": 124.28364684179734,
+    "runtime_sec": 0.00018637500033946708,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4556855410337448
+  },
+  {
+    "scenario_id": 34,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 8,
+    "retrieved_inst_idx": 27,
+    "query_obstacle_center": [
+      2.2235935059645033,
+      -0.3812276974861266
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.2920300174334878,
+    "A_dist_dyn": 0.17671816229287093,
+    "dist_obstacle": 1.4009000134978256,
+    "success": true,
+    "cost": 225.53688908659933,
+    "runtime_sec": 0.00018495800031814724,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4591789160040207
+  },
+  {
+    "scenario_id": 35,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 9,
+    "retrieved_inst_idx": 12,
+    "query_obstacle_center": [
+      -3.387282209663982,
+      0.010447751033635377
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.22661761533985356,
+    "A_dist_dyn": 0.11338804392793327,
+    "dist_obstacle": 2.3116919707796155,
+    "success": true,
+    "cost": 332.0210007879234,
+    "runtime_sec": 0.00018495800031814724,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.45761329197557643
+  },
+  {
+    "scenario_id": 36,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 45,
+    "retrieved_inst_idx": 27,
+    "query_obstacle_center": [
+      1.9632037507773603,
+      -0.5384372442596934
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.1156100220034729,
+    "A_dist_dyn": 0.09262414264411838,
+    "dist_obstacle": 1.1665487010140834,
+    "success": true,
+    "cost": 233.2940697536306,
+    "runtime_sec": 0.00018579100287752226,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4563069170108065
+  },
+  {
+    "scenario_id": 37,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 1,
+    "retrieved_inst_idx": 18,
+    "query_obstacle_center": [
+      -1.1897877390351752,
+      -1.984879108521235
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.21918962059997035,
+    "A_dist_dyn": 0.07156075048721032,
+    "dist_obstacle": 0.5732998079277616,
+    "success": true,
+    "cost": 218.3993136531084,
+    "runtime_sec": 0.00018504100444260985,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.46433141600573435
+  },
+  {
+    "scenario_id": 38,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 38,
+    "retrieved_inst_idx": 19,
+    "query_obstacle_center": [
+      -1.3818738944660955,
+      -4.12350080683899
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.05395818136946304,
+    "A_dist_dyn": 0.02427632644610787,
+    "dist_obstacle": 0.9216060756687683,
+    "success": true,
+    "cost": 126.04265859580433,
+    "runtime_sec": 0.00018695800099521875,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.49424387502949685
+  },
+  {
+    "scenario_id": 39,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 31,
+    "retrieved_inst_idx": 13,
+    "query_obstacle_center": [
+      -3.819940978794847,
+      4.618976645495145
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      5.0
+    ],
+    "A_dist_cluster": 0.1075331535524051,
+    "A_dist_dyn": 0.07026459558675663,
+    "dist_obstacle": 1.240047616104235,
+    "success": true,
+    "cost": 128.39418304077617,
+    "runtime_sec": 0.00018583299970487133,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4861022499972023
+  },
+  {
+    "scenario_id": 40,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 18,
+    "retrieved_inst_idx": 27,
+    "query_obstacle_center": [
+      1.9970713381074958,
+      -2.3413003854048045
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.1729736237941435,
+    "A_dist_dyn": 0.12687101716305862,
+    "dist_obstacle": 0.7511976446770656,
+    "success": true,
+    "cost": 192.86163866021204,
+    "runtime_sec": 0.0001849999971454963,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4522631249856204
+  },
+  {
+    "scenario_id": 41,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 45,
+    "retrieved_inst_idx": 3,
+    "query_obstacle_center": [
+      4.6917637734772395,
+      2.7875090396579463
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.11202434969652231,
+    "A_dist_dyn": 0.07815508656535025,
+    "dist_obstacle": 1.1624530942940077,
+    "success": true,
+    "cost": 233.2940697525894,
+    "runtime_sec": 0.00018583299970487133,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.45022879098542035
+  },
+  {
+    "scenario_id": 42,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 13,
+    "retrieved_inst_idx": 18,
+    "query_obstacle_center": [
+      -0.5063849785621137,
+      -2.27758438154841
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.15367536939415347,
+    "A_dist_dyn": 0.12405322425243188,
+    "dist_obstacle": 1.3112871730124878,
+    "success": true,
+    "cost": 179.73784697678036,
+    "runtime_sec": 0.0001855830050772056,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4604972500237636
+  },
+  {
+    "scenario_id": 43,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 35,
+    "retrieved_inst_idx": 13,
+    "query_obstacle_center": [
+      -4.036090378465007,
+      4.026023965438416
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      5.0
+    ],
+    "A_dist_cluster": 0.048942811762740415,
+    "A_dist_dyn": 0.03517895975823955,
+    "dist_obstacle": 1.3703105758871024,
+    "success": true,
+    "cost": 128.57905468875543,
+    "runtime_sec": 0.00018574999558040872,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4792771249776706
+  },
+  {
+    "scenario_id": 44,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 7,
+    "retrieved_inst_idx": 18,
+    "query_obstacle_center": [
+      -2.976366352047697,
+      -1.9404337584934748
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.12119166331185961,
+    "A_dist_dyn": 0.08817565036228903,
+    "dist_obstacle": 1.3380066092715974,
+    "success": true,
+    "cost": 250.80546444019274,
+    "runtime_sec": 0.00018491600349079818,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4656532080261968
+  },
+  {
+    "scenario_id": 45,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 21,
+    "retrieved_inst_idx": 27,
+    "query_obstacle_center": [
+      0.7921956894189597,
+      -3.2322721706076827
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.053100853925854424,
+    "A_dist_dyn": 0.03774200776870522,
+    "dist_obstacle": 1.793270778220334,
+    "success": true,
+    "cost": 110.46786508722788,
+    "runtime_sec": 0.00018474999524187297,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4489587080315687
+  },
+  {
+    "scenario_id": 46,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 23,
+    "retrieved_inst_idx": 0,
+    "query_obstacle_center": [
+      2.585195298352101,
+      2.1946295595093677
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.04578952786287557,
+    "A_dist_dyn": 0.03785568643515819,
+    "dist_obstacle": 1.0594525300572695,
+    "success": false,
+    "cost": 118.53815919088656,
+    "runtime_sec": 0.0001850830012699589,
+    "collision_free_wrt_query_obstacle": false,
+    "success_db": false,
+    "runtime_sec_db": 0.576578333042562
+  },
+  {
+    "scenario_id": 47,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 45,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -0.6790696022489628,
+      1.2730884070244315
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.08690988087312239,
+    "A_dist_dyn": 0.07015077571594278,
+    "dist_obstacle": 1.063133015247611,
+    "success": true,
+    "cost": 233.29406975177318,
+    "runtime_sec": 0.00018445800378685817,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.487417749944143
+  },
+  {
+    "scenario_id": 48,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 5,
+    "retrieved_inst_idx": 28,
+    "query_obstacle_center": [
+      1.4984660155481997,
+      -4.155556788601109
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.17474364712890655,
+    "A_dist_dyn": 0.16756172223995905,
+    "dist_obstacle": 0.8610318207327468,
+    "success": true,
+    "cost": 240.43935076961142,
+    "runtime_sec": 0.00018570799875305966,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.49119037500349805
+  },
+  {
+    "scenario_id": 49,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 26,
+    "retrieved_inst_idx": 19,
+    "query_obstacle_center": [
+      -0.8419259782939035,
+      -4.583858261381075
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.07390209213842537,
+    "A_dist_dyn": 0.06107203521656962,
+    "dist_obstacle": 0.9237808991738035,
+    "success": true,
+    "cost": 117.57572016088852,
+    "runtime_sec": 0.00018491600349079818,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4933655000058934
+  },
+  {
+    "scenario_id": 50,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 8,
+    "retrieved_inst_idx": 19,
+    "query_obstacle_center": [
+      -1.7013878766721469,
+      -3.554758111339531
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.27263679445984845,
+    "A_dist_dyn": 0.16130897924013843,
+    "dist_obstacle": 1.4456589083055256,
+    "success": true,
+    "cost": 225.53688908701687,
+    "runtime_sec": 0.00018770799943013117,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.5455577920074575
+  },
+  {
+    "scenario_id": 51,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 21,
+    "retrieved_inst_idx": 12,
+    "query_obstacle_center": [
+      -3.9659703227744836,
+      0.8764457217771202
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.10305658376295584,
+    "A_dist_dyn": 0.07707313366681473,
+    "dist_obstacle": 1.3014094340849207,
+    "success": true,
+    "cost": 110.46786508728955,
+    "runtime_sec": 0.0001849999971454963,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4525705419946462
+  },
+  {
+    "scenario_id": 52,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 30,
+    "retrieved_inst_idx": 3,
+    "query_obstacle_center": [
+      4.2512011837679715,
+      0.8106113970039495
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.05144245344189851,
+    "A_dist_dyn": 0.05144245344189851,
+    "dist_obstacle": 1.1373347316897497,
+    "success": true,
+    "cost": 129.8750553165878,
+    "runtime_sec": 0.00018466600158717483,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48154887498822063
+  },
+  {
+    "scenario_id": 53,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 7,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -1.5313019546516293,
+      0.9091549148141675
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.14577639663992792,
+    "A_dist_dyn": 0.10517349913444173,
+    "dist_obstacle": 0.7695113121023994,
+    "success": true,
+    "cost": 250.80546444140288,
+    "runtime_sec": 0.00018475000251783058,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.7397157079540193
+  },
+  {
+    "scenario_id": 54,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 17,
+    "retrieved_inst_idx": 30,
+    "query_obstacle_center": [
+      4.585592132414453,
+      -0.17696563057099723
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.07148825891159018,
+    "A_dist_dyn": 0.05717219875806376,
+    "dist_obstacle": 1.546267459937417,
+    "success": true,
+    "cost": 178.79814569437931,
+    "runtime_sec": 0.0001851250053732656,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.44825437502004206
+  },
+  {
+    "scenario_id": 55,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 4,
+    "retrieved_inst_idx": 28,
+    "query_obstacle_center": [
+      2.8273522725028624,
+      -4.172700000775614
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.13249131642638184,
+    "A_dist_dyn": 0.11841813362568382,
+    "dist_obstacle": 1.4253478046820731,
+    "success": true,
+    "cost": 233.00446524428986,
+    "runtime_sec": 0.00018487500346964225,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.5703329580137506
+  },
+  {
+    "scenario_id": 56,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 15,
+    "retrieved_inst_idx": 10,
+    "query_obstacle_center": [
+      -0.09293005645479102,
+      4.378264549749829
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      5.0
+    ],
+    "A_dist_cluster": 0.18921138259378284,
+    "A_dist_dyn": 0.16804061368198775,
+    "dist_obstacle": 1.6920998458775853,
+    "success": true,
+    "cost": 155.84299549826207,
+    "runtime_sec": 0.00018600000475998968,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48158987500937656
+  },
+  {
+    "scenario_id": 57,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 22,
+    "retrieved_inst_idx": 27,
+    "query_obstacle_center": [
+      0.7172805237607536,
+      -0.26510598943046215
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.052451244864636225,
+    "A_dist_dyn": 0.036989427858454944,
+    "dist_obstacle": 1.692839738521215,
+    "success": true,
+    "cost": 110.05101642231885,
+    "runtime_sec": 0.0001853339999797754,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48818008304806426
+  },
+  {
+    "scenario_id": 58,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 45,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -1.6843100265744781,
+      0.20672402471537765
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.07035786593304613,
+    "A_dist_dyn": 0.03909315001144237,
+    "dist_obstacle": 1.4600492477778093,
+    "success": true,
+    "cost": 233.29406975177318,
+    "runtime_sec": 0.00018508399807615206,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.487417749944143
+  },
+  {
+    "scenario_id": 59,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 15,
+    "retrieved_inst_idx": 19,
+    "query_obstacle_center": [
+      -0.6108853969495334,
+      -4.7838792011966955
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.09212870551135123,
+    "A_dist_dyn": 0.0811700709024537,
+    "dist_obstacle": 1.0776744820032162,
+    "success": true,
+    "cost": 155.84299549837849,
+    "runtime_sec": 0.00018520899902796373,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4962509580072947
+  },
+  {
+    "scenario_id": 60,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 14,
+    "retrieved_inst_idx": 31,
+    "query_obstacle_center": [
+      3.9616077183976675,
+      -3.5975091100138923
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      -5.0
+    ],
+    "A_dist_cluster": 0.07579911297191638,
+    "A_dist_dyn": 0.06530636829422298,
+    "dist_obstacle": 1.7450613820107654,
+    "success": true,
+    "cost": 189.54133308969088,
+    "runtime_sec": 0.00018770900351228192,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.45240241702413186
+  },
+  {
+    "scenario_id": 61,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 48,
+    "retrieved_inst_idx": 28,
+    "query_obstacle_center": [
+      0.5403614353904942,
+      -3.9142425886455645
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.16198721635895869,
+    "A_dist_dyn": 0.15263197571803871,
+    "dist_obstacle": 1.5644272531220995,
+    "success": true,
+    "cost": 243.77540610383338,
+    "runtime_sec": 0.0001847079984145239,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.49157304101390764
+  },
+  {
+    "scenario_id": 62,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 34,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -2.187662161609917,
+      1.5942263469190179
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.08525499365163504,
+    "A_dist_dyn": 0.03875692648795161,
+    "dist_obstacle": 0.5260075148477481,
+    "success": true,
+    "cost": 122.93739129867029,
+    "runtime_sec": 0.0001857919996837154,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4866925830137916
+  },
+  {
+    "scenario_id": 63,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 37,
+    "retrieved_inst_idx": 0,
+    "query_obstacle_center": [
+      2.269946142868826,
+      2.68647491917657
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.059655444293119544,
+    "A_dist_dyn": 0.03656986617278528,
+    "dist_obstacle": 1.1848860697527228,
+    "success": false,
+    "cost": 118.90106496478373,
+    "runtime_sec": 0.0001842499987105839,
+    "collision_free_wrt_query_obstacle": false,
+    "success_db": false,
+    "runtime_sec_db": 0.5620112089673057
+  },
+  {
+    "scenario_id": 64,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 18,
+    "retrieved_inst_idx": 30,
+    "query_obstacle_center": [
+      4.1601184513760785,
+      -2.697860091051192
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.13308647789214811,
+    "A_dist_dyn": 0.08741150359540842,
+    "dist_obstacle": 1.3299477035631138,
+    "success": true,
+    "cost": 192.86163866039686,
+    "runtime_sec": 0.00018658300541574135,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4490240000304766
+  },
+  {
+    "scenario_id": 65,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 5,
+    "retrieved_inst_idx": 12,
+    "query_obstacle_center": [
+      -4.625874438238203,
+      0.5485246939148336
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.23296768682418592,
+    "A_dist_dyn": 0.1675132401409775,
+    "dist_obstacle": 1.1790722654667702,
+    "success": true,
+    "cost": 240.439350770589,
+    "runtime_sec": 0.00018512499809730798,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4945076659787446
+  },
+  {
+    "scenario_id": 66,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 35,
+    "retrieved_inst_idx": 0,
+    "query_obstacle_center": [
+      3.297897431324131,
+      3.082514720643019
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.09712861767771318,
+    "A_dist_dyn": 0.09049473387530371,
+    "dist_obstacle": 2.1599859998420357,
+    "success": false,
+    "cost": 129.85651448052988,
+    "runtime_sec": 0.00018545800412539393,
+    "collision_free_wrt_query_obstacle": false,
+    "success_db": false,
+    "runtime_sec_db": 0.5356969999847934
+  },
+  {
+    "scenario_id": 67,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 16,
+    "retrieved_inst_idx": 10,
+    "query_obstacle_center": [
+      -1.8286110717728468,
+      4.5289939506974495
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      5.0
+    ],
+    "A_dist_cluster": 0.05685640158921521,
+    "A_dist_dyn": 0.03874358925958285,
+    "dist_obstacle": 0.498068959908958,
+    "success": true,
+    "cost": 182.21153500797226,
+    "runtime_sec": 0.0001863329962361604,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.47968024999136105
+  },
+  {
+    "scenario_id": 68,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 31,
+    "retrieved_inst_idx": 27,
+    "query_obstacle_center": [
+      0.15057129231714583,
+      -2.4403490943239725
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.059616867472641666,
+    "A_dist_dyn": 0.019620577184952522,
+    "dist_obstacle": 1.7020956738649318,
+    "success": true,
+    "cost": 128.3941830403189,
+    "runtime_sec": 0.00018620899936649948,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4867865840205923
+  },
+  {
+    "scenario_id": 69,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 13,
+    "retrieved_inst_idx": 31,
+    "query_obstacle_center": [
+      4.360435700489633,
+      -3.3539218241798183
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      -5.0
+    ],
+    "A_dist_cluster": 0.12353537707932905,
+    "A_dist_dyn": 0.10928892417435505,
+    "dist_obstacle": 1.7659603206526706,
+    "success": true,
+    "cost": 179.7378469767915,
+    "runtime_sec": 0.0001849999971454963,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4513556659803726
+  },
+  {
+    "scenario_id": 70,
+    "retrieved_cluster_id": 2,
+    "retrieved_dyn_id": 27,
+    "retrieved_inst_idx": 10,
+    "query_obstacle_center": [
+      -0.6490293999696206,
+      4.923755640558371
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      5.0
+    ],
+    "A_dist_cluster": 0.08732005588686322,
+    "A_dist_dyn": 0.05537617150540613,
+    "dist_obstacle": 1.0204894947608718,
+    "success": true,
+    "cost": 121.30095533463192,
+    "runtime_sec": 0.00018420899868942797,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48625587503192946
+  },
+  {
+    "scenario_id": 71,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 3,
+    "retrieved_inst_idx": 3,
+    "query_obstacle_center": [
+      3.916772662549139,
+      2.4860801945694924
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.14830496653577943,
+    "A_dist_dyn": 0.1214726714390807,
+    "dist_obstacle": 1.3582415080945789,
+    "success": true,
+    "cost": 280.7621041135569,
+    "runtime_sec": 0.00018445900059305131,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4829579169745557
+  },
+  {
+    "scenario_id": 72,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 48,
+    "retrieved_inst_idx": 3,
+    "query_obstacle_center": [
+      3.9344663969786318,
+      0.18858360386449036
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.17700807953277212,
+    "A_dist_dyn": 0.1723363205132999,
+    "dist_obstacle": 1.8221117967101692,
+    "success": true,
+    "cost": 243.7754061036574,
+    "runtime_sec": 0.00018483299936633557,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4837095000548288
+  },
+  {
+    "scenario_id": 73,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 48,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -1.8407094816920697,
+      2.7201243211098802
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.1067602190936012,
+    "A_dist_dyn": 0.10286861083605739,
+    "dist_obstacle": 1.067737763295353,
+    "success": true,
+    "cost": 243.77540610280536,
+    "runtime_sec": 0.0001829999964684248,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4874252919689752
+  },
+  {
+    "scenario_id": 74,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 16,
+    "retrieved_inst_idx": 19,
+    "query_obstacle_center": [
+      -1.2634227112628995,
+      -4.0553333193848475
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.1348855946642043,
+    "A_dist_dyn": 0.08637343070471953,
+    "dist_obstacle": 1.0271323308289568,
+    "success": true,
+    "cost": 182.21153500709028,
+    "runtime_sec": 0.00018529199587646872,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.49597387498943135
+  },
+  {
+    "scenario_id": 75,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 38,
+    "retrieved_inst_idx": 27,
+    "query_obstacle_center": [
+      2.4678961134902604,
+      -2.375394840771353
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.11332110967507594,
+    "A_dist_dyn": 0.09964096004087199,
+    "dist_obstacle": 1.0697028798816073,
+    "success": true,
+    "cost": 126.0426585956224,
+    "runtime_sec": 0.00018412499775877222,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.45331883401377127
+  },
+  {
+    "scenario_id": 76,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 3,
+    "retrieved_inst_idx": 19,
+    "query_obstacle_center": [
+      -2.5902942499431525,
+      -3.7724206758851397
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.23470036160657604,
+    "A_dist_dyn": 0.18659058832230443,
+    "dist_obstacle": 1.5362418135122669,
+    "success": true,
+    "cost": 280.76210411589534,
+    "runtime_sec": 0.00018512499809730798,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4607809590524994
+  },
+  {
+    "scenario_id": 77,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 46,
+    "retrieved_inst_idx": 28,
+    "query_obstacle_center": [
+      3.311126721249062,
+      -3.46715683375506
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.25773612293744463,
+    "A_dist_dyn": 0.24282702769332062,
+    "dist_obstacle": 2.248078522521166,
+    "success": true,
+    "cost": 269.15288829214313,
+    "runtime_sec": 0.00018541600002208725,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4960069579537958
+  },
+  {
+    "scenario_id": 78,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 31,
+    "retrieved_inst_idx": 1,
+    "query_obstacle_center": [
+      0.9938279152084348,
+      3.745620408374645
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      5.0
+    ],
+    "A_dist_cluster": 0.053994387085574566,
+    "A_dist_dyn": 0.03338436748375421,
+    "dist_obstacle": 1.4234395474870245,
+    "success": true,
+    "cost": 128.39418304110453,
+    "runtime_sec": 0.00018495800031814724,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.45662312500644475
+  },
+  {
+    "scenario_id": 79,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 1,
+    "retrieved_inst_idx": 18,
+    "query_obstacle_center": [
+      -3.0356533428542676,
+      -1.8967632709990525
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.24499369861333908,
+    "A_dist_dyn": 0.11522660359987094,
+    "dist_obstacle": 1.3881890962345402,
+    "success": true,
+    "cost": 218.3993136531084,
+    "runtime_sec": 0.00018266699771629646,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.46433141600573435
+  },
+  {
+    "scenario_id": 80,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 47,
+    "retrieved_inst_idx": 3,
+    "query_obstacle_center": [
+      4.718264260609674,
+      0.0074118620234226995
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.0918576150996454,
+    "A_dist_dyn": 0.07815969870947029,
+    "dist_obstacle": 1.6830037235792152,
+    "success": true,
+    "cost": 221.2456156008896,
+    "runtime_sec": 0.00018616700253915042,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48676929203793406
+  },
+  {
+    "scenario_id": 81,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 37,
+    "retrieved_inst_idx": 22,
+    "query_obstacle_center": [
+      -3.5610249744874922,
+      -4.860637122917985
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      -5.0
+    ],
+    "A_dist_cluster": 0.05884961791779913,
+    "A_dist_dyn": 0.029462551105973272,
+    "dist_obstacle": 1.4457078320176935,
+    "success": true,
+    "cost": 118.2637484866643,
+    "runtime_sec": 0.00022770799841964617,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.49140329100191593
+  },
+  {
+    "scenario_id": 82,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 1,
+    "retrieved_inst_idx": 12,
+    "query_obstacle_center": [
+      -3.68177782213479,
+      1.776586736128575
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.33521065454990573,
+    "A_dist_dyn": 0.2519627589446613,
+    "dist_obstacle": 1.3227970864369971,
+    "success": true,
+    "cost": 218.39931365317554,
+    "runtime_sec": 0.00019395799608901143,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4565085420035757
+  },
+  {
+    "scenario_id": 83,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 16,
+    "retrieved_inst_idx": 12,
+    "query_obstacle_center": [
+      -3.7816749537146888,
+      0.06329931620633023
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.17084952064533937,
+    "A_dist_dyn": 0.11321960463852139,
+    "dist_obstacle": 2.0137285762804047,
+    "success": true,
+    "cost": 182.21153500750802,
+    "runtime_sec": 0.000190040998859331,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48928791598882526
+  },
+  {
+    "scenario_id": 84,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 44,
+    "retrieved_inst_idx": 27,
+    "query_obstacle_center": [
+      0.8111660922090236,
+      -3.0022434833994236
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.09755565094727418,
+    "A_dist_dyn": 0.0908123653718344,
+    "dist_obstacle": 1.586079022713358,
+    "success": true,
+    "cost": 244.96175731233816,
+    "runtime_sec": 0.00018862500292016193,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48936891701305285
+  },
+  {
+    "scenario_id": 85,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 34,
+    "retrieved_inst_idx": 0,
+    "query_obstacle_center": [
+      3.0412452618226276,
+      2.1540712961580164
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.11888512665636818,
+    "A_dist_dyn": 0.07389460759947522,
+    "dist_obstacle": 1.4584339502049912,
+    "success": true,
+    "cost": 124.54443916222394,
+    "runtime_sec": 0.00018616700253915042,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": false,
+    "runtime_sec_db": 0.5538914169883355
+  },
+  {
+    "scenario_id": 86,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 7,
+    "retrieved_inst_idx": 22,
+    "query_obstacle_center": [
+      -3.6894224844268675,
+      -3.7624619634965537
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      -5.0
+    ],
+    "A_dist_cluster": 0.17484008259843306,
+    "A_dist_dyn": 0.1094283280479986,
+    "dist_obstacle": 1.8025298377887256,
+    "success": true,
+    "cost": 250.8054644410218,
+    "runtime_sec": 0.00018833400099538267,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 1.0271189589984715
+  },
+  {
+    "scenario_id": 87,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 32,
+    "retrieved_inst_idx": 30,
+    "query_obstacle_center": [
+      4.275625510065076,
+      -1.0242180617505934
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.1395527271119002,
+    "A_dist_dyn": 0.07852723022009596,
+    "dist_obstacle": 0.9682244634520912,
+    "success": true,
+    "cost": 126.94192626480383,
+    "runtime_sec": 0.000188584002899006,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48441225005080923
+  },
+  {
+    "scenario_id": 88,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 44,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -0.11415954648466631,
+      1.6286421276358247
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.13587354355987877,
+    "A_dist_dyn": 0.1330532817611216,
+    "dist_obstacle": 1.552972705421546,
+    "success": true,
+    "cost": 244.96175731031448,
+    "runtime_sec": 0.0001875830057542771,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.45540887501556426
+  },
+  {
+    "scenario_id": 89,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 15,
+    "retrieved_inst_idx": 30,
+    "query_obstacle_center": [
+      4.5562325704696995,
+      -2.1355377311794497
+    ],
+    "stored_obstacle_center": [
+      5.0,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.2249956966938906,
+    "A_dist_dyn": 0.16410082592851977,
+    "dist_obstacle": 0.6455769564113022,
+    "success": true,
+    "cost": 155.84299549824092,
+    "runtime_sec": 0.00018662500224309042,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4925189159694128
+  },
+  {
+    "scenario_id": 90,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 48,
+    "retrieved_inst_idx": 12,
+    "query_obstacle_center": [
+      -4.751405086137437,
+      0.5519804232682466
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.11251850976092798,
+    "A_dist_dyn": 0.10599673627978626,
+    "dist_obstacle": 1.142070423581671,
+    "success": true,
+    "cost": 243.7754061029666,
+    "runtime_sec": 0.00018570800602901727,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4530885419808328
+  },
+  {
+    "scenario_id": 91,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 46,
+    "retrieved_inst_idx": 28,
+    "query_obstacle_center": [
+      1.3397511168108514,
+      -3.941025962492467
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -5.0
+    ],
+    "A_dist_cluster": 0.16303137627185096,
+    "A_dist_dyn": 0.12609545628671148,
+    "dist_obstacle": 1.1082868711901879,
+    "success": true,
+    "cost": 269.15288829214313,
+    "runtime_sec": 0.000185958000656683,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4960069579537958
+  },
+  {
+    "scenario_id": 92,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 32,
+    "retrieved_inst_idx": 10,
+    "query_obstacle_center": [
+      -0.8088568068369621,
+      4.662319121431818
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      5.0
+    ],
+    "A_dist_cluster": 0.11399235650315447,
+    "A_dist_dyn": 0.0813919166392578,
+    "dist_obstacle": 0.9218818424134608,
+    "success": true,
+    "cost": 126.94192626540378,
+    "runtime_sec": 0.00018604199431138113,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.48862679197918624
+  },
+  {
+    "scenario_id": 93,
+    "retrieved_cluster_id": 0,
+    "retrieved_dyn_id": 1,
+    "retrieved_inst_idx": 1,
+    "query_obstacle_center": [
+      0.9604255323437281,
+      4.330232216002113
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      5.0
+    ],
+    "A_dist_cluster": 0.2093921682858666,
+    "A_dist_dyn": 0.11015438633570175,
+    "dist_obstacle": 0.9733269873435092,
+    "success": true,
+    "cost": 218.39931365543697,
+    "runtime_sec": 0.0001863329962361604,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4906068749842234
+  },
+  {
+    "scenario_id": 94,
+    "retrieved_cluster_id": 3,
+    "retrieved_dyn_id": 36,
+    "retrieved_inst_idx": 9,
+    "query_obstacle_center": [
+      -0.3261839844470851,
+      2.847634492521874
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.06934057905169635,
+    "A_dist_dyn": 0.040549171110860066,
+    "dist_obstacle": 1.7864990419912852,
+    "success": true,
+    "cost": 125.76496252469869,
+    "runtime_sec": 0.00018629100668476894,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4571423750021495
+  },
+  {
+    "scenario_id": 95,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 48,
+    "retrieved_inst_idx": 22,
+    "query_obstacle_center": [
+      -4.821632160230123,
+      -3.908560032342651
+    ],
+    "stored_obstacle_center": [
+      -5.0,
+      -5.0
+    ],
+    "A_dist_cluster": 0.14952150945262405,
+    "A_dist_dyn": 0.14369933031783585,
+    "dist_obstacle": 1.1059187534643076,
+    "success": true,
+    "cost": 243.77540610337803,
+    "runtime_sec": 0.00018575000285636634,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4948006250197068
+  },
+  {
+    "scenario_id": 96,
+    "retrieved_cluster_id": 1,
+    "retrieved_dyn_id": 13,
+    "retrieved_inst_idx": 27,
+    "query_obstacle_center": [
+      2.9681708832516174,
+      -2.6735925803356633
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.09901862652087157,
+    "A_dist_dyn": 0.08751270624870051,
+    "dist_obstacle": 1.6455433818063108,
+    "success": true,
+    "cost": 179.737846976613,
+    "runtime_sec": 0.00018562500190455467,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.45436983299441636
+  },
+  {
+    "scenario_id": 97,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 49,
+    "retrieved_inst_idx": 0,
+    "query_obstacle_center": [
+      0.30769590599053487,
+      1.060158207000109
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      1.6666666666666667
+    ],
+    "A_dist_cluster": 0.1489897032531402,
+    "A_dist_dyn": 0.10476548012772878,
+    "dist_obstacle": 1.4881713745465488,
+    "success": true,
+    "cost": 216.2625561199722,
+    "runtime_sec": 0.00018612499843584374,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.4580266249831766
+  },
+  {
+    "scenario_id": 98,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 46,
+    "retrieved_inst_idx": 27,
+    "query_obstacle_center": [
+      1.0310715733872566,
+      -0.8742843072631965
+    ],
+    "stored_obstacle_center": [
+      1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.19759191292506106,
+    "A_dist_dyn": 0.14051186530168852,
+    "dist_obstacle": 1.0158006330450244,
+    "success": true,
+    "cost": 269.15288829299163,
+    "runtime_sec": 0.0001862499993876554,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.45830079197185114
+  },
+  {
+    "scenario_id": 99,
+    "retrieved_cluster_id": 4,
+    "retrieved_dyn_id": 47,
+    "retrieved_inst_idx": 18,
+    "query_obstacle_center": [
+      -1.2581595659281728,
+      -0.7411791362649014
+    ],
+    "stored_obstacle_center": [
+      -1.6666666666666667,
+      -1.6666666666666667
+    ],
+    "A_dist_cluster": 0.17076787291491133,
+    "A_dist_dyn": 0.09035475784244569,
+    "dist_obstacle": 1.011634924408469,
+    "success": true,
+    "cost": 221.245615601132,
+    "runtime_sec": 0.00018612499843584374,
+    "collision_free_wrt_query_obstacle": true,
+    "success_db": true,
+    "runtime_sec_db": 0.49179041699972004
+  }
+]

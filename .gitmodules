@@ -1,6 +1,0 @@
-[submodule "S1.1_MPL/motion_primitive_library"]
-	path = S1.1_MPL/motion_primitive_library
-	url = https://github.com/sikang/motion_primitive_library.git
-[submodule "S1.1_MPL/cc"]
-	path = S1.1_MPL/cc
-	url = https://github.com/verayannn/cc.git

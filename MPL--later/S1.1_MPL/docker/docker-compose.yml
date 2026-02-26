@@ -1,9 +1,0 @@
-services:
-  mpl-mpc:
-    build: .
-    container_name: mpl-mpc
-    volumes:
-      - ..:/cc   # Mount the cc directory
-    working_dir: /cc
-    tty: true
-    stdin_open: true
