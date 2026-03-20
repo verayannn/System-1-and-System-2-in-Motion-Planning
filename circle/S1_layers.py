@@ -721,8 +721,8 @@ def _print_summary(db: HierarchicalDB, out: Dict[str, Any], db_info: Dict[str, A
 
 if __name__ == "__main__":
     cfg = LayerGenConfig(
-        K_consensus=5,
-        n_per_consensus=10,
+        K_consensus=5, ## 2
+        n_per_consensus=10, ## 5
         alpha_within_deg=5.0,
         omega0=1.0,
         solver="SCS",

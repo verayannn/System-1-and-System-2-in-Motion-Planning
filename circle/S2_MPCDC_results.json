@@ -1,0 +1,902 @@
+[
+  {
+    "scenario_id": 0,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 37.455889178793704,
+    "runtime_sec": 0.26814913749694824,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 1,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 21.4342356540345,
+    "runtime_sec": 0.226790189743042,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 2,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 24.24609566770856,
+    "runtime_sec": 0.23597216606140137,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 3,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 25.16770721506412,
+    "runtime_sec": 0.2235839366912842,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 4,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 22.86751830076087,
+    "runtime_sec": 0.22001099586486816,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 5,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 30.386643382519544,
+    "runtime_sec": 0.2137129306793213,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 6,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 20.710698933027253,
+    "runtime_sec": 0.20859789848327637,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 7,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 31.89361423871175,
+    "runtime_sec": 0.2563948631286621,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 8,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 29.895511415082037,
+    "runtime_sec": 0.2531101703643799,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 9,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 20.404976472488062,
+    "runtime_sec": 0.21665692329406738,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 10,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 21.141905366238653,
+    "runtime_sec": 0.21224665641784668,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 11,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 35.98348766405888,
+    "runtime_sec": 0.24844026565551758,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 12,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 30.978093107973862,
+    "runtime_sec": 0.2203929424285889,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 13,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 20.59510731514243,
+    "runtime_sec": 0.24183702468872068,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 14,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 17.630138533724928,
+    "runtime_sec": 0.21550321578979492,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 15,
+    "success": false,
+    "collision_free": true,
+    "goal_reached": false,
+    "cost": 31.382264436302847,
+    "runtime_sec": 0.22162199020385742,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 16,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 26.92952522507166,
+    "runtime_sec": 0.20864892005920413,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 17,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 20.813541296818173,
+    "runtime_sec": 0.21044921874999997,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 18,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 18.35405255095389,
+    "runtime_sec": 0.2113449573516846,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 19,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 29.536966503233607,
+    "runtime_sec": 0.23573923110961917,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 20,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 30.67306317272354,
+    "runtime_sec": 0.21744489669799802,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 21,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 39.807421013975485,
+    "runtime_sec": 0.2184081077575684,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 22,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 32.15186025299563,
+    "runtime_sec": 0.21431994438171387,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 23,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 23.26587751422107,
+    "runtime_sec": 0.20978307723999023,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 24,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 19.925020102353862,
+    "runtime_sec": 0.24487781524658203,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 25,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 19.917336820167343,
+    "runtime_sec": 0.21443414688110352,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 26,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 18.092408456506057,
+    "runtime_sec": 0.21003293991088867,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 27,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 19.89290888459681,
+    "runtime_sec": 0.24518990516662598,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 28,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 32.367464249200786,
+    "runtime_sec": 0.22809314727783203,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 29,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 27.901584116893204,
+    "runtime_sec": 0.643693208694458,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 30,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 30.892652098299653,
+    "runtime_sec": 0.21824526786804202,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 31,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 28.33872207229237,
+    "runtime_sec": 0.21739315986633298,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 32,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 29.006572934566663,
+    "runtime_sec": 0.21765398979187012,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 33,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 18.63866431460361,
+    "runtime_sec": 0.2414259910583496,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 34,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 35.76507906680383,
+    "runtime_sec": 0.22978472709655764,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 35,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 35.410883799289415,
+    "runtime_sec": 0.22007989883422852,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 36,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 27.182448124626735,
+    "runtime_sec": 0.23882699012756345,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 37,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 31.167829843806334,
+    "runtime_sec": 0.23785805702209473,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 38,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 19.27406375161915,
+    "runtime_sec": 0.20468616485595703,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 39,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 23.424239719295304,
+    "runtime_sec": 0.20974588394165036,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 40,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 26.860131141930516,
+    "runtime_sec": 0.26132774353027344,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 41,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 28.598234968879865,
+    "runtime_sec": 0.2636690139770508,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 42,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 29.013455179680673,
+    "runtime_sec": 0.23498415946960452,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 43,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 19.464144070420332,
+    "runtime_sec": 0.23898077011108398,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 44,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 29.58403077649666,
+    "runtime_sec": 0.2229578495025635,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 45,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 19.430594646748006,
+    "runtime_sec": 0.26027584075927734,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 46,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 20.86994326664083,
+    "runtime_sec": 0.21386098861694336,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 47,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 29.37661604719857,
+    "runtime_sec": 0.21127915382385254,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 48,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 28.636286476735314,
+    "runtime_sec": 0.2283170223236084,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 49,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 21.86367487882708,
+    "runtime_sec": 0.22944498062133792,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 50,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 35.590769373262354,
+    "runtime_sec": 0.23575806617736816,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 51,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 18.711820493769714,
+    "runtime_sec": 0.19994592666625977,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 52,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 18.862715897577633,
+    "runtime_sec": 0.22826504707336423,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 53,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 33.137393945058605,
+    "runtime_sec": 0.2135789394378662,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 54,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 30.545072956640084,
+    "runtime_sec": 0.24063992500305176,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 55,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 30.57043175681198,
+    "runtime_sec": 0.24651980400085452,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 56,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 34.51705639286496,
+    "runtime_sec": 0.23621773719787598,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 57,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 20.77390306970265,
+    "runtime_sec": 0.2122392654418945,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 58,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 28.57013581978177,
+    "runtime_sec": 0.23345708847045898,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 59,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 27.915166207335137,
+    "runtime_sec": 0.2114410400390625,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 60,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 30.80604891010146,
+    "runtime_sec": 0.21404790878295898,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 61,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 29.073883467935737,
+    "runtime_sec": 0.2319927215576172,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 62,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 17.53371665717786,
+    "runtime_sec": 0.2144768238067627,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 63,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 20.402716489022144,
+    "runtime_sec": 0.23802495002746582,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 64,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 28.8390442073662,
+    "runtime_sec": 0.209334135055542,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 65,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 34.012074771816906,
+    "runtime_sec": 0.219879150390625,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 66,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 21.937664270157285,
+    "runtime_sec": 0.24380111694335938,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 67,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 28.558053300656276,
+    "runtime_sec": 0.21378183364868164,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 68,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 20.948319503455465,
+    "runtime_sec": 0.2077345848083496,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 69,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 29.798807912757965,
+    "runtime_sec": 0.20217823982238767,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 70,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 18.115216788236154,
+    "runtime_sec": 0.23748397827148435,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 71,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 33.44076977027029,
+    "runtime_sec": 0.22053408622741702,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 72,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 32.95589438465267,
+    "runtime_sec": 0.25848913192749023,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 73,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 30.221087928454967,
+    "runtime_sec": 0.275144100189209,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 74,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 27.52741114793479,
+    "runtime_sec": 0.2336280345916748,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 75,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 23.041584274675344,
+    "runtime_sec": 0.24132585525512695,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 76,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 38.44519962400862,
+    "runtime_sec": 0.3041970729827881,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 77,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 28.977016391047865,
+    "runtime_sec": 0.27478885650634766,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 78,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 20.089905480735673,
+    "runtime_sec": 0.26422667503356934,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 79,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 32.609829076262336,
+    "runtime_sec": 0.2154059410095215,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 80,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 30.27072078404899,
+    "runtime_sec": 0.2135779857635498,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 81,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 19.39424868925599,
+    "runtime_sec": 0.23365235328674316,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 82,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 31.31497274349239,
+    "runtime_sec": 0.21691799163818362,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 83,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 27.57537524271213,
+    "runtime_sec": 0.21495604515075684,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 84,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 30.389149135708944,
+    "runtime_sec": 0.21913170814514157,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 85,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 16.383235263393257,
+    "runtime_sec": 0.23953914642333984,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 86,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 31.445069919197962,
+    "runtime_sec": 0.22754883766174316,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 87,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 15.34385236715551,
+    "runtime_sec": 0.2251148223876953,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 88,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 29.79715859169018,
+    "runtime_sec": 0.22771930694580078,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 89,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 35.24388227214109,
+    "runtime_sec": 0.21485328674316406,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 90,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 28.593854895704297,
+    "runtime_sec": 0.2562422752380371,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 91,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 29.90334032827012,
+    "runtime_sec": 0.22309899330139163,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 92,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 17.49297224918806,
+    "runtime_sec": 0.21761512756347656,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 93,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 29.537768458709948,
+    "runtime_sec": 0.21150994300842288,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 94,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 18.517390996431526,
+    "runtime_sec": 0.2390131950378418,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 95,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 27.951809655043366,
+    "runtime_sec": 0.2602219581604004,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 96,
+    "success": true,
+    "collision_free": true,
+    "goal_reached": true,
+    "cost": 33.65660123537523,
+    "runtime_sec": 0.21444296836853027,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 97,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 27.129052395481576,
+    "runtime_sec": 0.21225786209106445,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 98,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 27.24259470645369,
+    "runtime_sec": 0.21035075187683105,
+    "solver_used": "mpc_dc"
+  },
+  {
+    "scenario_id": 99,
+    "success": false,
+    "collision_free": false,
+    "goal_reached": true,
+    "cost": 28.87636510773983,
+    "runtime_sec": 0.22785091400146484,
+    "solver_used": "mpc_dc"
+  }
+]
