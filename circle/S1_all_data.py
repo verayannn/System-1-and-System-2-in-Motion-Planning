@@ -1,6 +1,8 @@
 """
 S1_all_data.py — Fully Integrated Flexible Database Generation
-Supports: MPC-DC (via do-mpc) and MPC-CBF (via MATLAB Engine)
+
+include MPCDCSolver (via do-mpc) and MPC-CBF solver (via MATLAB Engine)
+
 
 python circle/S1_all_data.py --db_json circle/S1_database_single_obstacle.json
 """
