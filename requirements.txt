@@ -1,0 +1,23 @@
+# Core numerical stack
+numpy>=2.0
+scipy>=1.15
+pandas>=2.3
+
+# Machine learning
+torch>=2.0
+
+# Optimization / control
+cvxpy>=1.7
+osqp>=1.1
+scs>=3.2
+clarabel>=0.11
+casadi>=3.7
+do-mpc>=5.1
+
+# Plotting / utilities
+matplotlib>=3.10
+seaborn>=0.13
+tqdm>=4.67
+
+# Optional: only needed if using MATLAB-engine based System 2 variants
+# matlabengine==24.1
