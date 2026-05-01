@@ -99,6 +99,11 @@ def create_mpc(
         state_discretization="collocation",
         collocation_type="radau",
         store_full_solution=False,
+        nlpsol_opts={
+            "ipopt.print_level": 0,
+            "print_time": 0,
+            "ipopt.sb": "yes"
+        }
     )
 
     dx = x1 - gx
@@ -108,6 +113,7 @@ def create_mpc(
     lterm = 10.0 * dx**2 + 10.0 * dy**2 + 0.2 * (u.T @ u)
 
     mpc.set_objective(mterm=mterm, lterm=lterm)
+    mpc.set_rterm(u=0.1)
 
     xmin, ymin, xmax, ymax = bounds
     mpc.bounds["lower","_x","x1"] = xmin
@@ -166,7 +172,8 @@ def simulate_scenario(
     dt, n_steps, n_horizon,
     u_max, bounds,
     wall_margin, smooth_kappa,
-    goal_tol
+    goal_tol,
+    calculate_correctness=True
 ):
 
     mpc, simulator = create_mpc(
@@ -206,6 +213,9 @@ def simulate_scenario(
 
     states = np.array(states)
     inputs = np.array(inputs)
+
+    if not calculate_correctness:
+        return states, inputs, runtime
 
     collision_free = collision_free_rectangles(states, rectangles)
     reached = goal_reached(states, goal, goal_tol)

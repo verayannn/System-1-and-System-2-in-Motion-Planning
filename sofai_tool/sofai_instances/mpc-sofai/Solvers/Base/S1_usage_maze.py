@@ -431,9 +431,59 @@ def run_s1_on_scenarios(
 
 
     Path(out_json).write_text(json.dumps(results, indent=2))
-    print(f"\n✅ wrote: {out_json} (N={len(results)})")
+    print(f"\nwrote: {out_json} (N={len(results)})")
     return results
 
+
+def run_s1_single(
+    *,
+    db_json,
+    traj_npz_path,
+    scenario
+):
+    payload = json.loads(Path(db_json).read_text())
+    db = payload["db"]
+
+    traj_npz = dict(np.load(traj_npz_path, allow_pickle=True))
+    traj_index = _build_index(traj_npz)
+
+    A_query = np.array(scenario["A_query"], dtype=float)
+    B_query = np.array(scenario["B_query"], dtype=float)
+
+    rects = [tuple(map(float, r)) for r in scenario["rectangles"]]
+    bounds = tuple(map(float, scenario["bounds"]))
+    start = tuple(map(float, scenario["start"]))
+    goal = tuple(map(float, scenario["goal"]))
+
+    # --- SAME pipeline ---
+    cluster_id, _ = select_best_cluster_A(A_query, db)
+    dyn_id, _ = select_best_dyn_fast(A_query, B_query, db, cluster_id)
+
+    dyn_node = db["dyn_nodes"][str(dyn_id)]
+    situation_vecs = dyn_node["env_types"]["maze"]["situation_vecs"]
+
+    v_q = compute_situation_vector(
+        A_query, B_query, rects,
+        bounds=bounds, start=start, goal=goal,
+        grid_n=25, dt_nom=0.05, n_steps_nom=200,
+        u_max_nom=3.0, buffer_cells=2, stop_tol=0.6
+    )
+
+    map_idx, cos_sim = select_best_map_by_situation(v_q, situation_vecs)
+
+    traj = load_trajectory(traj_npz, traj_index, dyn_id, map_idx)
+
+    if traj is None:
+        return None, 0.0
+
+    states = traj["states"]
+
+    success = (
+        collision_free_rectangles(states, rects)
+        and goal_reached(states, goal)
+    )
+
+    return states.tolist(), float(cos_sim), success
 
 # ============================================================
 # Main
