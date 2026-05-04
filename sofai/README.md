@@ -1,5 +1,5 @@
 # Note
-This repo has been downloaded and adapted from https://github.com/ai4society/sofai_tool/
+This part of the repo has been downloaded and adapted from https://github.com/ai4society/sofai_tool/
 
 
 # Original README
