@@ -1,3 +1,0 @@
-[submodule "sofai_instances/plan-sofai/Planners/FastDownward"]
-	path = sofai_instances/plan-sofai/Planners/FastDownward
-	url = https://github.com/aibasel/downward.git

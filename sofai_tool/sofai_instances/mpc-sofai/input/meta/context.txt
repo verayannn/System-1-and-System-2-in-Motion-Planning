@@ -1,5 +1,0 @@
-correctness_threshold = 1.0
-
-time_limit=60
-
-maxExperience = 1000
