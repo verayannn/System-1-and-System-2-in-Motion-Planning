@@ -24,38 +24,67 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import do_mpc
-from casadi import fabs, fmax, fmin, sqrt, exp, log
+from casadi import sqrt
 
 
 Rect = Tuple[float, float, float, float]
 
 
 # ============================================================
-# Signed distance utilities (unchanged math)
+# Smooth signed distance utilities
 # ============================================================
 
-def sdf_aabb(px, py, xmin, xmax, ymin, ymax):
+def _smooth_abs(z, eps: float):
+    return sqrt(z * z + float(eps))
+
+
+def _smooth_max(a, b, eps: float):
+    return 0.5 * (a + b + sqrt((a - b) * (a - b) + float(eps)))
+
+
+def _smooth_min_pair(a, b, eps: float):
+    return 0.5 * (a + b - sqrt((a - b) * (a - b) + float(eps)))
+
+
+def _smooth_eps(kappa: float) -> float:
+    k = max(float(kappa), 1.0)
+    return max(1e-8, min(1e-3, 1.0 / (k * k)))
+
+
+def sdf_aabb(px, py, xmin, xmax, ymin, ymax, *, smooth_eps: float = 1e-6):
+    """Smooth signed distance to an axis-aligned rectangle.
+
+    The previous implementation used CasADi fabs/fmax/fmin. Those are
+    nonsmooth at rectangle edges and can produce NaN entries in IPOPT's
+    constraint Jacobian. These smooth approximations preserve the same sign
+    convention while keeping derivatives finite.
+    """
     cx = 0.5 * (xmin + xmax)
     cy = 0.5 * (ymin + ymax)
     hx = 0.5 * (xmax - xmin)
     hy = 0.5 * (ymax - ymin)
 
-    dx = fabs(px - cx) - hx
-    dy = fabs(py - cy) - hy
+    dx = _smooth_abs(px - cx, smooth_eps) - hx
+    dy = _smooth_abs(py - cy, smooth_eps) - hy
 
-    ax = fmax(dx, 0)
-    ay = fmax(dy, 0)
+    ax = _smooth_max(dx, 0.0, smooth_eps)
+    ay = _smooth_max(dy, 0.0, smooth_eps)
 
-    outside = sqrt(ax * ax + ay * ay)
-    inside  = fmin(fmax(dx, dy), 0)
+    outside = sqrt(ax * ax + ay * ay + float(smooth_eps))
+    inside = _smooth_min_pair(_smooth_max(dx, dy, smooth_eps), 0.0, smooth_eps)
     return outside + inside
 
 
 def smooth_min(vals, kappa: float = 20.0):
-    s = 0
-    for v in vals:
-        s = s + exp(-kappa * v)
-    return -(1.0 / kappa) * log(s + 1e-12)
+    vals = list(vals)
+    if not vals:
+        raise ValueError("smooth_min requires at least one value")
+
+    eps = _smooth_eps(kappa)
+    out = vals[0]
+    for v in vals[1:]:
+        out = _smooth_min_pair(out, v, eps)
+    return out
 
 
 # ============================================================
@@ -127,9 +156,10 @@ def create_mpc(
 
     if rectangles:
         dists = []
+        eps = _smooth_eps(smooth_kappa)
         for r in rectangles:
             xmin_r, ymin_r, xmax_r, ymax_r = map(float, r)
-            dists.append(sdf_aabb(x1, x2, xmin_r, xmax_r, ymin_r, ymax_r))
+            dists.append(sdf_aabb(x1, x2, xmin_r, xmax_r, ymin_r, ymax_r, smooth_eps=eps))
         dmin = smooth_min(dists, kappa=float(smooth_kappa))
         mpc.set_nl_cons("rect_clearance", -dmin + float(wall_margin), ub=0.0)
 
