@@ -1,16 +1,24 @@
 """
 make_diverse_training_data_maze.py
 
-Generate a diverse Neural-System-1 training dataset for maze motion planning.
+Generate shared System-1 data for maze motion planning.
 
-This script directly outputs the NPZ used by train_nn_policy.py:
+This script generates one common successful-trajectory set and derives both
+System-1 artifacts from it:
+
+    1. S1 retrieval database trajectories:
+       db/s1_sfcbf_success_trajs.npz
+       db/S1_database_maze.json
+
+    2. Neural S1 training windows:
+       db/nn_dataset_maze.npz
+
+The neural dataset is extracted from the same trajectories stored in the S1
+database NPZ, so primitive S1 and neural S1 train/evaluate from the same expert
+motion primitives.
+
+The neural NPZ is the format used by train_nn_policy.py:
     ctx, sit, dyn, goal, u, next_local, norms, meta
-
-It also saves:
-    - successful trajectories NPZ
-    - scenario JSON
-    - DB JSON compatible with dataset_extractor.py
-    - diversity report JSON
 
 Designed for your current setting:
     x in R^2
@@ -21,22 +29,23 @@ Designed for your current setting:
              = 4 + 4 + 2 = 10 dimensions
 
 Example:
-    cd /Users/apple/Desktop/System-1-and-System-2-in-Motion-Planning-sofai-integration/sofai_tool/sofai_instances/mpc-sofai
 
-    python Solvers/Base/make_diverse_training_data_maze.py \
-      --target_motion_primitives 5000 \
-      --out_npz Solvers/nn_dataset_maze_diverse_5k.npz \
-      --traj_out Solvers/s1_sfcbf_success_trajs_diverse_5k.npz \
-      --db_out Solvers/S1_database_maze_diverse_5k.json \
-      --scenarios_out Solvers/benchmark_scenarios_maze_diverse_5k.json \
-      --report_out output/diversity_report_5k.json \
-      --L_c 20 --stride 1 --seed 7
 
-Then train:
-    python Solvers/Base/train_nn_policy.py \
-      --dataset Solvers/nn_dataset_maze_diverse_5k.npz \
-      --model_out Solvers/s1_policy_control_cnn_diverse_5k.pth \
-      --epochs 40
+PYTHONPYCACHEPREFIX=/private/tmp/pycache-check \
+PYTHONDONTWRITEBYTECODE=1 \
+python3 solvers/base/make_diverse_training_data_maze.py \
+  --target_trajectories 500 \
+  --out_npz db/nn_dataset_maze.npz \
+  --traj_out db/s1_sfcbf_success_trajs.npz \
+  --db_out db/S1_database_maze.json \
+  --scenarios_out db/benchmark_scenarios_maze_s1_db.json \
+  --report_out output/diversity_report_s1_db.json \
+  --L_c 20 \
+  --stride 1 \
+  --seed 7
+
+Then train 
+
 """
 
 from __future__ import annotations
@@ -65,7 +74,7 @@ INSTANCE_DIR = SOLVER_DIR.parent
 
 
 def resolve_output_path(path_like: str) -> Path:
-    """Keep generated maze S1 artifacts under mpc-sofai unless an absolute path is given."""
+    """Keep generated maze S1 artifacts under this repo unless an absolute path is given."""
     path = Path(path_like).expanduser()
     if path.is_absolute():
         return path
@@ -608,6 +617,96 @@ def balanced_downsample(samples: List[Dict[str, Any]], target: int, rng: np.rand
     return [samples[i] for i in chosen[:target]]
 
 
+def system_to_M(A: np.ndarray, B: np.ndarray, omega0: float = 1.0) -> np.ndarray:
+    """Match the approximate dynamics descriptor used by S1_usage_maze.py."""
+    A, B = ensure_A_B(A, B)
+    C = np.eye(2, dtype=float)
+    jwI_minus_A = 1j * float(omega0) * np.eye(2) - A
+    M_complex = C @ np.linalg.inv(jwI_minus_A) @ B
+    return np.real(M_complex).astype(float)
+
+
+def assign_cluster_id(A: np.ndarray, n_clusters: int) -> int:
+    """Small deterministic dynamics grouping for the S1 retrieval DB."""
+    eigvals = np.linalg.eigvals(A)
+    max_real = float(np.max(np.real(eigvals)))
+    imag_mag = float(np.max(np.abs(np.imag(eigvals))))
+    shear_mag = float(abs(A[0, 1]) + abs(A[1, 0]))
+
+    if n_clusters <= 1:
+        return 0
+
+    # Five coarse groups: slow/fast/rotational/shear/general. Modulo keeps the
+    # function valid if the user requests fewer clusters.
+    if imag_mag > 0.55:
+        cid = 2
+    elif shear_mag > 1.2:
+        cid = 3
+    elif max_real > -0.25:
+        cid = 0
+    elif max_real < -1.0:
+        cid = 1
+    else:
+        cid = 4
+    return int(cid % int(n_clusters))
+
+
+def build_s1_retrieval_db(
+    *,
+    dyn_nodes: Dict[str, Dict[str, Any]],
+    shared_maps: List[Dict[str, Any]],
+    bounds: List[float],
+    base_start: np.ndarray,
+    base_goal: np.ndarray,
+    start_goal_jitter: float,
+    n_clusters: int,
+    success_count: int,
+) -> Dict[str, Any]:
+    """Build DB JSON compatible with solvers/base/S1_usage_maze.py."""
+    clusters: Dict[int, List[int]] = defaultdict(list)
+    for dyn_id_str, node in dyn_nodes.items():
+        dyn_id = int(dyn_id_str)
+        cid = assign_cluster_id(np.asarray(node["A"], dtype=float), n_clusters=n_clusters)
+        node["cluster_id"] = int(cid)
+        clusters[int(cid)].append(dyn_id)
+
+    consensus_nodes: Dict[str, Dict[str, Any]] = {}
+    dyn_to_cluster: Dict[str, int] = {}
+    for cid in sorted(clusters):
+        children = sorted(clusters[cid])
+        if not children:
+            continue
+        cd_dyn_id = children[0]
+        M_cd = dyn_nodes[str(cd_dyn_id)]["M"]
+        consensus_nodes[str(cid)] = {
+            "cluster_id": int(cid),
+            "cd_dyn_id": int(cd_dyn_id),
+            "M_cd": M_cd,
+            "dyn_children": [int(x) for x in children],
+        }
+        for dyn_id in children:
+            dyn_to_cluster[str(dyn_id)] = int(cid)
+
+    return {
+        "meta": {
+            "description": "S1 retrieval DB generated from the same successful trajectories used for neural S1 training",
+            "B_shape": "2x2",
+            "bounds": list(map(float, bounds)),
+            "fixed_start": base_start.tolist(),
+            "fixed_goal": base_goal.tolist(),
+            "start_goal_jitter": float(start_goal_jitter),
+            "successful_trajectories": int(success_count),
+            "n_clusters": int(len(consensus_nodes)),
+        },
+        "shared_maps": shared_maps,
+        "db": {
+            "consensus_nodes": consensus_nodes,
+            "dyn_nodes": dyn_nodes,
+            "dyn_to_cluster": dyn_to_cluster,
+        },
+    }
+
+
 def save_dataset(samples: List[Dict[str, Any]], out_npz: Path, meta_extra: Dict[str, Any]) -> None:
     if not samples:
         raise RuntimeError("No samples to save.")
@@ -703,12 +802,14 @@ def save_dataset(samples: List[Dict[str, Any]], out_npz: Path, meta_extra: Dict[
 def main():
     p = argparse.ArgumentParser()
 
-    p.add_argument("--target_motion_primitives", type=int, required=True,
-                   help="Exact number of final training samples/windows to save.")
-    p.add_argument("--out_npz", type=str, default="Solvers/nn_dataset_maze_diverse.npz")
-    p.add_argument("--traj_out", type=str, default="Solvers/s1_sfcbf_success_trajs_diverse.npz")
-    p.add_argument("--db_out", type=str, default="Solvers/S1_database_maze_diverse.json")
-    p.add_argument("--scenarios_out", type=str, default="Solvers/benchmark_scenarios_maze_diverse.json")
+    p.add_argument("--target_trajectories", type=int, default=500,
+                   help="Number of successful SFCBF trajectories to store in the S1 database.")
+    p.add_argument("--target_motion_primitives", type=int, default=0,
+                   help="Optional exact number of neural training windows to save. <=0 keeps all windows from the selected trajectories.")
+    p.add_argument("--out_npz", type=str, default="db/nn_dataset_maze.npz")
+    p.add_argument("--traj_out", type=str, default="db/s1_sfcbf_success_trajs.npz")
+    p.add_argument("--db_out", type=str, default="db/S1_database_maze.json")
+    p.add_argument("--scenarios_out", type=str, default="db/benchmark_scenarios_maze_s1_db.json")
     p.add_argument("--report_out", type=str, default="output/diversity_report.json")
 
     p.add_argument("--seed", type=int, default=7)
@@ -738,7 +839,7 @@ def main():
     p.add_argument("--u_max", type=float, default=3.0)
     p.add_argument("--s2_margin", type=float, default=0.35)
     p.add_argument("--s2_gamma", type=float, default=2.0)
-    p.add_argument("--goal_tol", type=float, default=0.6)
+    p.add_argument("--goal_tol", type=float, default=0.5)
     p.add_argument("--collision_margin", type=float, default=0.05)
 
     # Situation vector settings.
@@ -748,6 +849,8 @@ def main():
     p.add_argument("--stop_tol", type=float, default=0.6)
 
     p.add_argument("--progress_every", type=int, default=25)
+    p.add_argument("--db_clusters", type=int, default=5,
+                   help="Number of coarse dynamics clusters in the generated S1 retrieval DB.")
 
     args = p.parse_args()
     args.out_npz = str(resolve_output_path(args.out_npz))
@@ -761,9 +864,10 @@ def main():
     base_start = np.asarray(args.start, dtype=float)
     base_goal = np.asarray(args.goal, dtype=float)
 
-    target = int(args.target_motion_primitives)
-    if target <= 0:
-        raise ValueError("target_motion_primitives must be positive")
+    target_trajectories = int(args.target_trajectories)
+    if target_trajectories <= 0:
+        raise ValueError("target_trajectories must be positive")
+    target_windows = int(args.target_motion_primitives)
 
     samples: List[Dict[str, Any]] = []
     traj_states: List[np.ndarray] = []
@@ -771,6 +875,9 @@ def main():
     traj_dyn_id: List[int] = []
     traj_map_idx: List[int] = []
     traj_success: List[bool] = []
+    traj_runtime_sec: List[float] = []
+    traj_collision_free: List[bool] = []
+    traj_goal_reached: List[bool] = []
 
     scenarios: List[Dict[str, Any]] = []
     shared_maps: List[Dict[str, Any]] = []
@@ -795,7 +902,7 @@ def main():
     if not combos:
         raise ValueError("No diversity combos available")
 
-    while len(samples) < target and attempt < args.max_attempts:
+    while success_count < target_trajectories and attempt < args.max_attempts:
         combo = combos[attempt % len(combos)]
         regime, B_mode, map_type, difficulty = combo
         attempt += 1
@@ -815,7 +922,7 @@ def main():
 
         scenario_id = success_count  # successful scenarios only are stored with compact ids
         dyn_id = success_count
-        map_idx = success_count
+        map_idx = 0
 
         try:
             out = s2.simulate_sfcbf(
@@ -881,9 +988,29 @@ def main():
         traj_dyn_id.append(dyn_id)
         traj_map_idx.append(map_idx)
         traj_success.append(True)
+        traj_runtime_sec.append(float(out.get("runtime_sec", 0.0)))
+        traj_collision_free.append(bool(out.get("collision_free", True)))
+        traj_goal_reached.append(bool(out.get("goal_reached", True)))
+
+        situation_vec = compute_situation_vector(
+            A=A,
+            B=B,
+            rects=rects,
+            bounds=bounds,
+            start=start.tolist(),
+            goal=goal.tolist(),
+            grid_n=args.grid_n,
+            dt_nom=args.dt,
+            n_steps_nom=args.n_steps_nom,
+            u_max_nom=args.u_max,
+            buffer_cells=args.buffer_cells,
+            stop_tol=args.stop_tol,
+        )
+        M = system_to_M(A, B)
 
         shared_maps.append({
             "map_idx": map_idx,
+            "dyn_id": dyn_id,
             "rectangles": [list(map(float, r)) for r in rects],
             "bounds": list(map(float, bounds)),
             "start": start.tolist(),
@@ -895,8 +1022,16 @@ def main():
             "dyn_id": dyn_id,
             "A": A.tolist(),
             "B": B.tolist(),
+            "C": np.eye(2, dtype=float).tolist(),
+            "M": M.tolist(),
             "regime": regime,
             "B_mode": B_mode,
+            "env_types": {
+                "maze": {
+                    "map_count": 1,
+                    "situation_vecs": [situation_vec.astype(np.uint8).tolist()],
+                }
+            },
         }
         scenarios.append({
             "scenario_id": scenario_id,
@@ -908,6 +1043,8 @@ def main():
             "bounds": list(map(float, bounds)),
             "start": start.tolist(),
             "goal": goal.tolist(),
+            "u_max": float(args.u_max),
+            "goal_tol": float(args.goal_tol),
             "map_type": map_type,
             "difficulty": difficulty,
             "regime": regime,
@@ -920,22 +1057,28 @@ def main():
         difficulty_counter[difficulty] += 1
         group_counter[group_key] += 1
 
-        if success_count % args.progress_every == 0 or len(samples) >= target:
+        if success_count % args.progress_every == 0 or success_count >= target_trajectories:
             elapsed = time.perf_counter() - t0
             print(
                 f"[progress] attempts={attempt} | successful_traj={success_count} | "
-                f"failed={fail_count} | samples={len(samples)}/{target} | "
+                f"failed={fail_count} | samples={len(samples)} | "
+                f"target_traj={target_trajectories} | "
                 f"last_group={group_key} | elapsed={elapsed:.1f}s"
             )
 
-    if len(samples) < target:
+    if success_count < target_trajectories:
         raise RuntimeError(
-            f"Only generated {len(samples)} samples after {attempt} attempts. "
-            f"Increase --max_attempts or reduce --target_motion_primitives."
+            f"Only generated {success_count} successful trajectories after {attempt} attempts. "
+            f"Increase --max_attempts or reduce --target_trajectories."
         )
 
-    # Downsample exactly to target while preserving group balance.
-    selected_samples = balanced_downsample(samples, target, rng)
+    # The neural dataset is derived only from the trajectories saved above.
+    # Optionally downsample windows for faster training, but never introduce
+    # windows from trajectories that are not in the S1 database.
+    if target_windows > 0:
+        selected_samples = balanced_downsample(samples, target_windows, rng)
+    else:
+        selected_samples = list(samples)
 
     meta_extra = {
         "generator": "make_diverse_training_data_maze.py",
@@ -948,7 +1091,8 @@ def main():
         "buffer_cells": int(args.buffer_cells),
         "stop_tol": float(args.stop_tol),
         "B_shape": "2x2",
-        "target_motion_primitives": int(target),
+        "target_trajectories": int(target_trajectories),
+        "target_motion_primitives": int(target_windows),
         "successful_trajectories_generated": int(success_count),
         "attempts": int(attempt),
     }
@@ -965,25 +1109,23 @@ def main():
         inputs=np.asarray(traj_inputs, dtype=object),
         dyn_id=np.asarray(traj_dyn_id, dtype=np.int32),
         map_idx=np.asarray(traj_map_idx, dtype=np.int32),
+        runtime_sec=np.asarray(traj_runtime_sec, dtype=np.float64),
         success=np.asarray(traj_success, dtype=bool),
+        collision_free=np.asarray(traj_collision_free, dtype=bool),
+        goal_reached=np.asarray(traj_goal_reached, dtype=bool),
     )
     print(f"[ok] wrote trajectories: {traj_out}")
 
-    db = {
-        "metadata": {
-            "description": "Diverse maze DB generated for Neural S1 training",
-            "B_shape": "2x2",
-            "bounds": bounds,
-            "fixed_start": base_start.tolist(),
-            "fixed_goal": base_goal.tolist(),
-            "start_goal_jitter": float(args.start_goal_jitter),
-            "successful_trajectories": int(success_count),
-        },
-        "shared_maps": shared_maps,
-        "db": {
-            "dyn_nodes": dyn_nodes,
-        },
-    }
+    db = build_s1_retrieval_db(
+        dyn_nodes=dyn_nodes,
+        shared_maps=shared_maps,
+        bounds=bounds,
+        base_start=base_start,
+        base_goal=base_goal,
+        start_goal_jitter=float(args.start_goal_jitter),
+        n_clusters=int(args.db_clusters),
+        success_count=int(success_count),
+    )
     db_out = Path(args.db_out)
     db_out.parent.mkdir(parents=True, exist_ok=True)
     db_out.write_text(json.dumps(db, indent=2))
@@ -996,7 +1138,8 @@ def main():
 
     selected_group_counter = Counter(str(s["group"]) for s in selected_samples)
     report = {
-        "target_motion_primitives": int(target),
+        "target_trajectories": int(target_trajectories),
+        "target_motion_primitives": int(target_windows),
         "saved_motion_primitives": int(len(selected_samples)),
         "raw_motion_primitives_before_downsample": int(len(samples)),
         "successful_trajectories": int(success_count),

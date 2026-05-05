@@ -19,21 +19,11 @@ Main improvements:
 
 This is designed to improve closed-loop S1_accept, not just lower control MSE.
 
-Run from sofai_tool/sofai_instances/mpc-sofai:
-python Solvers/Base/train_nn_policy.py \
-  --dataset Solvers/nn_dataset_maze_diverse_50k.npz \
-  --model_out Solvers/s1_policy_control_cnn_diverse_50k.pth \
-  --epochs 40 \
-  --lambda_u 1.0 \
-  --lambda_next 1.0 \
-  --lambda_dir 0.5 \
-  --lambda_speed 1.0 \
-  --lambda_progress 1.0 \
-  --progress_fraction 0.9
 
-python Solvers/Base/train_nn_policy.py \
-  --dataset Solvers/nn_dataset_maze_diverse_5k.npz \
-  --model_out Solvers/s1_policy_control_cnn_diverse_5k.pth \
+
+python solvers/base/train_nn_policy.py \
+  --dataset db/nn_dataset_maze.npz \
+  --model_out db/s1_policy_control_cnn.pth \
   --epochs 25 \
   --lambda_u 1.0 \
   --lambda_next 1.0 \

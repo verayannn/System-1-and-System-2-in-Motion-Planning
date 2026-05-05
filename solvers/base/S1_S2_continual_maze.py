@@ -271,7 +271,10 @@ def predict_u_with_mc_dropout(
     args,
 ):
     """Run NN K times with dropout on; return mean control, uncertainty, and local confidence."""
+    confidence_method = str(getattr(args, "confidence_method", "heuristic")).strip().lower()
     K = int(args.mc_dropout_samples)
+    if confidence_method != "mc_dropout":
+        K = 1
 
     t_ctx = torch.from_numpy(ctx_in).float().to(device)
     t_sit = torch.from_numpy(sit_in).float().to(device)
@@ -309,6 +312,67 @@ def predict_u_with_mc_dropout(
     local_conf = float(np.exp(-u_var / scale))
 
     return u_mean.astype(np.float32), u_var, local_conf
+
+
+def heuristic_local_confidence(
+    *,
+    x_curr: np.ndarray,
+    u_pred: np.ndarray,
+    u_goal: np.ndarray,
+    A: np.ndarray,
+    B: np.ndarray,
+    dt: float,
+    rects: List[Rect],
+    goal: np.ndarray,
+    u_max: float,
+    collision_margin: float,
+    goal_tol: float,
+    args,
+) -> Tuple[float, float]:
+    """Cheap local confidence from one-step behavior.
+
+    This avoids MC-dropout's K neural forward passes per rollout step. It uses
+    signals already available in the controller loop:
+      - predicted one-step progress toward the goal,
+      - agreement with the nominal goal-seeking control,
+      - immediate segment safety.
+    """
+    x_curr = np.asarray(x_curr, dtype=float).reshape(2)
+    u_pred = np.asarray(u_pred, dtype=float).reshape(-1)
+    u_goal = np.asarray(u_goal, dtype=float).reshape(-1)
+    goal_xy = np.asarray(goal, dtype=float).reshape(-1)[:2]
+
+    x_next = propagate_dynamics_local(x_curr, A, B, u_pred, dt).astype(float)
+
+    dist_curr = float(np.linalg.norm(x_curr - goal_xy))
+    dist_next = float(np.linalg.norm(x_next - goal_xy))
+    progress = dist_curr - dist_next
+
+    progress_scale = max(float(goal_tol), 0.25)
+    progress_conf = 1.0 / (1.0 + np.exp(-4.0 * progress / progress_scale))
+
+    denom = max(float(u_max), 1e-6) * max(float(np.sqrt(max(1, u_pred.size))), 1.0)
+    control_gap = float(np.linalg.norm(u_pred - u_goal)) / denom
+    align_scale = max(float(getattr(args, "confidence_control_scale", 1.0)), 1e-6)
+    align_conf = float(np.exp(-control_gap / align_scale))
+
+    safe = s1.segment_collision_free(
+        x_curr,
+        x_next,
+        rects,
+        margin=float(collision_margin),
+        n_sub=int(getattr(args, "confidence_safety_substeps", 6)),
+    )
+    safety_conf = 1.0 if safe else 0.05
+
+    local_conf = (
+        0.45 * float(progress_conf)
+        + 0.35 * float(align_conf)
+        + 0.20 * float(safety_conf)
+    )
+    local_conf = float(np.clip(local_conf, 0.0, 1.0))
+    local_uncertainty = float(1.0 - local_conf)
+    return local_uncertainty, local_conf
 
 
 def estimate_nominal_goal_control_local(
@@ -458,6 +522,32 @@ def rollout_neural_s1_with_confidence(
             args=args,
         )
 
+        u_pred = np.clip(u_pred, -u_max_nom, u_max_nom)
+
+        u_goal = estimate_nominal_goal_control_local(
+            x=x_curr,
+            goal=goal,
+            A=A,
+            B=B,
+            u_max=u_max_nom,
+        )
+
+        if str(getattr(args, "confidence_method", "heuristic")).strip().lower() != "mc_dropout":
+            local_uncertainty, local_conf = heuristic_local_confidence(
+                x_curr=x_curr,
+                u_pred=u_pred,
+                u_goal=u_goal,
+                A=A,
+                B=B,
+                dt=dt_nom,
+                rects=rects,
+                goal=goal,
+                u_max=u_max_nom,
+                collision_margin=collision_margin,
+                goal_tol=goal_tol,
+                args=args,
+            )
+
         combined_conf = w_global * global_conf + (1.0 - w_global) * local_conf
 
         local_conf_list.append(float(local_conf))
@@ -476,16 +566,6 @@ def rollout_neural_s1_with_confidence(
         if low_conf_count >= int(args.confidence_patience):
             confidence_triggered = True
             break
-
-        u_pred = np.clip(u_pred, -u_max_nom, u_max_nom)
-
-        u_goal = estimate_nominal_goal_control_local(
-            x=x_curr,
-            goal=goal,
-            A=A,
-            B=B,
-            u_max=u_max_nom,
-        )
 
         u_safe, x_next = choose_safe_control_confidence(
             x_curr=x_curr,
@@ -2472,8 +2552,12 @@ def main_dagger_continual():
     # Confidence-based S1 -> S2 switching.
     p.add_argument("--enable_confidence_switch", action="store_true", default=True)
     p.add_argument("--no_confidence_switch", dest="enable_confidence_switch", action="store_false")
+    p.add_argument("--confidence_method", choices=["heuristic", "mc_dropout"], default="heuristic",
+                   help="heuristic is one NN forward per step; mc_dropout is slower but estimates variance.")
     p.add_argument("--mc_dropout_samples", type=int, default=8)
     p.add_argument("--local_uncertainty_scale", type=float, default=0.25)
+    p.add_argument("--confidence_control_scale", type=float, default=1.0)
+    p.add_argument("--confidence_safety_substeps", type=int, default=6)
     p.add_argument("--confidence_global_weight", type=float, default=0.35)
     p.add_argument("--confidence_threshold", type=float, default=0.35) #### need to learn the confidence threshold?
     p.add_argument("--confidence_patience", type=int, default=3)
@@ -3154,8 +3238,12 @@ def make_full_retrain_parser() -> argparse.ArgumentParser:
     # Confidence switching.
     p.add_argument("--enable_confidence_switch", action="store_true", default=True)
     p.add_argument("--no_confidence_switch", dest="enable_confidence_switch", action="store_false")
+    p.add_argument("--confidence_method", choices=["heuristic", "mc_dropout"], default="heuristic",
+                   help="heuristic is one NN forward per step; mc_dropout is slower but estimates variance.")
     p.add_argument("--mc_dropout_samples", type=int, default=4)
     p.add_argument("--local_uncertainty_scale", type=float, default=0.25)
+    p.add_argument("--confidence_control_scale", type=float, default=1.0)
+    p.add_argument("--confidence_safety_substeps", type=int, default=6)
     p.add_argument("--confidence_global_weight", type=float, default=0.35)
     p.add_argument("--confidence_threshold", type=float, default=0.35)
     p.add_argument("--confidence_patience", type=int, default=3)
