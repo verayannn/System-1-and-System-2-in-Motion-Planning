@@ -27,13 +27,13 @@ Run modes:
 Create and activate your virtual environment first. Then install the local SOFAI package included in this repo:
 
 ```bash
-uv pip install sofai/.
+pip install sofai/.
 ```
 
 If solver dependencies are missing:
 
 ```bash
-uv pip install numpy matplotlib casadi do-mpc cvxpy torch
+pip install numpy matplotlib casadi do-mpc cvxpy torch
 ```
 
 ## Launch
