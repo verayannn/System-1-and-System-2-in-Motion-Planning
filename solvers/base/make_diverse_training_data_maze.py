@@ -53,6 +53,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import random
 import sys
 import time
 from collections import Counter, defaultdict
@@ -491,9 +492,49 @@ def sample_u_shape_map(rng: np.random.Generator, bounds: List[float], start: np.
     return rects
 
 
+BENCHMARK_MAP_TYPES = {
+    "small_open",
+    "large_sparse",
+    "dense_clutter",
+    "wall_gap",
+    "serial_walls",
+    "maze_branching",
+    "bugtrap",
+}
+
+
+def sample_benchmark_family_map(
+    rng: np.random.Generator,
+    map_type: str,
+    bounds: List[float],
+    start: np.ndarray,
+    goal: np.ndarray,
+) -> List[Rect]:
+    """Sample one of the benchmark-family maps used by input/generate_benchmark_dictionaries.py."""
+    try:
+        from input import generate_benchmark_dictionaries as bench_gen
+    except Exception as exc:
+        raise ImportError(
+            "Could not import input/generate_benchmark_dictionaries.py from the SOFAI root."
+        ) from exc
+
+    builders = {family.name: family.builder for family in bench_gen.FAMILIES}
+    if map_type not in builders:
+        raise ValueError(f"Unknown benchmark map type: {map_type}")
+
+    py_rng = random.Random(int(rng.integers(0, 2**31 - 1)))
+    rects = [tuple(map(float, r)) for r in builders[map_type](py_rng, 0)]
+    return [
+        r for r in rects
+        if valid_rect(r, start, goal, bounds, min_clearance=0.65)
+    ]
+
+
 def sample_map(rng: np.random.Generator, map_type: str, difficulty: str, bounds: List[float], start: np.ndarray, goal: np.ndarray) -> List[Rect]:
     if map_type == "empty":
         return []
+    if map_type in BENCHMARK_MAP_TYPES:
+        return sample_benchmark_family_map(rng, map_type, bounds, start, goal)
     if map_type == "scattered":
         return sample_scattered_map(rng, bounds, start, goal, difficulty)
     if map_type == "wall_gap":
@@ -830,7 +871,15 @@ def main():
     p.add_argument("--B_modes", type=str, nargs="+",
                    default=["identity", "axis_scaled", "rotated_scaled", "random_invertible"])
     p.add_argument("--map_types", type=str, nargs="+",
-                   default=["empty", "scattered", "wall_gap", "bottleneck", "u_shape"])
+                   default=[
+                       "small_open",
+                       "large_sparse",
+                       "dense_clutter",
+                       "wall_gap",
+                       "serial_walls",
+                       "maze_branching",
+                       "bugtrap",
+                   ])
     p.add_argument("--difficulties", type=str, nargs="+", default=["easy", "medium", "hard"])
 
     # S2 expert settings.

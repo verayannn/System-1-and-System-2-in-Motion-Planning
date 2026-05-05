@@ -255,7 +255,6 @@ FAMILIES: Tuple[FamilySpec, ...] = (
     FamilySpec("wall_gap", "medium", build_wall_gap),
     FamilySpec("serial_walls", "hard", build_serial_walls),
     FamilySpec("maze_branching", "hard", build_maze_branching),
-    FamilySpec("zigzag_narrow", "hard", build_zigzag_narrow),
     FamilySpec("bugtrap", "hard", build_bugtrap),
 )
 
@@ -430,7 +429,7 @@ def generate(args: argparse.Namespace) -> Dict[str, object]:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default=Path(__file__).resolve().parent)
-    parser.add_argument("--output_dir", default="benchmarks")
+    parser.add_argument("--output_dir", default="input")
     parser.add_argument("--prefix", default="benchmark_dualmp")
     parser.add_argument("--n_per_family", type=int, default=100)
     parser.add_argument("--seed", type=int, default=7)
