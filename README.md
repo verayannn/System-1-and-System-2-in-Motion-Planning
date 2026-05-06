@@ -122,6 +122,7 @@ If you only want to install the vendored SOFAI package itself in editable mode, 
 ```bash
 pip install -e ./sofai
 ```
+
 ## Directory Structure
 
 sofai/
@@ -184,7 +185,8 @@ sofai/
 └── output/                             # Generated results, plots, summaries
     ├── single_scenario_runs/
     └── benchmark_runs
-    
+
+
 ## Usage
 
 ### 1. Run one scenario
