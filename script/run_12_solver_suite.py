@@ -5,15 +5,18 @@ This script assumes `script/prepare_environment_assets.py` has already created:
   db/by_env/<environment>/{S1_database_maze.json,s1_sfcbf_success_trajs.npz,
   nn_dataset_maze.npz,s1_policy_control_cnn.pth}
 
-For continual-learning variants, 
-each successful S2 trajectory is inserted into memory before the next scenario is solved, 
-and neural S1 is retrained every `--retrain_every` successful S2 trajectories by default.
+For continual-learning variants:
+  - primitive CL appends each successful S2 trajectory to the online primitive
+    memory before the next scenario is solved.
+  - neural CL keeps S1 purely neural and only retrains the NN every
+    `--retrain_every` successful S2 trajectories by default.
 
 Parallelism convention:
   --workers controls parallelism across environments/families.
   --case_workers controls optional parallelism inside one non-CL benchmark run.
-  For CL runs, cases inside one environment are intentionally executed in scenario order
-  so that memory updates and neural retraining are applied immediately.
+  For CL runs, cases inside one environment are intentionally executed in
+  scenario order so that memory updates or neural retraining are applied
+  immediately.
 
 
 intended large run:
@@ -45,10 +48,8 @@ confidence gate for s1 primitives and s1 neural are disabled above
 limit_per_environment 100: the first 100 scenarios of the benchmark
 workers: parallel environments/families
 case_workers: optional within-benchmark workers, defaulting to 1.
-
-
-
   
+
 """
 
 from __future__ import annotations
@@ -151,15 +152,12 @@ def apply_s1_mode_env(
 ) -> Dict[str, str]:
     out = dict(env)
 
-    if cfg.get("s1") == "neural":
-        if cl_mode:
-            out["SOFAI_NEW_S1_ENABLE_MEMORY"] = "1"
-            out["SOFAI_NEW_S1_USE_BASE_MEMORY"] = "1"
-            out["SOFAI_NEW_S1_MEMORY_BEFORE_NN"] = "1"
-        else:
-            out["SOFAI_NEW_S1_ENABLE_MEMORY"] = "0"
-            out["SOFAI_NEW_S1_USE_BASE_MEMORY"] = "0"
-            out["SOFAI_NEW_S1_MEMORY_BEFORE_NN"] = "0"
+    # Keep neural S1 purely neural in every benchmark mode. Primitive S1 has
+    # its own trajectory DB and optional online memory path; the two systems
+    # should not intersect through a shared episodic-memory layer.
+    out["SOFAI_NEW_S1_ENABLE_MEMORY"] = "0"
+    out["SOFAI_NEW_S1_USE_BASE_MEMORY"] = "0"
+    out["SOFAI_NEW_S1_MEMORY_BEFORE_NN"] = "0"
 
     if args.neural_internal_gate is not None:
         out["SOFAI_NEW_S1_ENABLE_CONFIDENCE_SWITCH"] = "1" if args.neural_internal_gate else "0"
@@ -170,6 +168,36 @@ def apply_s1_mode_env(
     if args.neural_confidence_min_steps is not None:
         out["SOFAI_NEW_S1_CONFIDENCE_MIN_STEPS"] = str(args.neural_confidence_min_steps)
 
+    return out
+
+
+def cl_uses_online_memory(cfg: Dict[str, Any]) -> bool:
+    return bool(cfg.get("cl")) and str(cfg.get("s1")) == "primitives"
+
+
+def cl_uses_neural_retraining(cfg: Dict[str, Any]) -> bool:
+    return bool(cfg.get("cl")) and str(cfg.get("s1")) == "neural"
+
+
+def apply_online_memory_env(
+    env: Dict[str, str],
+    *,
+    enabled: bool,
+    memory_path: Optional[Path] = None,
+) -> Dict[str, str]:
+    out = dict(env)
+    for key in (
+        "SOFAI_NEW_S1_MEMORY_PATH",
+        "SOFAI_NEW_S1_RESUME_MEMORY",
+        "SOFAI_S1_EPISODIC_MEMORY_PATH",
+    ):
+        out.pop(key, None)
+    if enabled:
+        if memory_path is None:
+            raise ValueError("memory_path is required when online memory is enabled")
+        out["SOFAI_NEW_S1_MEMORY_PATH"] = str(memory_path)
+        out["SOFAI_NEW_S1_RESUME_MEMORY"] = "1"
+        out["SOFAI_S1_EPISODIC_MEMORY_PATH"] = str(memory_path)
     return out
 
 
@@ -405,7 +433,7 @@ def find_attempt(result: Dict[str, Any], system: str) -> Optional[Dict[str, Any]
     return next((a for a in result.get("attempts", []) if a.get("system") == system), None)
 
 
-def update_cl_memory_and_records(
+def update_cl_state(
     *,
     root: Path,
     memory_path: Path,
@@ -413,13 +441,16 @@ def update_cl_memory_and_records(
     block_id: int,
     s2_records: List[Dict[str, Any]],
     cl_args: Any,
-) -> int:
+    store_online_memory: bool,
+    collect_s2_records: bool,
+) -> Dict[str, int]:
     sys.path.insert(0, str(root))
     from solvers.base import S1_S2_continual_maze as cl
 
-    memory = cl.load_episodic_memory(memory_path)
+    memory = cl.load_episodic_memory(memory_path) if store_online_memory else None
     scenarios_by_id = {int(r["scenario"]["scenario_id"]): r["scenario"] for r in results if "scenario" in r}
-    added = 0
+    added_memory = 0
+    s2_successes = 0
 
     for result in results:
         sc = result.get("scenario")
@@ -428,6 +459,7 @@ def update_cl_memory_and_records(
         s2 = find_attempt(result, "s2")
         if not s2 or not s2.get("success"):
             continue
+        s2_successes += 1
         out = {
             "scenario_id": int(result["scenario_id"]),
             "used_system": "S2",
@@ -441,18 +473,24 @@ def update_cl_memory_and_records(
             "s1_attempt": find_attempt(result, "s1"),
             "switch_reason": "online_s2_success",
         }
-        item = cl.make_episodic_memory_item(sc, out, cl_args, block_id=block_id)
-        if item is not None:
-            memory.setdefault("items", []).append(item)
-            added += 1
-        s2_records.extend(cl.collect_full_s2_records(out, scenarios_by_id, cl_args))
+        if store_online_memory:
+            item = cl.make_episodic_memory_item(sc, out, cl_args, block_id=block_id)
+            if item is not None:
+                memory.setdefault("items", []).append(item)
+                added_memory += 1
+        if collect_s2_records:
+            s2_records.extend(cl.collect_full_s2_records(out, scenarios_by_id, cl_args))
 
-    cl.cap_episodic_memory(memory, cl_args)
-    cl.save_episodic_memory(memory, memory_path)
-    return added
+    if store_online_memory:
+        cl.cap_episodic_memory(memory, cl_args)
+        cl.save_episodic_memory(memory, memory_path)
+    return {
+        "memory_items_added": added_memory,
+        "s2_successes": s2_successes,
+    }
 
 
-def update_cl_memory_and_records_for_result(
+def update_cl_state_for_result(
     *,
     root: Path,
     memory_path: Path,
@@ -460,14 +498,18 @@ def update_cl_memory_and_records_for_result(
     block_id: int,
     s2_records: List[Dict[str, Any]],
     cl_args: Any,
-) -> int:
-    return update_cl_memory_and_records(
+    store_online_memory: bool,
+    collect_s2_records: bool,
+) -> Dict[str, int]:
+    return update_cl_state(
         root=root,
         memory_path=memory_path,
         results=[result],
         block_id=block_id,
         s2_records=s2_records,
         cl_args=cl_args,
+        store_online_memory=store_online_memory,
+        collect_s2_records=collect_s2_records,
     )
 
 
@@ -550,9 +592,13 @@ def run_cl_cases_immediately(
     env.setdefault("MPLCONFIGDIR", args.mplconfigdir)
     env = env_for_assets(env, root / args.assets_dir / family, cl_dir=cl_dir)
     env = apply_s1_mode_env(env, cfg, args, cl_mode=True)
-    env["SOFAI_NEW_S1_MEMORY_PATH"] = str(memory_path)
-    env["SOFAI_NEW_S1_RESUME_MEMORY"] = "1"
-    env["SOFAI_S1_EPISODIC_MEMORY_PATH"] = str(memory_path)
+    use_online_memory = cl_uses_online_memory(cfg)
+    use_neural_retraining = cl_uses_neural_retraining(cfg)
+    env = apply_online_memory_env(
+        env,
+        enabled=use_online_memory,
+        memory_path=memory_path if use_online_memory else None,
+    )
     os.environ.update(env)
 
     total_count = len(json.loads(benchmark_file.read_text()))
@@ -581,10 +627,10 @@ def run_cl_cases_immediately(
             "mplconfigdir": args.mplconfigdir,
         }
 
-    # CL cases must be sequential within one environment: each successful S2
-    # trajectory is inserted into memory before the next scenario is solved, and
-    # neural S1 is retrained exactly at the configured interval. Parallelism for
-    # the full suite is therefore across environments, handled in main().
+    # CL cases must be sequential within one environment so that:
+    # - primitive CL can consume newly-added S2 successes as online memory
+    # - neural CL can retrain the NN exactly at the configured interval
+    # Parallelism for the full suite is therefore across environments.
     for sid in scenario_ids:
         result = runner_mod.run_case_timed(
             make_opts(sid),
@@ -594,24 +640,26 @@ def run_cl_cases_immediately(
         all_results.append(result)
         completed += 1
         block_id = 1 + (completed - 1) // max(1, int(args.retrain_every))
-        added_memory = update_cl_memory_and_records_for_result(
+        updates = update_cl_state_for_result(
             root=root,
             memory_path=memory_path,
             result=result,
             block_id=block_id,
             s2_records=s2_records,
             cl_args=cl_args,
+            store_online_memory=use_online_memory,
+            collect_s2_records=use_neural_retraining,
         )
-        s2_success_count += int(added_memory)
+        s2_success_count += int(updates["s2_successes"]) if use_neural_retraining else 0
         print(
             f"[cl case {completed}/{len(scenario_ids)}] "
             f"scenario={result.get('scenario_id')} "
             f"selected={result.get('selected_attempt') or 'none'} "
             f"success={result.get('success', False)} "
-            f"s2_memory_added={added_memory} "
-            f"s2_success_total={s2_success_count}"
+            f"s2_memory_added={updates['memory_items_added']} "
+            f"retrain_s2_total={s2_success_count}"
         )
-        if cfg["s1"] == "neural" and s2_success_count >= next_retrain_at:
+        if use_neural_retraining and s2_success_count >= next_retrain_at:
             retrain_block_id += 1
             maybe_retrain_neural(
                 root=root,
@@ -639,6 +687,7 @@ def run_one_config(args: argparse.Namespace, family: str, cfg: Dict[str, Any]) -
     env.setdefault("MPLCONFIGDIR", args.mplconfigdir)
     env = env_for_assets(env, assets)
     env = apply_s1_mode_env(env, cfg, args, cl_mode=bool(cfg["cl"]))
+    env = apply_online_memory_env(env, enabled=False)
 
     if args.dry_run:
         placeholder = {
@@ -712,9 +761,11 @@ def run_one_config(args: argparse.Namespace, family: str, cfg: Dict[str, Any]) -
     memory_path = cl_dir / "episodic_s2_memory.json"
     env = env_for_assets(env, assets, cl_dir=cl_dir)
     env = apply_s1_mode_env(env, cfg, args, cl_mode=True)
-    env["SOFAI_NEW_S1_MEMORY_PATH"] = str(memory_path)
-    env["SOFAI_NEW_S1_RESUME_MEMORY"] = "1"
-    env["SOFAI_S1_EPISODIC_MEMORY_PATH"] = str(memory_path)
+    env = apply_online_memory_env(
+        env,
+        enabled=cl_uses_online_memory(cfg),
+        memory_path=memory_path if cl_uses_online_memory(cfg) else None,
+    )
 
     count = len(json.loads(benchmark_file.read_text()))
     if args.limit_per_environment > 0:
