@@ -17,51 +17,36 @@ This repo is organized around reproducible experiment scripts rather than a poli
 
 
 
-## Repository Layout
-
-```text
-motion_planning_solver.py               Main single-scenario entry point
-run_and_plot_single_benchmark.py        Run one case and save a trajectory plot
-run_motion_planning_benchmarks.py       Batch runner for one or more benchmark JSON files
-run_dense_clutter_benchmark_suite.py    Comparison runner for the dense-clutter environment
-script/prepare_environment_assets.py    Build S1 assets and benchmark dictionaries from scratch
-script/run_12_solver_suite.py           Full seven-environment / twelve-configuration suite
-script/plot_12_solver_suite.py          Plot suite-level summary CSV outputs
-input/                                  Benchmark dictionaries and generator
-db/                                     Active/default S1 assets used by direct runners
-db/by_env/                              Per-environment regenerated assets
-solvers/                                S1/S2 wrappers and base implementations
-sofai/                                  Local copy of the upstream SOFAI package
-output/                                 Example outputs and benchmark artifacts
-```
-
-## Environment Requirements
-
-- Python **3.10**
-- A Unix-like shell (`bash` or `zsh`)
-- A working `cvxpy` install for the CBF solvers
-- A working `casadi` + `do-mpc` install for the MPC solvers
-- A working `torch` install for neural System 1 and continual-learning runs
-
-The commands below assume you are running from:
-
-```bash
-cd /Users/apple/Desktop/sofai
-```
-
 ## Installation
 
-### Recommended: `uv`
+Follow the steps below to install the project locally.
 
-Create a virtual environment, activate it, and install the full repo requirements:
+### Option A: `uv` (recommended)
+
+1. Clone the repository or download the source archive, then move into the project root:
 
 ```bash
-cd /Users/apple/Desktop/sofai
+git clone <repository-url>
+cd <repo-root>
+```
 
+2. Create and activate a Python 3.10 virtual environment:
+
+```bash
 uv venv --python 3.10
 source .venv/bin/activate
+```
 
+3. Install the full experiment stack:
+
+```bash
 uv pip install -r requirements.txt
+```
+
+4. Verify that the vendored SOFAI package is importable:
+
+```bash
+python -c "import sofai_tool; print('SOFAI installation verified.')"
 ```
 
 The root `requirements.txt` installs:
@@ -71,17 +56,134 @@ The root `requirements.txt` installs:
 - the CBF dependencies
 - the neural-policy dependencies
 
-### Alternative: standard `venv`
+### Option B: Conda
+
+1. Clone the repository or download the source archive, then move into the project root:
 
 ```bash
-cd /Users/apple/Desktop/sofai
+git clone <repository-url>
+cd <repo-root>
+```
 
+2. Create and activate a Conda environment:
+
+```bash
+conda create --name dualmp_env python=3.10 -y
+conda activate dualmp_env
+```
+
+3. Install the dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Verify the installation:
+
+```bash
+python -c "import sofai_tool; print('SOFAI installation verified.')"
+```
+
+### Option C: standard `venv`
+
+1. Clone the repository or download the source archive, then move into the project root:
+
+```bash
+git clone <repository-url>
+cd <repo-root>
+```
+
+2. Create and activate a virtual environment:
+
+```bash
 python3.10 -m venv .venv
 source .venv/bin/activate
+```
 
+3. Install the dependencies:
+
+```bash
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
+
+4. Verify the installation:
+
+```bash
+python -c "import sofai_tool; print('SOFAI installation verified.')"
+```
+
+### Development-mode install
+
+The default repo-level install already places the vendored `sofai/` package in editable mode through `requirements.txt`, which is the right default for experiment work in this repository.
+
+If you only want to install the vendored SOFAI package itself in editable mode, use:
+
+```bash
+pip install -e ./sofai
+```
+## Directory Structure
+
+sofai/
+├── README.md                           # Project documentation
+├── requirements.txt                    # Top-level experiment environment
+├── motion_planning_solver.py           # Main single-scenario runner
+├── run_and_plot_single_benchmark.py    # Run one case and save trajectory plot
+├── run_motion_planning_benchmarks.py   # Batch benchmark runner
+│
+├── sofai/                              # Vendored upstream SOFAI package
+│
+├── solvers/                            # Motion-planning solver implementations
+│   ├── S1_motion_primitives.py         # Primitive-based System 1
+│   ├── S1_memory_neural.py             # Memory + neural System 1
+│   ├── S2_mpc.py                       # MPC System 2 wrapper
+│   ├── S2_cbf.py                       # CBF System 2 wrapper
+│   ├── base/                           # Core planning / training logic
+│   │   ├── S1_usage_maze.py
+│   │   ├── S1_NN_usage_maze.py
+│   │   ├── S1_layers_maze.py
+│   │   ├── S1_all_data_maze_sfcbf.py
+│   │   ├── S1_S2_mpc_maze.py
+│   │   ├── S1_S2_cbf_maze.py
+│   │   ├── S1_S2_continual_maze.py
+│   │   ├── S2_mpc_maze.py
+│   │   ├── S2_cbf_maze.py
+│   │   ├── make_diverse_training_data_maze.py
+│   │   └── train_nn_policy.py
+│   └── combinations/                   # Combined SOFAI runner variants
+│       ├── mpc_solver.py
+│       ├── mpc_solver_new_S1.py
+│       ├── cbf_solver.py
+│       └── cbf_solver_new_S1.py
+│
+├── input/                              # Benchmark dictionaries and metadata
+│   ├── input_handler.py
+│   ├── generate_benchmark_dictionaries.py
+│   ├── meta/
+│   │   ├── context.txt
+│   │   └── thresholds.txt
+│   ├── benchmark_dualmp_all.json
+│   ├── benchmark_dualmp_small_open.json
+│   ├── benchmark_dualmp_large_sparse.json
+│   ├── benchmark_dualmp_dense_clutter.json
+│   ├── benchmark_dualmp_wall_gap.json
+│   ├── benchmark_dualmp_serial_walls.json
+│   ├── benchmark_dualmp_maze_branching.json
+│   ├── benchmark_dualmp_bugtrap.json
+│   ├── benchmark_dualmp_zigzag_narrow.json
+│   └── benchmarks_10k/                 # Large generated benchmark sets
+│
+├── db/                                 # Active/default S1 assets
+│   └── by_env/                         # Per-environment assets
+│
+├── script/                             # Experiment orchestration scripts
+│   ├── prepare_environment_assets.py
+│   ├── run_12_solver_suite.py
+│   └── plot_12_solver_suite.py
+│
+└── output/                             # Generated results, plots, summaries
+    ├── single_scenario_runs/
+    └── benchmark_runs/
 
 
 ## Usage
