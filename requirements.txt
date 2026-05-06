@@ -1,0 +1,26 @@
+# Top-level environment for the Dual Process Motion Planning experiments.
+# This installs the vendored SOFAI package plus the solver/runtime libraries
+# required by the repo-level experiment scripts.
+
+-e ./sofai
+
+# Core numerical stack
+numpy>=2.2
+scipy>=1.15
+pandas>=2.3
+
+# Machine learning
+torch>=2.2
+
+# Optimization / control
+cvxpy>=1.7
+osqp>=1.1
+scs>=3.2
+clarabel>=0.11
+casadi>=3.7
+do-mpc>=5.1
+
+# Plotting / utilities
+matplotlib>=3.10
+seaborn>=0.13
+tqdm>=4.67
