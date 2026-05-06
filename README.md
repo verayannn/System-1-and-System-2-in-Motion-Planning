@@ -125,6 +125,7 @@ pip install -e ./sofai
 
 ## Directory Structure
 
+```text
 sofai/
 ├── README.md                           # Project documentation
 ├── requirements.txt                    # Top-level experiment environment
