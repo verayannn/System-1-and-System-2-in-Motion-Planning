@@ -13,9 +13,6 @@ The core idea is to combine:
 - **Metacognitive arbitration**: the SOFAI controller decides whether to accept the System 1 proposal or fall back to System 2
 - **Continual-learning variants**: successful System 2 trajectories can be written back into memory and used to improve later runs
 
-This repo is organized around reproducible experiment scripts rather than a polished Python package. The recommended workflow is: install the local `sofai` package in editable mode, then run the repo-level experiment drivers from the repository root.
-
-
 
 ## Installation
 
@@ -219,7 +216,7 @@ Notes:
 
 ## Usage: Running the Benchmarks
 
-### 1. Regenerate S1 assets and benchmark dictionaries from scratch
+### 1. Generate S1 assets and benchmark dictionaries from scratch
 
 
 Use `script/prepare_environment_assets.py` to create:
@@ -234,7 +231,7 @@ Example:
 
 ```bash
 python script/prepare_environment_assets.py \
-  --families dense_clutter \
+  --families all \
   --training_trajectories 500 \
   --benchmark_instances 10000 \
   --seed 7 \
@@ -285,7 +282,7 @@ python script/run_12_solver_suite.py \
   --workers 1 \
   --case_workers 1 \
   --timeout_sec 300 \
-  --retrain_every 100 \
+  --retrain_every 500 \
   --train_epochs_cl 25 \
   --mplconfigdir /private/tmp/mpl
 ```
