@@ -130,7 +130,6 @@ sofai/
 ├── README.md                           # Project documentation
 ├── requirements.txt                    # Top-level experiment environment
 ├── motion_planning_solver.py           # Main single-scenario runner
-├── run_and_plot_single_benchmark.py    # Run one case and save trajectory plot
 ├── run_motion_planning_benchmarks.py   # Batch benchmark runner
 │
 ├── sofai/                              # Vendored upstream SOFAI package
@@ -170,9 +169,7 @@ sofai/
 ```
 
 
-## Usage
-
-### 1. Run one scenario
+## Usage: Run One Scenario
 
 `motion_planning_solver.py` is the main single-scenario driver. It supports:
 
@@ -219,44 +216,8 @@ Notes:
 - `--scenario_id` is zero-based
 - `--new_run True` resets the SOFAI experience log when starting a fresh run
 
-### 2. Run one scenario and save a trajectory plot
 
-Use `run_and_plot_single_benchmark.py` when you want a saved JSON result plus a PNG trajectory figure for one scenario:
-
-```bash
-python run_and_plot_single_benchmark.py \
-  --problem_dictionary benchmark_dualmp_dense_clutter.json \
-  --scenario_ids 6 \
-  --s1 primitives \
-  --s2 mpc \
-  --run_type sofai \
-  --out_dir output/single_scenario_runs/dense_clutter_demo \
-  --out_prefix dense_clutter_sc6_sofai
-```
-
-This writes:
-
-- `output/single_scenario_runs/.../*_result.json`
-- `output/single_scenario_runs/.../*_trajectory.png`
-
-For `run_type=sofai`, the script can also preserve both S1 and S2 attempts:
-
-```bash
-python run_and_plot_single_benchmark.py \
-  --problem_dictionary benchmark_dualmp_dense_clutter.json \
-  --scenario_ids 6 \
-  --s1 primitives \
-  --s2 mpc \
-  --run_type sofai \
-  --run_all_attempts \
-  --plot_all_attempts \
-  --out_dir output/single_scenario_runs/dense_clutter_demo \
-  --out_prefix dense_clutter_sc6_sofai_all
-```
-
-
-
-## Running the Benchmarks
+## Usage: Running the Benchmarks
 
 ### 1. Regenerate S1 assets and benchmark dictionaries from scratch
 
@@ -345,17 +306,6 @@ The twelve configuration labels are:
 - `sofai_cbf_neural_cl`
 
 The `_cl` variants enable online memory updates and continual-learning behavior.
-
-### 3. Outputs
-
-Common output locations:
-
-- `output/single_scenario_runs/`: one-case JSON results and PNG trajectories
-- `output/benchmark_runs/<run_name>/`: JSONL records and CSV summaries
-- `output/benchmark_runs/twelve_solver_suite/`: cross-environment suite tables
-
-For continual-learning runs, additional snapshots may appear under run-local `cl_assets/` directories.
-
 
 
 ## Upstream SOFAI Reference
