@@ -15,15 +15,7 @@ The core idea is to combine:
 
 This repo is organized around reproducible experiment scripts rather than a polished Python package. The recommended workflow is: install the local `sofai` package in editable mode, then run the repo-level experiment drivers from the repository root.
 
-## What This Repository Covers
 
-- Single-scenario execution through `motion_planning_solver.py`
-- Single-scenario plotting through `run_and_plot_single_benchmark.py`
-- Batch benchmark execution through `run_motion_planning_benchmarks.py`
-- Dense-clutter suite comparisons through `run_dense_clutter_benchmark_suite.py`
-- Environment-specific asset generation through `script/prepare_environment_assets.py`
-- Seven-environment, twelve-configuration benchmark sweeps through `script/run_12_solver_suite.py`
-- A vendored upstream SOFAI package under `sofai/`
 
 ## Repository Layout
 
@@ -91,16 +83,6 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-## Recommended Runtime Environment Variables
-
-These are not strictly required on every machine, but they make runs more stable in headless or restrictive environments:
-
-```bash
-export PYTHONDONTWRITEBYTECODE=1
-export MPLCONFIGDIR=/private/tmp/mpl
-```
-
-`MPLCONFIGDIR` avoids Matplotlib cache-permission issues during plotting and benchmark summaries.
 
 ## Quick Start
 
@@ -186,65 +168,12 @@ python run_and_plot_single_benchmark.py \
   --out_prefix dense_clutter_sc6_sofai_all
 ```
 
-### 3. Run a benchmark family
 
-Use `run_motion_planning_benchmarks.py` for batch evaluation over one or more benchmark dictionaries:
 
-```bash
-python run_motion_planning_benchmarks.py \
-  --patterns benchmark_dualmp_dense_clutter.json \
-  --scenario_ids 0-9 \
-  --s1 primitives \
-  --s2 mpc \
-  --run_type sofai \
-  --timeout_sec 300 \
-  --workers 1 \
-  --out_dir output/benchmark_runs/dense_clutter_mpc_primitives \
-  --out_prefix dense_clutter_mpc_primitives
-```
+## Usage
 
-Useful arguments:
+### 1. Regenerate S1 assets and benchmark dictionaries from scratch
 
-- `--patterns`: one or more benchmark JSON names
-- `--scenario_ids`: `all`, `0-99`, or comma-separated ids such as `0,3,7`
-- `--run_all_attempts`: keep both S1 and S2 attempts in SOFAI runs
-- `--workers`: benchmark-case parallelism
-- `--same_process`: run in-process instead of spawning isolated workers
-
-Outputs:
-
-- `*_runs.jsonl`: per-case records with raw attempts and metrics
-- `*_summary.csv`: flattened summary table
-
-### 4. Run the dense-clutter comparison suite
-
-`run_dense_clutter_benchmark_suite.py` compares the main solver combinations on the dense-clutter benchmark:
-
-```bash
-python run_dense_clutter_benchmark_suite.py \
-  --timeout_sec 300 \
-  --out_dir output/benchmark_runs/dense_clutter_suite
-```
-
-Add histogram generation if needed:
-
-```bash
-python run_dense_clutter_benchmark_suite.py \
-  --timeout_sec 300 \
-  --out_dir output/benchmark_runs/dense_clutter_suite \
-  --make_histograms
-```
-
-The default suite runs:
-
-1. `sofai_primitives_mpc`
-2. `sofai_neural_mpc`
-3. `s1_primitives`
-4. `s1_neural`
-5. `s2_mpc`
-6. `s2_cbf`
-
-### 5. Regenerate S1 assets and benchmark dictionaries from scratch
 
 Use `script/prepare_environment_assets.py` to create:
 
@@ -292,7 +221,7 @@ Supported environment families:
 - `maze_branching`
 - `bugtrap`
 
-### 6. Run the full seven-environment / twelve-configuration suite
+### 2. Run the full seven-environment / twelve-configuration suite
 
 `script/run_12_solver_suite.py` is the main paper-scale runner. It assumes environment assets already exist under `db/by_env/<family>/`.
 
@@ -331,39 +260,7 @@ The twelve configuration labels are:
 
 The `_cl` variants enable online memory updates and continual-learning behavior.
 
-## Input and Output Conventions
-
-### Input dictionaries
-
-Scenario dictionaries live in `input/` and `input/benchmarks_10k/`. Each scenario is a JSON object with fields such as:
-
-- `A_query`
-- `B_query`
-- `rectangles`
-- `start`
-- `goal`
-- `bounds`
-- `u_max`
-- `goal_tol`
-
-The loader is implemented in `input/input_handler.py`.
-
-### Default S1 assets
-
-The direct repo-level runners expect active/default assets under:
-
-```text
-db/S1_database_maze.json
-db/s1_sfcbf_success_trajs.npz
-```
-
-Environment-specific assets for larger benchmark suites live under:
-
-```text
-db/by_env/<family>/
-```
-
-### Outputs
+### 3. Outputs
 
 Common output locations:
 
@@ -373,72 +270,7 @@ Common output locations:
 
 For continual-learning runs, additional snapshots may appear under run-local `cl_assets/` directories.
 
-## Reproducing the Paper Workflow
 
-At a high level, the intended workflow is:
-
-1. Install the environment
-2. Regenerate or verify environment-specific assets with `script/prepare_environment_assets.py`
-3. Run the paper-scale suite with `script/run_12_solver_suite.py`
-4. Inspect summary tables under `output/benchmark_runs/...`
-5. Plot or inspect individual scenarios with `run_and_plot_single_benchmark.py`
-
-If you only want to validate the stack quickly, start with:
-
-```bash
-python run_and_plot_single_benchmark.py \
-  --problem_dictionary benchmark_dualmp_wall_gap.json \
-  --scenario_ids 1 \
-  --s1 primitives \
-  --s2 mpc \
-  --run_type sofai \
-  --out_dir output/single_scenario_runs/wall_gap_demo \
-  --out_prefix wall_gap_sc1_sofai
-```
-
-## Troubleshooting
-
-### `ModuleNotFoundError: No module named 'sofai_tool'`
-
-The local SOFAI package is not installed in the active environment.
-
-Fix:
-
-```bash
-uv pip install -r requirements.txt
-```
-
-or, if needed:
-
-```bash
-uv pip install -e ./sofai
-```
-
-### `FileNotFoundError` for `db/S1_database_maze.json` or `db/s1_sfcbf_success_trajs.npz`
-
-The direct runners rely on default S1 assets in `db/`.
-
-Options:
-
-- populate `db/` with the active assets you want to use
-- regenerate assets with `script/prepare_environment_assets.py`
-- or point the solver to explicit assets using environment variables such as:
-  - `SOFAI_S1_DB_PATH`
-  - `SOFAI_S1_TRAJ_PATH`
-  - `SOFAI_NEW_S1_MODEL`
-  - `SOFAI_NEW_S1_BASE_DATASET`
-
-### Matplotlib cache or permission errors
-
-Set:
-
-```bash
-export MPLCONFIGDIR=/private/tmp/mpl
-```
-
-### `torch`, `cvxpy`, `casadi`, or `do_mpc` import errors
-
-Those are core runtime dependencies for the experiment code, not optional extras for the paper results. Reinstall from the root requirements file in a clean Python 3.10 environment.
 
 ## Upstream SOFAI Reference
 
