@@ -140,18 +140,7 @@ sofai/
 │   ├── S1_memory_neural.py             # Memory + neural System 1
 │   ├── S2_mpc.py                       # MPC System 2 wrapper
 │   ├── S2_cbf.py                       # CBF System 2 wrapper
-│   ├── base/                           # Core planning / training logic
-│   │   ├── S1_usage_maze.py
-│   │   ├── S1_NN_usage_maze.py
-│   │   ├── S1_layers_maze.py
-│   │   ├── S1_all_data_maze_sfcbf.py
-│   │   ├── S1_S2_mpc_maze.py
-│   │   ├── S1_S2_cbf_maze.py
-│   │   ├── S1_S2_continual_maze.py
-│   │   ├── S2_mpc_maze.py
-│   │   ├── S2_cbf_maze.py
-│   │   ├── make_diverse_training_data_maze.py
-│   │   └── train_nn_policy.py
+│   ├── base/                           # Core planning / training logic folder
 │   └── combinations/                   # Combined SOFAI runner variants
 │       ├── mpc_solver.py
 │       ├── mpc_solver_new_S1.py
@@ -164,15 +153,6 @@ sofai/
 │   ├── meta/
 │   │   ├── context.txt
 │   │   └── thresholds.txt
-│   ├── benchmark_dualmp_all.json
-│   ├── benchmark_dualmp_small_open.json
-│   ├── benchmark_dualmp_large_sparse.json
-│   ├── benchmark_dualmp_dense_clutter.json
-│   ├── benchmark_dualmp_wall_gap.json
-│   ├── benchmark_dualmp_serial_walls.json
-│   ├── benchmark_dualmp_maze_branching.json
-│   ├── benchmark_dualmp_bugtrap.json
-│   ├── benchmark_dualmp_zigzag_narrow.json
 │   └── benchmarks_10k/                 # Large generated benchmark sets
 │
 ├── db/                                 # Active/default S1 assets
@@ -186,6 +166,8 @@ sofai/
 └── output/                             # Generated results, plots, summaries
     ├── single_scenario_runs/
     └── benchmark_runs
+
+```
 
 
 ## Usage
