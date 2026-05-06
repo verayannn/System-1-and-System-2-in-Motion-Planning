@@ -183,9 +183,8 @@ sofai/
 │
 └── output/                             # Generated results, plots, summaries
     ├── single_scenario_runs/
-    └── benchmark_runs/
-
-
+    └── benchmark_runs
+    
 ## Usage
 
 ### 1. Run one scenario
