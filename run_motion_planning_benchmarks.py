@@ -22,6 +22,27 @@ PYTHONDONTWRITEBYTECODE=1 \
   --timeout_sec 60 \
   --out_dir output/benchmark_runs/check \
   --out_prefix dense_clutter_sc2_s1
+
+
+run the benchmark where S1 neural has better success rate than S1 primitives:
+cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
+
+PYTHONDONTWRITEBYTECODE=1 \
+MPLCONFIGDIR=/private/tmp/mpl \
+SOFAI_S1_DB_PATH=db/by_env/wall_gap/S1_database_maze.json \
+SOFAI_S1_TRAJ_PATH=db/by_env/wall_gap/s1_sfcbf_success_trajs.npz \
+SOFAI_NEW_S1_MODEL=db/by_env/wall_gap/s1_policy_control_cnn.pth \
+/Users/apple/miniconda3/envs/s12_env/bin/python3.10 run_motion_planning_benchmarks.py \
+  --root /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning \
+  --patterns benchmark_dualmp_wall_gap_interp_neural_advantage.json \
+  --scenario_ids 0-99 \
+  --s1 primitives \
+  --s2 mpc \
+  --run_type s1 \
+  --same_process \
+  --timeout_sec 300 \
+  --out_dir output/benchmark_runs/wall_gap_interp_neural_advantage \
+  --out_prefix wall_gap_interp_neural_advantage
 """
 
 from __future__ import annotations
@@ -54,7 +75,8 @@ CSV_FIELDS = [
     "dictionary", "scenario_id", "run_type", "s1", "s2", "status", "timed_out",
     "selected_attempt", "success", "collision_free", "goal_reached",
     "final_goal_error", "path_length", "num_states", "runtime_sec",
-    "selected_runtime_sec", "wall_runtime_sec",
+    "selected_runtime_sec", "attempt_runtime_sec", "wall_runtime_sec",
+    "s1_gate_accepted", "s1_confidence_threshold",
     "s1_attempted", "s1_success", "s1_collision_free", "s1_goal_reached",
     "s1_confidence", "s1_runtime_sec", "s1_final_goal_error",
     "s1_path_length", "s1_num_states",
@@ -149,12 +171,17 @@ def scenario_json(scenario: Any, fallback_id: int) -> Dict[str, Any]:
 
 
 def run_s1(scenario: Any, mode: str) -> Dict[str, Any]:
-    t0 = time.perf_counter()
     if mode == "neural":
+        from solvers.S1_memory_neural import _init as init_neural
         from solvers.S1_memory_neural import solveMemoryNeural
+        init_neural()
+        t0 = time.perf_counter()
         states, confidence = solveMemoryNeural(scenario, return_info=False)
     else:
+        from solvers.S1_motion_primitives import _init as init_primitives
         from solvers.S1_motion_primitives import solveMotionPrimitives
+        init_primitives()
+        t0 = time.perf_counter()
         states, confidence = solveMotionPrimitives(scenario)
     return {
         "name": f"s1_{mode}",
@@ -167,12 +194,13 @@ def run_s1(scenario: Any, mode: str) -> Dict[str, Any]:
 
 
 def run_s2(scenario: Any, mode: str) -> Dict[str, Any]:
-    t0 = time.perf_counter()
     if mode == "cbf":
         from solvers.S2_cbf import solve_CBF_with_info
+        t0 = time.perf_counter()
         out = solve_CBF_with_info(scenario)
     else:
         from solvers.S2_mpc import solve_MPC_with_info
+        t0 = time.perf_counter()
         out = solve_MPC_with_info(scenario)
     states = None if out is None else out.get("states")
     return {
@@ -220,11 +248,43 @@ def add_metrics(attempt: Dict[str, Any], scenario: Any) -> Dict[str, Any]:
     return attempt
 
 
-def select_attempt(attempts: List[Dict[str, Any]], run_type: str) -> Optional[Dict[str, Any]]:
+def s1_confidence_gate_enabled(opts: Dict[str, Any]) -> bool:
+    return bool(opts.get("enable_s1_confidence_gate", False))
+
+
+def s1_confidence_threshold(opts: Dict[str, Any]) -> float:
+    return float(opts.get("s1_confidence_threshold", 0.75))
+
+
+def s1_attempt_accepted(s1_attempt: Optional[Dict[str, Any]], opts: Dict[str, Any], run_type: str) -> bool:
+    if s1_attempt is None:
+        return False
+    if run_type != "sofai":
+        return bool(s1_attempt.get("success", False))
+    if not bool(s1_attempt.get("success", False)):
+        return False
+    if not s1_confidence_gate_enabled(opts):
+        return True
+    return float(s1_attempt.get("confidence", 0.0) or 0.0) >= s1_confidence_threshold(opts)
+
+
+def attempt_runtime_sec(attempts: List[Dict[str, Any]]) -> float:
+    total = 0.0
+    for attempt in attempts:
+        try:
+            total += float(attempt.get("runtime_sec", 0.0) or 0.0)
+        except Exception:
+            continue
+    return total
+
+
+def select_attempt(attempts: List[Dict[str, Any]], run_type: str, *, s1_accepted: bool = True) -> Optional[Dict[str, Any]]:
     if not attempts:
         return None
     if run_type in {"s1", "s2"}:
         return attempts[0]
+    if attempts and attempts[0].get("system") == "s1" and not s1_accepted:
+        return next((a for a in attempts[1:] if a.get("success")), attempts[-1])
     return next((a for a in attempts if a.get("success")), attempts[-1])
 
 
@@ -263,14 +323,17 @@ def run_case(opts: Dict[str, Any]) -> Dict[str, Any]:
     run_type = str(opts["run_type"])
     attempts: List[Dict[str, Any]] = []
     t0 = time.perf_counter()
+    s1_gate_accepted = ""
 
     if run_type in {"s1", "sofai"}:
         s1_attempt = add_metrics(run_s1(scenario, str(opts["s1"])), scenario)
+        s1_gate_accepted = s1_attempt_accepted(s1_attempt, opts, run_type)
+        s1_attempt["accepted_by_gate"] = bool(s1_gate_accepted)
         attempts.append(s1_attempt)
-    if run_type == "s2" or (run_type == "sofai" and (opts["run_all_attempts"] or not attempts[0].get("success"))):
+    if run_type == "s2" or (run_type == "sofai" and (opts["run_all_attempts"] or not bool(s1_gate_accepted))):
         attempts.append(add_metrics(run_s2(scenario, str(opts["s2"])), scenario))
 
-    selected = select_attempt(attempts, run_type)
+    selected = select_attempt(attempts, run_type, s1_accepted=bool(s1_gate_accepted) if run_type == "sofai" else True)
     return {
         "status": "ok",
         "dictionary": dictionary.name,
@@ -289,8 +352,11 @@ def run_case(opts: Dict[str, Any]) -> Dict[str, Any]:
         "path_length": None if selected is None else selected.get("path_length"),
         "num_states": 0 if selected is None else int(selected.get("num_states", 0)),
         "selected_runtime_sec": None if selected is None else selected.get("runtime_sec"),
+        "attempt_runtime_sec": attempt_runtime_sec(attempts),
         "runtime_sec": time.perf_counter() - t0,
         "timed_out": False,
+        "s1_gate_accepted": "" if run_type == "s2" else bool(s1_gate_accepted),
+        "s1_confidence_threshold": "" if run_type != "sofai" or not s1_confidence_gate_enabled(opts) else s1_confidence_threshold(opts),
         "error_message": "",
         "traceback": "",
     }
@@ -386,7 +452,10 @@ def flat(result: Dict[str, Any]) -> Dict[str, Any]:
         "num_states": result.get("num_states", 0),
         "runtime_sec": result.get("runtime_sec", ""),
         "selected_runtime_sec": "" if result.get("selected_runtime_sec") is None else result.get("selected_runtime_sec"),
+        "attempt_runtime_sec": result.get("attempt_runtime_sec", ""),
         "wall_runtime_sec": result.get("wall_runtime_sec", result.get("runtime_sec", "")),
+        "s1_gate_accepted": result.get("s1_gate_accepted", ""),
+        "s1_confidence_threshold": result.get("s1_confidence_threshold", ""),
         "s1_attempted": s1 is not None,
         "s1_success": get(s1, "success"),
         "s1_collision_free": get(s1, "collision_free"),
@@ -462,6 +531,18 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--same_process", action="store_true")
     p.add_argument("--workers", type=int, default=1, help="Number of benchmark cases to run concurrently.")
     p.add_argument("--mplconfigdir", default="/private/tmp/mpl")
+    p.add_argument("--enable_s1_confidence_gate", action="store_true",
+                   help="In sofai mode, only accept a successful S1 attempt if its confidence exceeds --s1_confidence_threshold.")
+    p.add_argument("--disable_s1_confidence_gate", dest="enable_s1_confidence_gate", action="store_false")
+    p.add_argument("--s1_confidence_threshold", type=float, default=0.75)
+    p.add_argument("--enable_neural_internal_gate", dest="neural_internal_gate", action="store_true",
+                   help="Enable the neural S1 rollout's internal low-confidence early-stop rule.")
+    p.add_argument("--disable_neural_internal_gate", dest="neural_internal_gate", action="store_false",
+                   help="Disable the neural S1 rollout's internal low-confidence early-stop rule.")
+    p.set_defaults(neural_internal_gate=None)
+    p.add_argument("--neural_confidence_threshold", type=float, default=None)
+    p.add_argument("--neural_confidence_patience", type=int, default=None)
+    p.add_argument("--neural_confidence_min_steps", type=int, default=None)
     p.add_argument("--out_dir", default="output/benchmark_runs")
     p.add_argument("--out_prefix", default="benchmark_dualmp")
     p.add_argument("--dry_run", action="store_true")
@@ -477,6 +558,15 @@ def main() -> None:
     out_dir = Path(args.out_dir).expanduser()
     input_dir = input_dir if input_dir.is_absolute() else root / input_dir
     out_dir = out_dir if out_dir.is_absolute() else root / out_dir
+
+    if args.neural_internal_gate is not None:
+        os.environ["SOFAI_NEW_S1_ENABLE_CONFIDENCE_SWITCH"] = "1" if args.neural_internal_gate else "0"
+    if args.neural_confidence_threshold is not None:
+        os.environ["SOFAI_NEW_S1_CONFIDENCE_THRESHOLD"] = str(args.neural_confidence_threshold)
+    if args.neural_confidence_patience is not None:
+        os.environ["SOFAI_NEW_S1_CONFIDENCE_PATIENCE"] = str(args.neural_confidence_patience)
+    if args.neural_confidence_min_steps is not None:
+        os.environ["SOFAI_NEW_S1_CONFIDENCE_MIN_STEPS"] = str(args.neural_confidence_min_steps)
 
     configure_repo(root, args.mplconfigdir)
 
@@ -506,6 +596,8 @@ def main() -> None:
             "s2": args.s2,
             "run_type": args.run_type,
             "run_all_attempts": bool(args.run_all_attempts),
+            "enable_s1_confidence_gate": bool(args.enable_s1_confidence_gate),
+            "s1_confidence_threshold": float(args.s1_confidence_threshold),
             "mplconfigdir": args.mplconfigdir,
         }
 

@@ -124,14 +124,16 @@ def _make_args() -> SimpleNamespace:
         confidence_patience=_env_int("SOFAI_NEW_S1_CONFIDENCE_PATIENCE", 3),
         confidence_min_steps=_env_int("SOFAI_NEW_S1_CONFIDENCE_MIN_STEPS", 5),
         initial_global_s1_accept_rate=_env_float("SOFAI_NEW_S1_GLOBAL_ACCEPT_RATE", 0.5),
-        enable_episodic_memory=_env_bool("SOFAI_NEW_S1_ENABLE_MEMORY", True),
+        # Default to a pure neural S1 baseline. Runners that want retrieval
+        # memory or continual-learning behavior should opt in explicitly.
+        enable_episodic_memory=_env_bool("SOFAI_NEW_S1_ENABLE_MEMORY", False),
         episodic_memory_path=os.environ.get("SOFAI_NEW_S1_MEMORY_PATH", ""),
         resume_episodic_memory=_env_bool("SOFAI_NEW_S1_RESUME_MEMORY", False),
-        episodic_memory_try_before_neural=_env_bool("SOFAI_NEW_S1_MEMORY_BEFORE_NN", True),
+        episodic_memory_try_before_neural=_env_bool("SOFAI_NEW_S1_MEMORY_BEFORE_NN", False),
         # This solver only consumes memory. Storing new S2 trajectories belongs
         # to the outer SOFAI solver or an offline continual-learning script.
         episodic_memory_store_s2_success=False,
-        use_base_episodic_memory=_env_bool("SOFAI_NEW_S1_USE_BASE_MEMORY", True),
+        use_base_episodic_memory=_env_bool("SOFAI_NEW_S1_USE_BASE_MEMORY", False),
         base_dataset=str(_default_base_dataset()),
         base_memory_traj_npz=str(_default_base_memory_traj()),
         base_memory_scenarios=str(_default_base_memory_scenarios()),

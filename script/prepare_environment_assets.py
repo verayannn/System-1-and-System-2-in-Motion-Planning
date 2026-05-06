@@ -11,9 +11,9 @@ cd /Users/apple/Desktop/sofai
 
 PYTHONDONTWRITEBYTECODE=1 \
 /Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/prepare_environment_assets.py \
-  --families bugtrap \
-  --training_trajectories 50 \
-  --benchmark_instances 100 \
+  --families all \
+  --training_trajectories 200 \
+  --benchmark_instances 10000 \
   --seed 7 \
   --max_attempts 10000 \
   --train_epochs 25 \
@@ -21,6 +21,8 @@ PYTHONDONTWRITEBYTECODE=1 \
   --train_lr 5e-4 \
   --assets_dir db/by_env \
   --benchmark_dir input/benchmarks_10k
+
+
 
 ## families all
 """

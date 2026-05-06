@@ -18,76 +18,35 @@ Parallelism convention:
 
 intended large run:
 
-cd /Users/apple/Desktop/sofai
 
 PYTHONDONTWRITEBYTECODE=1 \
 /Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/run_12_solver_suite.py \
-  --families bugtrap \
-  --configs s1_neural s1_primitives s2_cbf s2_mpc sofai_cbf_neural sofai_cbf_primitives sofai_cbf_neural_cl sofai_cbf_primitives_cl\
+  --families all \
+  --configs all \
   --assets_dir db/by_env \
   --benchmark_dir input/benchmarks_10k \
-  --out_dir output/benchmark_runs/twelve_solver_suite_bugtrap \
+  --out_dir output/benchmark_runs/twelve_solver_suite \
   --scenario_ids all \
   --limit_per_environment 0 \
-  --workers 1 \
+  --workers 7 \
   --case_workers 1 \
   --timeout_sec 300 \
-  --retrain_every 25 \
+  --retrain_every 200 \
   --train_epochs_cl 25 \
-  --mplconfigdir /private/tmp/mpl
+  --mplconfigdir /private/tmp/mpl \
+  --runtime_metric attempt \
+  --disable_s1_confidence_gate \
+  --disable_neural_internal_gate
 
 
-sample small run:
+confidence gate for s1 primitives and s1 neural are disabled above
 
-cd /Users/apple/Desktop/sofai
-
-PYTHONDONTWRITEBYTECODE=1 \
-/Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/run_12_solver_suite.py \
-  --families large_sparse \
-  --configs sofai_cbf_neural sofai_cbf_neural_cl \
-  --limit_per_environment 200 \
-  --workers 1 \
-  --case_workers 1 \
-  --retrain_every 50 \
-  --timeout_sec 120
 
 limit_per_environment 100: the first 100 scenarios of the benchmark
 workers: parallel environments/families
 case_workers: optional within-benchmark workers, defaulting to 1.
 
 
-cd /Users/apple/Desktop/sofai
-
-PYTHONDONTWRITEBYTECODE=1 \
-/Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/run_12_solver_suite.py \
-  --families bugtrap \
-  --configs \
-    sofai_mpc_primitives sofai_mpc_primitives_cl \
-    sofai_mpc_neural sofai_mpc_neural_cl \
-  --limit_per_environment 40 \
-  --workers 1 \
-  --case_workers 1 \
-  --retrain_every 3 \
-  --train_epochs_cl 2 \
-  --timeout_sec 90 \
-  --out_dir output/benchmark_runs/quick_cl_signal_bugtrap
-
-
-
-PYTHONDONTWRITEBYTECODE=1 \
-/Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/run_12_solver_suite.py \
-  --families bugtrap \
-  --configs \
-    sofai_mpc_neural_cl \
-  --limit_per_environment 10 \
-  --workers 1 \
-  --case_workers 1 \
-  --retrain_every 2 \
-  --train_epochs_cl 20 \
-  --timeout_sec 90 \
-  --out_dir output/benchmark_runs/quick_cl_signal_bugtrap
-
-  
 
   
 """
@@ -183,6 +142,37 @@ def env_for_assets(base_env: Dict[str, str], assets_dir: Path, cl_dir: Optional[
     return env
 
 
+def apply_s1_mode_env(
+    env: Dict[str, str],
+    cfg: Dict[str, Any],
+    args: argparse.Namespace,
+    *,
+    cl_mode: bool,
+) -> Dict[str, str]:
+    out = dict(env)
+
+    if cfg.get("s1") == "neural":
+        if cl_mode:
+            out["SOFAI_NEW_S1_ENABLE_MEMORY"] = "1"
+            out["SOFAI_NEW_S1_USE_BASE_MEMORY"] = "1"
+            out["SOFAI_NEW_S1_MEMORY_BEFORE_NN"] = "1"
+        else:
+            out["SOFAI_NEW_S1_ENABLE_MEMORY"] = "0"
+            out["SOFAI_NEW_S1_USE_BASE_MEMORY"] = "0"
+            out["SOFAI_NEW_S1_MEMORY_BEFORE_NN"] = "0"
+
+    if args.neural_internal_gate is not None:
+        out["SOFAI_NEW_S1_ENABLE_CONFIDENCE_SWITCH"] = "1" if args.neural_internal_gate else "0"
+    if args.neural_confidence_threshold is not None:
+        out["SOFAI_NEW_S1_CONFIDENCE_THRESHOLD"] = str(args.neural_confidence_threshold)
+    if args.neural_confidence_patience is not None:
+        out["SOFAI_NEW_S1_CONFIDENCE_PATIENCE"] = str(args.neural_confidence_patience)
+    if args.neural_confidence_min_steps is not None:
+        out["SOFAI_NEW_S1_CONFIDENCE_MIN_STEPS"] = str(args.neural_confidence_min_steps)
+
+    return out
+
+
 def resolve_benchmark_file(root: Path, benchmark_dir: str, family: str) -> Path:
     filename = f"benchmark_dualmp_{family}.json"
     preferred = root / benchmark_dir / filename
@@ -272,12 +262,18 @@ def selected_system_from_row(row: Dict[str, Any], cfg: Dict[str, Any]) -> str:
     return ""
 
 
-def summarize_csv(path: Path, label: str, family: str) -> Dict[str, Any]:
+def summarize_csv(path: Path, label: str, family: str, runtime_metric: str) -> Dict[str, Any]:
     cfg = config_by_label(label)
     with path.open(newline="") as f:
         rows = list(csv.DictReader(f))
     ok = [r for r in rows if r.get("status") == "ok"]
-    runtimes = [v for v in (float_or_none(r.get("runtime_sec")) for r in ok) if v is not None]
+    runtime_field = {
+        "attempt": "attempt_runtime_sec",
+        "selected": "selected_runtime_sec",
+        "case": "runtime_sec",
+        "wall": "wall_runtime_sec",
+    }[runtime_metric]
+    runtimes = [v for v in (float_or_none(r.get(runtime_field)) for r in ok) if v is not None]
     total = len(rows)
     successful_rows = [r for r in rows if bool_from_csv(r.get("success"))]
     selected_systems = [selected_system_from_row(r, cfg) for r in successful_rows]
@@ -553,6 +549,7 @@ def run_cl_cases_immediately(
     env.setdefault("PYTHONDONTWRITEBYTECODE", "1")
     env.setdefault("MPLCONFIGDIR", args.mplconfigdir)
     env = env_for_assets(env, root / args.assets_dir / family, cl_dir=cl_dir)
+    env = apply_s1_mode_env(env, cfg, args, cl_mode=True)
     env["SOFAI_NEW_S1_MEMORY_PATH"] = str(memory_path)
     env["SOFAI_NEW_S1_RESUME_MEMORY"] = "1"
     env["SOFAI_S1_EPISODIC_MEMORY_PATH"] = str(memory_path)
@@ -579,6 +576,8 @@ def run_cl_cases_immediately(
             "s2": cfg["s2"],
             "run_type": cfg["run_type"],
             "run_all_attempts": False,
+            "enable_s1_confidence_gate": bool(args.enable_s1_confidence_gate),
+            "s1_confidence_threshold": float(args.s1_confidence_threshold),
             "mplconfigdir": args.mplconfigdir,
         }
 
@@ -639,6 +638,7 @@ def run_one_config(args: argparse.Namespace, family: str, cfg: Dict[str, Any]) -
     env.setdefault("PYTHONDONTWRITEBYTECODE", "1")
     env.setdefault("MPLCONFIGDIR", args.mplconfigdir)
     env = env_for_assets(env, assets)
+    env = apply_s1_mode_env(env, cfg, args, cl_mode=bool(cfg["cl"]))
 
     if args.dry_run:
         placeholder = {
@@ -676,6 +676,9 @@ def run_one_config(args: argparse.Namespace, family: str, cfg: Dict[str, Any]) -
             cfg["run_type"],
             "--timeout_sec",
             str(args.timeout_sec),
+            "--disable_s1_confidence_gate" if not args.enable_s1_confidence_gate else "--enable_s1_confidence_gate",
+            "--s1_confidence_threshold",
+            str(args.s1_confidence_threshold),
             "--workers",
             str(args.case_workers),
             "--out_dir",
@@ -685,10 +688,20 @@ def run_one_config(args: argparse.Namespace, family: str, cfg: Dict[str, Any]) -
             "--mplconfigdir",
             args.mplconfigdir,
         ]
+        if args.neural_internal_gate is True:
+            cmd.append("--enable_neural_internal_gate")
+        elif args.neural_internal_gate is False:
+            cmd.append("--disable_neural_internal_gate")
+        if args.neural_confidence_threshold is not None:
+            cmd.extend(["--neural_confidence_threshold", str(args.neural_confidence_threshold)])
+        if args.neural_confidence_patience is not None:
+            cmd.extend(["--neural_confidence_patience", str(args.neural_confidence_patience)])
+        if args.neural_confidence_min_steps is not None:
+            cmd.extend(["--neural_confidence_min_steps", str(args.neural_confidence_min_steps)])
         run_cmd(cmd, cwd=root, env=env, dry_run=args.dry_run)
         if placeholder is not None:
             return placeholder
-        return summarize_csv(out_root / f"{cfg['label']}_summary.csv", cfg["label"], family)
+        return summarize_csv(out_root / f"{cfg['label']}_summary.csv", cfg["label"], family, args.runtime_metric)
 
     cl_dir = out_root / "cl_assets"
     if args.dry_run:
@@ -698,6 +711,7 @@ def run_one_config(args: argparse.Namespace, family: str, cfg: Dict[str, Any]) -
         copy_cl_assets(assets, cl_dir)
     memory_path = cl_dir / "episodic_s2_memory.json"
     env = env_for_assets(env, assets, cl_dir=cl_dir)
+    env = apply_s1_mode_env(env, cfg, args, cl_mode=True)
     env["SOFAI_NEW_S1_MEMORY_PATH"] = str(memory_path)
     env["SOFAI_NEW_S1_RESUME_MEMORY"] = "1"
     env["SOFAI_S1_EPISODIC_MEMORY_PATH"] = str(memory_path)
@@ -764,7 +778,7 @@ def run_one_config(args: argparse.Namespace, family: str, cfg: Dict[str, Any]) -
         runner_mod.write_outputs(out_root, cfg["label"], all_results)
     elif placeholder is not None:
         return placeholder
-    return summarize_csv(out_root / f"{cfg['label']}_summary.csv", cfg["label"], family)
+    return summarize_csv(out_root / f"{cfg['label']}_summary.csv", cfg["label"], family, args.runtime_metric)
 
 
 def run_one_family(args: argparse.Namespace, family: str, configs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -790,6 +804,20 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--workers", type=int, default=4, help="Number of environments/families to run in parallel.")
     p.add_argument("--case_workers", type=int, default=1, help="Optional workers inside one non-CL benchmark run. Keep at 1 for benchmark-level parallelism only.")
     p.add_argument("--timeout_sec", type=float, default=300.0)
+    p.add_argument("--runtime_metric", choices=["attempt", "selected", "case", "wall"], default="attempt",
+                   help="Runtime column used in the final tables. `attempt` is pure solver-attempt time without process overhead.")
+    p.add_argument("--enable_s1_confidence_gate", action="store_true",
+                   help="In sofai rows, only accept successful S1 attempts whose confidence exceeds --s1_confidence_threshold.")
+    p.add_argument("--disable_s1_confidence_gate", dest="enable_s1_confidence_gate", action="store_false")
+    p.add_argument("--s1_confidence_threshold", type=float, default=0.75)
+    p.add_argument("--enable_neural_internal_gate", dest="neural_internal_gate", action="store_true",
+                   help="Enable the neural S1 rollout's internal low-confidence stop rule.")
+    p.add_argument("--disable_neural_internal_gate", dest="neural_internal_gate", action="store_false",
+                   help="Disable the neural S1 rollout's internal low-confidence stop rule.")
+    p.set_defaults(neural_internal_gate=None)
+    p.add_argument("--neural_confidence_threshold", type=float, default=None)
+    p.add_argument("--neural_confidence_patience", type=int, default=None)
+    p.add_argument("--neural_confidence_min_steps", type=int, default=None)
     p.add_argument("--retrain_every", type=int, default=500)
     p.add_argument("--train_epochs_cl", type=int, default=25)
     p.add_argument("--mplconfigdir", default="/private/tmp/mpl")

@@ -843,6 +843,10 @@ def save_dataset(samples: List[Dict[str, Any]], out_npz: Path, meta_extra: Dict[
 def main():
     p = argparse.ArgumentParser()
 
+    p.add_argument("--selection_mode", choices=["trajectories", "windows"], default="trajectories",
+                   help="`trajectories`: stop after --target_trajectories successful expert runs. "
+                        "`windows`: stop after collecting at least --target_motion_primitives neural windows "
+                        "(legacy Neural S1 data-generation behavior).")
     p.add_argument("--target_trajectories", type=int, default=500,
                    help="Number of successful SFCBF trajectories to store in the S1 database.")
     p.add_argument("--target_motion_primitives", type=int, default=0,
@@ -913,10 +917,15 @@ def main():
     base_start = np.asarray(args.start, dtype=float)
     base_goal = np.asarray(args.goal, dtype=float)
 
+    selection_mode = str(args.selection_mode).strip().lower()
     target_trajectories = int(args.target_trajectories)
-    if target_trajectories <= 0:
-        raise ValueError("target_trajectories must be positive")
     target_windows = int(args.target_motion_primitives)
+    if selection_mode == "trajectories":
+        if target_trajectories <= 0:
+            raise ValueError("target_trajectories must be positive when --selection_mode trajectories")
+    else:
+        if target_windows <= 0:
+            raise ValueError("target_motion_primitives must be positive when --selection_mode windows")
 
     samples: List[Dict[str, Any]] = []
     traj_states: List[np.ndarray] = []
@@ -951,7 +960,12 @@ def main():
     if not combos:
         raise ValueError("No diversity combos available")
 
-    while success_count < target_trajectories and attempt < args.max_attempts:
+    while attempt < args.max_attempts:
+        if selection_mode == "trajectories" and success_count >= target_trajectories:
+            break
+        if selection_mode == "windows" and len(samples) >= target_windows:
+            break
+
         combo = combos[attempt % len(combos)]
         regime, B_mode, map_type, difficulty = combo
         attempt += 1
@@ -971,7 +985,7 @@ def main():
 
         scenario_id = success_count  # successful scenarios only are stored with compact ids
         dyn_id = success_count
-        map_idx = 0
+        map_idx = success_count if selection_mode == "windows" else 0
 
         try:
             out = s2.simulate_sfcbf(
@@ -1106,20 +1120,37 @@ def main():
         difficulty_counter[difficulty] += 1
         group_counter[group_key] += 1
 
-        if success_count % args.progress_every == 0 or success_count >= target_trajectories:
+        progress_goal_reached = (
+            success_count >= target_trajectories
+            if selection_mode == "trajectories"
+            else len(samples) >= target_windows
+        )
+        if success_count % args.progress_every == 0 or progress_goal_reached:
             elapsed = time.perf_counter() - t0
+            target_label = (
+                f"target_traj={target_trajectories}"
+                if selection_mode == "trajectories"
+                else f"target_windows={target_windows}"
+            )
             print(
                 f"[progress] attempts={attempt} | successful_traj={success_count} | "
                 f"failed={fail_count} | samples={len(samples)} | "
-                f"target_traj={target_trajectories} | "
+                f"{target_label} | "
                 f"last_group={group_key} | elapsed={elapsed:.1f}s"
             )
 
-    if success_count < target_trajectories:
-        raise RuntimeError(
-            f"Only generated {success_count} successful trajectories after {attempt} attempts. "
-            f"Increase --max_attempts or reduce --target_trajectories."
-        )
+    if selection_mode == "trajectories":
+        if success_count < target_trajectories:
+            raise RuntimeError(
+                f"Only generated {success_count} successful trajectories after {attempt} attempts. "
+                f"Increase --max_attempts or reduce --target_trajectories."
+            )
+    else:
+        if len(samples) < target_windows:
+            raise RuntimeError(
+                f"Only generated {len(samples)} motion-primitives/windows from {success_count} successful trajectories "
+                f"after {attempt} attempts. Increase --max_attempts or reduce --target_motion_primitives."
+            )
 
     # The neural dataset is derived only from the trajectories saved above.
     # Optionally downsample windows for faster training, but never introduce
@@ -1140,6 +1171,7 @@ def main():
         "buffer_cells": int(args.buffer_cells),
         "stop_tol": float(args.stop_tol),
         "B_shape": "2x2",
+        "selection_mode": selection_mode,
         "target_trajectories": int(target_trajectories),
         "target_motion_primitives": int(target_windows),
         "successful_trajectories_generated": int(success_count),
@@ -1187,6 +1219,7 @@ def main():
 
     selected_group_counter = Counter(str(s["group"]) for s in selected_samples)
     report = {
+        "selection_mode": selection_mode,
         "target_trajectories": int(target_trajectories),
         "target_motion_primitives": int(target_windows),
         "saved_motion_primitives": int(len(selected_samples)),
@@ -1209,5 +1242,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
