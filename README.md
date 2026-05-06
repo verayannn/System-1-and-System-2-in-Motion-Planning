@@ -84,7 +84,7 @@ python -m pip install -r requirements.txt
 ```
 
 
-## Quick Start
+## Usage
 
 ### 1. Run one scenario
 
@@ -170,7 +170,7 @@ python run_and_plot_single_benchmark.py \
 
 
 
-## Usage
+## Running the Benchmarks
 
 ### 1. Regenerate S1 assets and benchmark dictionaries from scratch
 
