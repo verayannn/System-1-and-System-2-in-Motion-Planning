@@ -6,45 +6,23 @@ Defaults match the planned large run:
   - one neural policy trained from the same trajectories per environment
   - 10k benchmark scenarios per environment
 
-intended large run:
 
-cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
+cd /Users/apple/Desktop/sofai
 
 PYTHONDONTWRITEBYTECODE=1 \
-
 /Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/prepare_environment_assets.py \
-  --root /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning \
-  --families all \
-  --training_trajectories 500 \
-  --benchmark_instances 10000 \
+  --families bugtrap \
+  --training_trajectories 50 \
+  --benchmark_instances 100 \
   --seed 7 \
-  --max_attempts 20000 \
+  --max_attempts 10000 \
   --train_epochs 25 \
   --train_batch 128 \
   --train_lr 5e-4 \
   --assets_dir db/by_env \
   --benchmark_dir input/benchmarks_10k
 
-
-
-sample small run:
-
-cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
-
-PYTHONDONTWRITEBYTECODE=1 \
-/Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/prepare_environment_assets.py \
-  --root /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning \
-  --families dense_clutter \
-  --training_trajectories 500 \
-  --benchmark_instances 10000 \
-  --seed 7 \
-  --max_attempts 20000 \
-  --train_epochs 25 \
-  --train_batch 128 \
-  --train_lr 5e-4 \
-  --assets_dir db/by_env \
-  --benchmark_dir input/benchmarks_10k
-
+## families all
 """
 
 from __future__ import annotations

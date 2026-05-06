@@ -372,7 +372,7 @@ def main():
     ap.add_argument("--n_horizon", type=int, default=20)
     ap.add_argument("--wall_margin", type=float, default=0.2)
     ap.add_argument("--smooth_kappa", type=float, default=20.0)
-    ap.add_argument("--goal_tol", type=float, default=0.5)
+    ap.add_argument("--goal_tol", type=float, default=0.6)
     args = ap.parse_args()
 
     run_s2_mpc_on_scenarios(

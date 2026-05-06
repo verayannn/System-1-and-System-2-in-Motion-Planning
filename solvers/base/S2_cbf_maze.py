@@ -176,7 +176,7 @@ def collision_free_rectangles(states: np.ndarray, rects: List[Rect], margin: flo
     return True
 
 
-def goal_reached(states: np.ndarray, goal: Tuple[float, float], tol: float = 0.6) -> bool:
+def goal_reached(states: np.ndarray, goal: Tuple[float, float], tol: float = 0.5) -> bool:
     dx = float(states[-1, 0]) - float(goal[0])
     dy = float(states[-1, 1]) - float(goal[1])
     return (dx * dx + dy * dy) <= float(tol) * float(tol)

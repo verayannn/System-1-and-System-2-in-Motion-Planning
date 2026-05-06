@@ -1,4 +1,5 @@
 import json
+import os
 import numpy as np
 from pathlib import Path
 
@@ -18,6 +19,7 @@ from base.S1_usage_maze import (
 _db = None
 _traj_npz = None
 _traj_index = None
+_cache_key = None
 
 
 def _goal_reached(states, goal, tol):
@@ -94,19 +96,76 @@ def _extend_to_goal_if_needed(
     return out
 
 
-def _init():
-    global _db, _traj_npz, _traj_index
+def _scenario_to_dict(scenario):
+    if isinstance(scenario, dict):
+        sc = dict(scenario)
+    else:
+        sc = {
+            "scenario_id": int(getattr(scenario, "scenario_id", -1)),
+            "A_query": getattr(scenario, "A"),
+            "B_query": getattr(scenario, "B"),
+            "rectangles": getattr(scenario, "rects"),
+            "start": getattr(scenario, "start"),
+            "goal": getattr(scenario, "goal"),
+            "bounds": getattr(scenario, "bounds"),
+            "u_max": getattr(scenario, "u_max", 3.0),
+            "goal_tol": getattr(scenario, "goal_tol", 0.5),
+        }
+    return sc
 
-    if _db is None:
+
+def _try_online_episodic_memory(scenario):
+    memory_path = os.environ.get("SOFAI_S1_EPISODIC_MEMORY_PATH", "").strip()
+    if not memory_path:
+        return None, 0.0
+
+    try:
+        from types import SimpleNamespace
+        from solvers.base import S1_S2_continual_maze as cl
+
+        args = SimpleNamespace(
+            enable_episodic_memory=True,
+            grid_n=25,
+            dt=0.05,
+            n_steps_nom=200,
+            u_max=float(getattr(scenario, "u_max", 3.0)),
+            buffer_cells=2,
+            stop_tol=0.6,
+            collision_margin=0.05,
+            goal_tol=float(getattr(scenario, "goal_tol", 0.5)),
+            episodic_memory_dyn_sigma=float(os.environ.get("SOFAI_S1_MEMORY_DYN_SIGMA", 0.45)),
+            episodic_memory_map_threshold=float(os.environ.get("SOFAI_S1_MEMORY_MAP_THRESHOLD", 0.45)),
+            episodic_memory_score_threshold=float(os.environ.get("SOFAI_S1_MEMORY_SCORE_THRESHOLD", 0.65)),
+            episodic_memory_top_k=int(os.environ.get("SOFAI_S1_MEMORY_TOP_K", 5)),
+            episodic_memory_replay_steps=int(os.environ.get("SOFAI_S1_MEMORY_REPLAY_STEPS", 0)),
+        )
+        memory = cl.load_episodic_memory(Path(memory_path).expanduser())
+        out = cl.run_episodic_memory_on_scenario(_scenario_to_dict(scenario), memory, args)
+        if out.get("success", False):
+            return np.asarray(out.get("states", []), dtype=float), max(0.75, float(out.get("episodic_memory_score", 0.0)))
+    except Exception as exc:
+        print(f"[S1_motion_primitives memory] {exc}", flush=True)
+    return None, 0.0
+
+
+def _init():
+    global _db, _traj_npz, _traj_index, _cache_key
+
+    db_path = Path(os.environ.get("SOFAI_S1_DB_PATH", "db/S1_database_maze.json")).expanduser()
+    traj_path = Path(os.environ.get("SOFAI_S1_TRAJ_PATH", "db/s1_sfcbf_success_trajs.npz")).expanduser()
+    cache_key = (str(db_path.resolve()), str(traj_path.resolve()))
+
+    if _db is None or _cache_key != cache_key:
         _db = json.loads(
-            Path("db/S1_database_maze.json").read_text()
+            db_path.read_text()
         )["db"]
 
         _traj_npz = dict(
-            np.load("db/s1_sfcbf_success_trajs.npz", allow_pickle=True)
+            np.load(traj_path, allow_pickle=True)
         )
 
         _traj_index = _build_index(_traj_npz)
+        _cache_key = cache_key
 
 
 # --------------------------------------------------
@@ -123,6 +182,10 @@ def solveMotionPrimitives(scenario):
         confidence (float)
     """
     _init()
+
+    memory_states, memory_conf = _try_online_episodic_memory(scenario)
+    if memory_states is not None:
+        return memory_states, memory_conf
 
     if isinstance(scenario, dict):
         A_query = np.array(scenario["A_query"], dtype=float)

@@ -17,9 +17,9 @@ Output NPZ keys (ONLY successful cases):
   - goal_reached: (Ns,) int8
 
 Run:
-  python maze/S1_all_data_maze_sfcbf.py \
-    --db_json maze/S1_database_maze.json \
-    --out_npz maze/s1_sfcbf_success_trajs.npz \
+  python solvers/base/S1_all_data_maze_sfcbf.py \
+    --db_json db/S1_database_maze.json \
+    --out_npz db/s1_sfcbf_success_trajs.npz \
     --dt 0.05 --n_steps 800 --margin 0.35 --gamma 2.0
 """
 
