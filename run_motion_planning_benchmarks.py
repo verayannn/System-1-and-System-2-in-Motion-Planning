@@ -10,7 +10,7 @@ Run from the repo root:
       --s2 mpc \
       --run_type sofai
 
-cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
+cd /Users/apple/Desktop/sofai
 
 PYTHONDONTWRITEBYTECODE=1 \
 /Users/apple/miniconda3/envs/s12_env/bin/python3.10 run_motion_planning_benchmarks.py \
@@ -35,6 +35,7 @@ import os
 import sys
 import time
 import traceback
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -46,7 +47,6 @@ DEFAULT_PATTERNS = [
     "benchmark_dualmp_wall_gap.json",
     "benchmark_dualmp_serial_walls.json",
     "benchmark_dualmp_maze_branching.json",
-    "benchmark_dualmp_zigzag_narrow.json",
     "benchmark_dualmp_bugtrap.json",
 ]
 
@@ -169,18 +169,20 @@ def run_s1(scenario: Any, mode: str) -> Dict[str, Any]:
 def run_s2(scenario: Any, mode: str) -> Dict[str, Any]:
     t0 = time.perf_counter()
     if mode == "cbf":
-        from solvers.S2_cbf import solve_CBF
-        states = solve_CBF(scenario)
+        from solvers.S2_cbf import solve_CBF_with_info
+        out = solve_CBF_with_info(scenario)
     else:
-        from solvers.S2_mpc import solve_MPC
-        states = solve_MPC(scenario)
+        from solvers.S2_mpc import solve_MPC_with_info
+        out = solve_MPC_with_info(scenario)
+    states = None if out is None else out.get("states")
     return {
         "name": f"s2_{mode}",
         "system": "s2",
         "mode": mode,
         "states": None if states is None else jsonable(states),
+        "inputs": None if out is None or out.get("inputs") is None else jsonable(out.get("inputs")),
         "confidence": 1.0 if states is not None else 0.0,
-        "runtime_sec": time.perf_counter() - t0,
+        "runtime_sec": float(out.get("runtime_sec", time.perf_counter() - t0)) if out is not None else time.perf_counter() - t0,
     }
 
 
@@ -458,6 +460,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--run_all_attempts", action="store_true")
     p.add_argument("--timeout_sec", type=float, default=300.0)
     p.add_argument("--same_process", action="store_true")
+    p.add_argument("--workers", type=int, default=1, help="Number of benchmark cases to run concurrently.")
     p.add_argument("--mplconfigdir", default="/private/tmp/mpl")
     p.add_argument("--out_dir", default="output/benchmark_runs")
     p.add_argument("--out_prefix", default="benchmark_dualmp")
@@ -494,10 +497,8 @@ def main() -> None:
         print(f"[dry_run] total_cases={len(planned)}")
         return
 
-    results = []
-    for i, (dictionary, sid) in enumerate(planned, start=1):
-        print(f"[run {i}/{len(planned)}] {dictionary.name} scenario={sid}")
-        opts = {
+    def make_opts(dictionary: Path, sid: int) -> Dict[str, Any]:
+        return {
             "root": str(root),
             "dictionary": str(dictionary),
             "scenario_id": sid,
@@ -507,12 +508,35 @@ def main() -> None:
             "run_all_attempts": bool(args.run_all_attempts),
             "mplconfigdir": args.mplconfigdir,
         }
-        result = run_case_timed(opts, args.timeout_sec, args.same_process)
-        results.append(result)
+
+    def print_result(result: Dict[str, Any], i: int) -> None:
         wall = float(result.get("wall_runtime_sec", result.get("runtime_sec", 0.0)))
-        print(f"[{result.get('status')}] selected={result.get('selected_attempt') or 'none'} success={result.get('success', False)} wall_runtime={wall:.2f}s")
+        print(
+            f"[done {i}/{len(planned)}] {result.get('dictionary')} scenario={result.get('scenario_id')} "
+            f"status={result.get('status')} selected={result.get('selected_attempt') or 'none'} "
+            f"success={result.get('success', False)} wall_runtime={wall:.2f}s"
+        )
         if result.get("status") != "ok" and result.get("error_message"):
             print(f"[message] {result['error_message']}")
+
+    results: List[Dict[str, Any]] = []
+    if int(args.workers) <= 1:
+        for i, (dictionary, sid) in enumerate(planned, start=1):
+            print(f"[run {i}/{len(planned)}] {dictionary.name} scenario={sid}")
+            result = run_case_timed(make_opts(dictionary, sid), args.timeout_sec, args.same_process)
+            results.append(result)
+            print_result(result, i)
+    else:
+        print(f"[parallel] workers={args.workers} cases={len(planned)}")
+        with ThreadPoolExecutor(max_workers=int(args.workers)) as pool:
+            futures = {
+                pool.submit(run_case_timed, make_opts(dictionary, sid), args.timeout_sec, args.same_process): (dictionary, sid)
+                for dictionary, sid in planned
+            }
+            for i, fut in enumerate(as_completed(futures), start=1):
+                result = fut.result()
+                results.append(result)
+                print_result(result, i)
 
     jsonl_path, csv_path = write_outputs(out_dir, args.out_prefix, results)
     print_aggregate(results)

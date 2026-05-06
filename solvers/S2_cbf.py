@@ -16,16 +16,8 @@ def _env_int(name: str, default: int) -> int:
     return int(raw) if raw not in (None, "") else int(default)
 
 
-def solve_CBF(scenario):
-    """
-    External System-2 solver using the SFCBF safety-filter controller.
-
-    Input:
-        scenario (MazeProblem)
-
-    Output:
-        states (np.ndarray) or None
-    """
+def solve_CBF_with_info(scenario):
+    """Run SFCBF and keep the controls/runtime for continual-learning scripts."""
     try:
         out = simulate_sfcbf(
             A=np.asarray(scenario.A, dtype=float),
@@ -38,11 +30,29 @@ def solve_CBF(scenario):
             u_max=float(scenario.u_max),
             margin=_env_float("SOFAI_CBF_MARGIN", 0.35),
             gamma=_env_float("SOFAI_CBF_GAMMA", 2.0),
-            goal_tol=_env_float("SOFAI_CBF_GOAL_TOL", 0.6),
+            goal_tol=_env_float("SOFAI_CBF_GOAL_TOL", float(getattr(scenario, "goal_tol", 0.5))),
             collision_margin=_env_float("SOFAI_CBF_COLLISION_MARGIN", 0.05),
         )
-        return np.asarray(out["states"], dtype=float)
+        return {
+            "states": np.asarray(out["states"], dtype=float),
+            "inputs": np.asarray(out.get("inputs", []), dtype=float),
+            "runtime_sec": float(out.get("runtime_sec", 0.0)),
+        }
 
     except Exception as e:
         print(f"[solve_CBF] Exception occurred: {e}", flush=True)
         return None
+
+
+def solve_CBF(scenario):
+    """
+    External System-2 solver using the SFCBF safety-filter controller.
+
+    Input:
+        scenario (MazeProblem)
+
+    Output:
+        states (np.ndarray) or None
+    """
+    out = solve_CBF_with_info(scenario)
+    return None if out is None else out["states"]

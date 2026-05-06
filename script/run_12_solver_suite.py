@@ -22,24 +22,20 @@ cd /Users/apple/Desktop/sofai
 
 PYTHONDONTWRITEBYTECODE=1 \
 /Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/run_12_solver_suite.py \
-  --families all \
-  --configs all \
+  --families bugtrap \
+  --configs s1_neural s1_primitives s2_cbf s2_mpc sofai_cbf_neural sofai_cbf_primitives sofai_cbf_neural_cl sofai_cbf_primitives_cl\
   --assets_dir db/by_env \
   --benchmark_dir input/benchmarks_10k \
-  --out_dir output/benchmark_runs/twelve_solver_suite \
+  --out_dir output/benchmark_runs/twelve_solver_suite_bugtrap \
   --scenario_ids all \
   --limit_per_environment 0 \
-  --workers 7 \
+  --workers 1 \
   --case_workers 1 \
   --timeout_sec 300 \
-  --retrain_every 500 \
+  --retrain_every 25 \
   --train_epochs_cl 25 \
   --mplconfigdir /private/tmp/mpl
 
-
-limit_per_environment 100: the first 100 scenarios of the benchmark
-workers: parallel environments/families
-case_workers: optional within-benchmark workers, defaulting to 1.
 
 sample small run:
 
@@ -55,11 +51,34 @@ PYTHONDONTWRITEBYTECODE=1 \
   --retrain_every 50 \
   --timeout_sec 120
 
+limit_per_environment 100: the first 100 scenarios of the benchmark
+workers: parallel environments/families
+case_workers: optional within-benchmark workers, defaulting to 1.
+
+
+cd /Users/apple/Desktop/sofai
 
 PYTHONDONTWRITEBYTECODE=1 \
 /Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/run_12_solver_suite.py \
   --families bugtrap \
-  --configs sofai_mpc_neural_cl \
+  --configs \
+    sofai_mpc_primitives sofai_mpc_primitives_cl \
+    sofai_mpc_neural sofai_mpc_neural_cl \
+  --limit_per_environment 40 \
+  --workers 1 \
+  --case_workers 1 \
+  --retrain_every 3 \
+  --train_epochs_cl 2 \
+  --timeout_sec 90 \
+  --out_dir output/benchmark_runs/quick_cl_signal_bugtrap
+
+
+
+PYTHONDONTWRITEBYTECODE=1 \
+/Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/run_12_solver_suite.py \
+  --families bugtrap \
+  --configs \
+    sofai_mpc_neural_cl \
   --limit_per_environment 10 \
   --workers 1 \
   --case_workers 1 \
@@ -68,9 +87,7 @@ PYTHONDONTWRITEBYTECODE=1 \
   --timeout_sec 90 \
   --out_dir output/benchmark_runs/quick_cl_signal_bugtrap
 
-
-
-
+  
 
   
 """

@@ -2,4 +2,4 @@ correctness_threshold = 1.0
 
 time_limit=30
 
-maxExperience = 1000
+maxExperience = 10000

@@ -18,18 +18,17 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 '''
-cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
+cd /Users/apple/Desktop/sofai
 
 PYTHONDONTWRITEBYTECODE=1 \
 /Users/apple/miniconda3/envs/s12_env/bin/python3.10 run_and_plot_single_benchmark.py \
-  --problem_dictionary benchmarks/benchmark_dualmp_dense_clutter.json \
+  --problem_dictionary benchmark_dualmp_dense_clutter.json \
   --scenario_ids 2 \
   --s1 primitives \
   --s2 mpc \
   --run_type s1 \
   --out_dir output/single_scenario_runs/dense_clutter_demo \
-  --out_prefix dense_clutter_sc2_s1
-
+  --out_prefix dense_clutter_sc6_s1
 '''
 
 

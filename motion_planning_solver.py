@@ -25,7 +25,7 @@ from solvers.base.S2_mpc_maze import (
 
 PATH_TO_INPUT = "input/"
 
-S1_MODE = "neural"
+S1_MODE = "primitives"
 S2_MODE = "mpc"
 
 
@@ -132,8 +132,8 @@ class CustomSystem2Solver(sofai2.System2Solver):
 
             solve_fn = solve_CBF if S2_MODE == "cbf" else solve_MPC
 
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(solve_fn, scenario)
+            with ThreadPoolExecutor(max_workers=1) as executor: 
+                future = executor.submit(solve_fn, scenario) ## each executor get a different bck
 
                 try:
                     result = future.result(timeout=time_limit)
@@ -239,7 +239,7 @@ class CustomSystem2Solver(sofai2.System2Solver):
 
             rects = case.rects
             goal = case.goal
-            goal_tol = getattr(case, "goal_tol", 0.5)
+            goal_tol = getattr(case, "goal_tol", 0.6)
 
             states = self.solution_raw
 
@@ -279,7 +279,7 @@ def main():
     parser.add_argument("--problem_dictionary", default="benchmark_scenarios_maze.json")
     parser.add_argument("--scenario_id", type=int, default=1)
     parser.add_argument("--run_type", choices=["sofai", "s1", "s2"], default="sofai")
-    parser.add_argument("--new_run", type=bool, default=False)
+    parser.add_argument("--new_run", type=bool, default=False) ## true: deletes the experiences // deletes the experiences when starting a new bck -- clean the experiences
 
 
     args = parser.parse_args()
