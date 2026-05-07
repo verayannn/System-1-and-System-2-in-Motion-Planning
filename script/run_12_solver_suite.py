@@ -51,24 +51,28 @@ case_workers: optional within-benchmark workers, defaulting to 1.
 
 
 
+what i am trying on my laptop NOW: 
+
 PYTHONDONTWRITEBYTECODE=1 \
 /Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/run_12_solver_suite.py \
   --families all \
   --configs all \
   --assets_dir db/by_env \
   --benchmark_dir input/benchmarks_10k \
-  --out_dir output/benchmark_runs/twelve_solver_suite \
+  --out_dir output/benchmark_runs/twelve_solver_suite_500 \
   --scenario_ids all \
-  --limit_per_environment 0 \
-  --workers 7 \
+  --limit_per_environment 500 \
+  --workers 5 \
   --case_workers 4 \
-  --timeout_sec 300 \
-  --retrain_every 25 \
+  --timeout_sec 90 \
+  --retrain_every 100 \
   --train_epochs_cl 25 \
   --mplconfigdir /private/tmp/mpl \
   --runtime_metric attempt \
   --disable_s1_confidence_gate \
   --disable_neural_internal_gate
+
+  
 
 
 -- s1_device: cuda, cuda:0, cpu, mps
@@ -84,11 +88,11 @@ PYTHONDONTWRITEBYTECODE=1 \
   --benchmark_dir input/benchmarks_10k \
   --out_dir output/benchmark_runs/twelve_solver_suite \
   --scenario_ids all \
-  --limit_per_environment 0 \
-  --workers 7 \
+  --limit_per_environment 500 \
+  --workers 5 \
   --case_workers 4 \
   --timeout_sec 300 \
-  --retrain_every 200 \
+  --retrain_every 100 \
   --train_epochs_cl 25 \
   --mplconfigdir /tmp/mpl \
   --runtime_metric attempt \
@@ -129,8 +133,6 @@ from typing import Any, Dict, Iterable, List, Optional
 
 FAMILIES = [
     "bugtrap",
-    "maze_branching",
-    "serial_walls",
     "wall_gap",
     "dense_clutter",
     "large_sparse",
