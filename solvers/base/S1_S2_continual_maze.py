@@ -2023,6 +2023,7 @@ def train_s1_model(dataset_npz: Path, model_out: Path, args, current_model_path:
         "--near_goal_boost", str(args.near_goal_boost),
         "--progress_boost", str(args.progress_boost),
         "--max_sample_weight", str(args.max_sample_weight),
+        "--device", str(getattr(args, "train_device", "auto")),
     ]
     if current_model_path is not None:
         cmd += ["--init_model", str(current_model_path)]
@@ -3307,6 +3308,7 @@ def make_full_retrain_parser() -> argparse.ArgumentParser:
     p.add_argument("--train_epochs", type=int, default=8)
     p.add_argument("--train_batch", type=int, default=128)
     p.add_argument("--train_lr", type=float, default=5e-6)
+    p.add_argument("--train_device", type=str, default="auto")
     p.add_argument("--val_frac", type=float, default=0.1)
     p.add_argument("--lambda_u", type=float, default=1.0)
     p.add_argument("--lambda_next", type=float, default=0.1)

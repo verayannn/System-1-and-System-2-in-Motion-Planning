@@ -23,6 +23,20 @@ PYTHONDONTWRITEBYTECODE=1 \
   --benchmark_dir input/benchmarks_10k
 
 
+PYTHONDONTWRITEBYTECODE=1 \
+/Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/prepare_environment_assets.py \
+  --families all \
+  --training_trajectories 100 \
+  --benchmark_instances 10000 \
+  --seed 7 \
+  --max_attempts 10000 \
+  --train_epochs 25 \
+  --train_batch 128 \
+  --train_lr 5e-4 \
+  --assets_dir db/by_env \
+  --benchmark_dir input/benchmarks_10k
+
+
 
 ## families all
 """
@@ -48,13 +62,30 @@ FAMILIES = [
 ]
 
 
+def default_mplconfigdir() -> str:
+    if sys.platform == "darwin":
+        return "/private/tmp/mpl"
+    return "/tmp/mpl"
+
+
+def normalize_mplconfigdir(path_str: str) -> str:
+    path = str(path_str).strip()
+    if sys.platform != "darwin" and path.startswith("/private/tmp/"):
+        return path.replace("/private/tmp/", "/tmp/", 1)
+    if sys.platform != "darwin" and path == "/private/tmp/mpl":
+        return "/tmp/mpl"
+    return path
+
+
 def run(cmd: List[str], *, cwd: Path, dry_run: bool = False) -> None:
     print("\n[cmd]", " ".join(cmd))
     if dry_run:
         return
     env = dict(os.environ)
     env.setdefault("PYTHONDONTWRITEBYTECODE", "1")
-    env.setdefault("MPLCONFIGDIR", "/private/tmp/mpl")
+    mpldir = Path(normalize_mplconfigdir(default_mplconfigdir())).expanduser()
+    mpldir.mkdir(parents=True, exist_ok=True)
+    env.setdefault("MPLCONFIGDIR", str(mpldir))
     subprocess.run(cmd, cwd=str(cwd), env=env, check=True)
 
 

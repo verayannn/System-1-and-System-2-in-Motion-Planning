@@ -32,7 +32,7 @@ PYTHONDONTWRITEBYTECODE=1 \
   --scenario_ids all \
   --limit_per_environment 0 \
   --workers 7 \
-  --case_workers 1 \
+  --case_workers 4 \
   --timeout_sec 300 \
   --retrain_every 200 \
   --train_epochs_cl 25 \
@@ -48,8 +48,56 @@ confidence gate for s1 primitives and s1 neural are disabled above
 limit_per_environment 100: the first 100 scenarios of the benchmark
 workers: parallel environments/families
 case_workers: optional within-benchmark workers, defaulting to 1.
-  
 
+
+
+PYTHONDONTWRITEBYTECODE=1 \
+/Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/run_12_solver_suite.py \
+  --families all \
+  --configs all \
+  --assets_dir db/by_env \
+  --benchmark_dir input/benchmarks_10k \
+  --out_dir output/benchmark_runs/twelve_solver_suite \
+  --scenario_ids all \
+  --limit_per_environment 0 \
+  --workers 7 \
+  --case_workers 4 \
+  --timeout_sec 300 \
+  --retrain_every 25 \
+  --train_epochs_cl 25 \
+  --mplconfigdir /private/tmp/mpl \
+  --runtime_metric attempt \
+  --disable_s1_confidence_gate \
+  --disable_neural_internal_gate
+
+
+-- s1_device: cuda, cuda:0, cpu, mps
+
+
+for linux nvidia server:
+
+PYTHONDONTWRITEBYTECODE=1 \
+/Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/run_12_solver_suite.py \
+  --families all \
+  --configs all \
+  --assets_dir db/by_env \
+  --benchmark_dir input/benchmarks_10k \
+  --out_dir output/benchmark_runs/twelve_solver_suite \
+  --scenario_ids all \
+  --limit_per_environment 0 \
+  --workers 7 \
+  --case_workers 4 \
+  --timeout_sec 300 \
+  --retrain_every 200 \
+  --train_epochs_cl 25 \
+  --mplconfigdir /tmp/mpl \
+  --runtime_metric attempt \
+  --disable_s1_confidence_gate \
+  --disable_neural_internal_gate \
+  --s1_device cuda \
+  --train_device_cl cuda
+
+  
 """
 
 from __future__ import annotations
@@ -68,15 +116,27 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
 
+# FAMILIES = [
+#     "small_open",
+#     "large_sparse",
+#     "dense_clutter",
+#     "wall_gap",
+#     "serial_walls",
+#     "maze_branching",
+#     "bugtrap",
+# ]
+
+
 FAMILIES = [
-    "small_open",
-    "large_sparse",
-    "dense_clutter",
-    "wall_gap",
-    "serial_walls",
-    "maze_branching",
     "bugtrap",
+    "maze_branching",
+    "serial_walls",
+    "wall_gap",
+    "dense_clutter",
+    "large_sparse",
+    "small_open",
 ]
+
 
 CONFIGS = [
     {"label": "s1_primitives", "run_type": "s1", "s1": "primitives", "s2": "mpc", "cl": False},
@@ -92,6 +152,27 @@ CONFIGS = [
     {"label": "sofai_cbf_primitives_cl", "run_type": "sofai", "s1": "primitives", "s2": "cbf", "cl": True},
     {"label": "sofai_cbf_neural_cl", "run_type": "sofai", "s1": "neural", "s2": "cbf", "cl": True},
 ]
+
+
+def default_mplconfigdir() -> str:
+    if sys.platform == "darwin":
+        return "/private/tmp/mpl"
+    return "/tmp/mpl"
+
+
+def normalize_mplconfigdir(path_str: str) -> str:
+    path = str(path_str).strip()
+    if sys.platform != "darwin" and path.startswith("/private/tmp/"):
+        return path.replace("/private/tmp/", "/tmp/", 1)
+    if sys.platform != "darwin" and path == "/private/tmp/mpl":
+        return "/tmp/mpl"
+    return path
+
+
+def ensure_mplconfigdir(path_str: str) -> str:
+    path = Path(normalize_mplconfigdir(path_str)).expanduser()
+    path.mkdir(parents=True, exist_ok=True)
+    return str(path)
 
 
 def bool_from_csv(value: object) -> bool:
@@ -167,6 +248,10 @@ def apply_s1_mode_env(
         out["SOFAI_NEW_S1_CONFIDENCE_PATIENCE"] = str(args.neural_confidence_patience)
     if args.neural_confidence_min_steps is not None:
         out["SOFAI_NEW_S1_CONFIDENCE_MIN_STEPS"] = str(args.neural_confidence_min_steps)
+    if getattr(args, "s1_device", "auto") not in {"", "auto", None}:
+        out["SOFAI_NEW_S1_DEVICE"] = str(args.s1_device)
+    else:
+        out.pop("SOFAI_NEW_S1_DEVICE", None)
 
     return out
 
@@ -220,6 +305,9 @@ def run_cmd(cmd: List[str], *, cwd: Path, env: Dict[str, str], dry_run: bool = F
     print("\n[cmd]", " ".join(cmd))
     if dry_run:
         return
+    mpldir = env.get("MPLCONFIGDIR")
+    if mpldir:
+        Path(mpldir).expanduser().mkdir(parents=True, exist_ok=True)
     subprocess.run(cmd, cwd=str(cwd), env=env, check=True)
 
 
@@ -528,7 +616,20 @@ def maybe_retrain_neural(
     from solvers.base import S1_S2_continual_maze as cl
 
     current_model = cl_dir / "s1_policy_control_cnn.pth"
-    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    requested = str(getattr(cl_args, "train_device", "auto")).strip().lower()
+    if requested in {"", "auto"}:
+        if torch.cuda.is_available():
+            device = torch.device("cuda")
+        elif torch.backends.mps.is_available():
+            device = torch.device("mps")
+        else:
+            device = torch.device("cpu")
+    else:
+        if requested.startswith("cuda") and not torch.cuda.is_available():
+            raise RuntimeError(f"Requested train_device '{cl_args.train_device}' but CUDA is not available.")
+        if requested == "mps" and not torch.backends.mps.is_available():
+            raise RuntimeError("Requested train_device 'mps' but MPS is not available.")
+        device = torch.device(str(getattr(cl_args, "train_device")))
     _, norm, _, _ = cl.load_s1_model(current_model, device)
 
     dataset = cl_dir / f"continual_dataset_block_{block_id:03d}.npz"
@@ -549,7 +650,15 @@ def maybe_retrain_neural(
     print(f"[cl] retrained neural S1 at block {block_id}: {current_model}")
 
 
-def make_cl_args(root: Path, family: str, benchmark_file: Path, cl_dir: Path, retrain_every: int, train_epochs: int) -> Any:
+def make_cl_args(
+    root: Path,
+    family: str,
+    benchmark_file: Path,
+    cl_dir: Path,
+    retrain_every: int,
+    train_epochs: int,
+    train_device: str,
+) -> Any:
     sys.path.insert(0, str(root))
     from solvers.base import S1_S2_continual_maze as cl
 
@@ -564,6 +673,7 @@ def make_cl_args(root: Path, family: str, benchmark_file: Path, cl_dir: Path, re
         "--workdir", str(cl_dir),
         "--batch_size_scenarios", str(retrain_every),
         "--train_epochs", str(train_epochs),
+        "--train_device", str(train_device),
         "--no_plot_curves",
     ])
     args.episodic_memory_store_s2_success = True
@@ -780,7 +890,15 @@ def run_one_config(args: argparse.Namespace, family: str, cfg: Dict[str, Any]) -
 
     all_results: List[Dict[str, Any]] = []
     s2_records: List[Dict[str, Any]] = []
-    cl_args = make_cl_args(root, family, benchmark_file, cl_dir, args.retrain_every, args.train_epochs_cl)
+    cl_args = make_cl_args(
+        root,
+        family,
+        benchmark_file,
+        cl_dir,
+        args.retrain_every,
+        args.train_epochs_cl,
+        args.train_device_cl,
+    )
     if args.dry_run:
         for block_id, scenario_ids in enumerate(blocks, start=1):
             prefix = f"{cfg['label']}_block_{block_id:03d}"
@@ -871,13 +989,18 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--neural_confidence_min_steps", type=int, default=None)
     p.add_argument("--retrain_every", type=int, default=500)
     p.add_argument("--train_epochs_cl", type=int, default=25)
-    p.add_argument("--mplconfigdir", default="/private/tmp/mpl")
+    p.add_argument("--mplconfigdir", default=default_mplconfigdir())
+    p.add_argument("--s1_device", default="auto",
+                   help="Device for neural S1. Examples: auto, cuda, cuda:0, cpu, mps.")
+    p.add_argument("--train_device_cl", default="auto",
+                   help="Device for neural continual retraining. Examples: auto, cuda, cuda:0, cpu, mps.")
     p.add_argument("--dry_run", action="store_true")
     return p.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+    args.mplconfigdir = ensure_mplconfigdir(args.mplconfigdir)
     root = Path(args.root).expanduser().resolve()
     families = selected(args.families, FAMILIES, "environment")
     labels = [c["label"] for c in CONFIGS]

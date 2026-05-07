@@ -45,6 +45,33 @@ def _env_float(name: str, default: float) -> float:
     return float(raw) if raw not in (None, "") else float(default)
 
 
+def _resolve_device(torch) -> Any:
+    requested = os.environ.get("SOFAI_NEW_S1_DEVICE", "").strip().lower()
+    if requested in {"", "auto"}:
+        if torch.cuda.is_available():
+            return torch.device("cuda")
+        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            return torch.device("mps")
+        return torch.device("cpu")
+
+    if requested.startswith("cuda"):
+        if not torch.cuda.is_available():
+            raise RuntimeError(
+                f"SOFAI_NEW_S1_DEVICE={requested} was requested, but CUDA is not available."
+            )
+        return torch.device(requested)
+
+    if requested == "mps":
+        if not (hasattr(torch.backends, "mps") and torch.backends.mps.is_available()):
+            raise RuntimeError("SOFAI_NEW_S1_DEVICE=mps was requested, but MPS is not available.")
+        return torch.device("mps")
+
+    if requested == "cpu":
+        return torch.device("cpu")
+
+    return torch.device(requested)
+
+
 def _first_existing(candidates, *, env_name: str = "", required: bool = False) -> Path:
     if env_name and os.environ.get(env_name):
         path = Path(os.environ[env_name]).expanduser()
@@ -159,13 +186,7 @@ def _init():
     args = _make_args()
     model_path = _default_model_path()
 
-    requested_device = os.environ.get("SOFAI_NEW_S1_DEVICE", "").strip()
-    if requested_device:
-        device = torch.device(requested_device)
-    elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-        device = torch.device("mps")
-    else:
-        device = torch.device("cpu")
+    device = _resolve_device(torch)
 
     model, norm, L_c, meta = base.load_s1_model(model_path, device)
 

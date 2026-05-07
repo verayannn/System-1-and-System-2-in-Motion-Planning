@@ -27,6 +27,7 @@ PYTHONDONTWRITEBYTECODE=1 \
 run the benchmark where S1 neural has better success rate than S1 primitives:
 cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
 
+
 PYTHONDONTWRITEBYTECODE=1 \
 MPLCONFIGDIR=/private/tmp/mpl \
 SOFAI_S1_DB_PATH=db/by_env/wall_gap/S1_database_maze.json \
@@ -86,8 +87,25 @@ CSV_FIELDS = [
 ]
 
 
+def default_mplconfigdir() -> str:
+    if sys.platform == "darwin":
+        return "/private/tmp/mpl"
+    return "/tmp/mpl"
+
+
+def normalize_mplconfigdir(path_str: str) -> str:
+    path = str(path_str).strip()
+    if sys.platform != "darwin" and path.startswith("/private/tmp/"):
+        return path.replace("/private/tmp/", "/tmp/", 1)
+    if sys.platform != "darwin" and path == "/private/tmp/mpl":
+        return "/tmp/mpl"
+    return path
+
+
 def configure_repo(root: Path, mplconfigdir: str) -> None:
-    os.environ.setdefault("MPLCONFIGDIR", mplconfigdir)
+    mpldir = Path(normalize_mplconfigdir(mplconfigdir)).expanduser()
+    mpldir.mkdir(parents=True, exist_ok=True)
+    os.environ.setdefault("MPLCONFIGDIR", str(mpldir))
     for path in (root, root / "sofai", root / "solvers"):
         value = str(path)
         if value not in sys.path:
@@ -530,7 +548,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--timeout_sec", type=float, default=300.0)
     p.add_argument("--same_process", action="store_true")
     p.add_argument("--workers", type=int, default=1, help="Number of benchmark cases to run concurrently.")
-    p.add_argument("--mplconfigdir", default="/private/tmp/mpl")
+    p.add_argument("--mplconfigdir", default=default_mplconfigdir())
     p.add_argument("--enable_s1_confidence_gate", action="store_true",
                    help="In sofai mode, only accept a successful S1 attempt if its confidence exceeds --s1_confidence_threshold.")
     p.add_argument("--disable_s1_confidence_gate", dest="enable_s1_confidence_gate", action="store_false")

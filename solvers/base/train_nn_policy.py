@@ -175,6 +175,21 @@ def resolve_output_path(path_like: str) -> Path:
     return INSTANCE_DIR / _strip_legacy_maze_prefix(path)
 
 
+def resolve_device(device_str: str) -> torch.device:
+    requested = str(device_str).strip().lower()
+    if requested in {"", "auto"}:
+        if torch.cuda.is_available():
+            return torch.device("cuda")
+        if torch.backends.mps.is_available():
+            return torch.device("mps")
+        return torch.device("cpu")
+    if requested.startswith("cuda") and not torch.cuda.is_available():
+        raise RuntimeError(f"Requested device '{device_str}' but CUDA is not available.")
+    if requested == "mps" and not torch.backends.mps.is_available():
+        raise RuntimeError("Requested device 'mps' but MPS is not available.")
+    return torch.device(device_str)
+
+
 # ============================================================
 # Helpers
 # ============================================================
@@ -331,6 +346,8 @@ def main():
     ap.add_argument("--progress_boost", type=float, default=2.0)
     ap.add_argument("--max_sample_weight", type=float, default=25.0,
                     help="Clip final per-sample weights after multiplying any dataset-provided sample_weight.")
+    ap.add_argument("--device", type=str, default="auto",
+                    help="Training device: auto, cpu, mps, cuda, cuda:0, ...")
 
     args = ap.parse_args()
     args.dataset = str(resolve_existing_path(args.dataset, required=True))
@@ -338,7 +355,7 @@ def main():
     if args.init_model:
         args.init_model = str(resolve_existing_path(args.init_model, required=False))
 
-    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    device = resolve_device(args.device)
     print(f"Using device: {device}")
 
     data = np.load(args.dataset, allow_pickle=True)
