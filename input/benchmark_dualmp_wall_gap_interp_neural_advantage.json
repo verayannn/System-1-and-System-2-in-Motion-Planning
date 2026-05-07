@@ -1,0 +1,6802 @@
+[
+  {
+    "scenario_id": 0,
+    "A_query": [
+      [
+        -0.66373843,
+        0.43068167
+      ],
+      [
+        0.09649165,
+        -0.90350663
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.772574,
+        1.304685,
+        2.186598
+      ],
+      [
+        4.188293,
+        1.772574,
+        9.2,
+        2.186598
+      ],
+      [
+        1.065044,
+        1.13557,
+        1.304685,
+        1.772574
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 1,
+    "A_query": [
+      [
+        -0.50055905,
+        0.29631364
+      ],
+      [
+        0.43942991,
+        -0.44138784
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.790676,
+        1.105912,
+        2.130429
+      ],
+      [
+        3.377032,
+        1.790676,
+        9.2,
+        2.130429
+      ],
+      [
+        0.908768,
+        1.032774,
+        1.105912,
+        1.790676
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 2,
+    "A_query": [
+      [
+        -0.71399258,
+        -0.81450889
+      ],
+      [
+        -0.00971394,
+        -0.77690687
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.801617,
+        1.626447,
+        2.185849
+      ],
+      [
+        3.985236,
+        1.801617,
+        9.2,
+        2.185849
+      ],
+      [
+        3.985236,
+        1.164575,
+        3.985236,
+        1.801617
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 3,
+    "A_query": [
+      [
+        -0.57446658,
+        -0.94059489
+      ],
+      [
+        -0.32813991,
+        -0.8718945
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.92343,
+        0.896351,
+        2.264278
+      ],
+      [
+        3.752659,
+        1.92343,
+        9.2,
+        2.264278
+      ],
+      [
+        3.752659,
+        1.124165,
+        3.752659,
+        1.92343
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 4,
+    "A_query": [
+      [
+        -0.80593678,
+        0.76999277
+      ],
+      [
+        0.22715054,
+        -0.96333003
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.114688,
+        0.955634,
+        2.467558
+      ],
+      [
+        3.780821,
+        2.114688,
+        9.2,
+        2.467558
+      ],
+      [
+        0.761604,
+        1.433118,
+        0.955634,
+        2.114688
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 5,
+    "A_query": [
+      [
+        -0.63023143,
+        0.02100009
+      ],
+      [
+        0.92297941,
+        -0.77902391
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.929226,
+        0.913935,
+        2.284878
+      ],
+      [
+        3.702135,
+        1.929226,
+        9.2,
+        2.284878
+      ],
+      [
+        0.693182,
+        1.316563,
+        0.913935,
+        1.929226
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 6,
+    "A_query": [
+      [
+        -0.38020405,
+        -0.34940189
+      ],
+      [
+        -0.09570228,
+        -0.4390924
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.903396,
+        0.949634,
+        2.22414
+      ],
+      [
+        3.576155,
+        1.903396,
+        9.2,
+        2.22414
+      ],
+      [
+        0.76715,
+        1.356014,
+        0.949634,
+        1.903396
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 7,
+    "A_query": [
+      [
+        -0.94406798,
+        0.13571373
+      ],
+      [
+        0.03943053,
+        -0.9251485
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.982444,
+        1.502054,
+        2.356796
+      ],
+      [
+        3.939294,
+        1.982444,
+        9.2,
+        2.356796
+      ],
+      [
+        3.939294,
+        1.194374,
+        3.939294,
+        1.982444
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 8,
+    "A_query": [
+      [
+        -0.883004,
+        -0.03427144
+      ],
+      [
+        -0.26421851,
+        -0.58751497
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.048641,
+        1.541919,
+        2.405059
+      ],
+      [
+        4.123154,
+        2.048641,
+        9.2,
+        2.405059
+      ],
+      [
+        1.262956,
+        1.534429,
+        1.541919,
+        2.048641
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 9,
+    "A_query": [
+      [
+        -0.553811,
+        0.00505326
+      ],
+      [
+        0.35849427,
+        -0.13344547
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.721047,
+        1.607013,
+        2.098681
+      ],
+      [
+        4.446867,
+        1.721047,
+        9.2,
+        2.098681
+      ],
+      [
+        1.343129,
+        1.094552,
+        1.607013,
+        1.721047
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 10,
+    "A_query": [
+      [
+        -0.50504953,
+        -0.60662952
+      ],
+      [
+        -0.00684497,
+        -0.55568203
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.826425,
+        1.64979,
+        2.226538
+      ],
+      [
+        4.356451,
+        1.826425,
+        9.2,
+        2.226538
+      ],
+      [
+        1.389837,
+        1.297032,
+        1.64979,
+        1.826425
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 11,
+    "A_query": [
+      [
+        -0.49588113,
+        -0.42035917
+      ],
+      [
+        -0.56088764,
+        -0.86453706
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.902342,
+        1.696524,
+        2.276709
+      ],
+      [
+        4.440391,
+        1.902342,
+        9.2,
+        2.276709
+      ],
+      [
+        4.440391,
+        1.232715,
+        4.440391,
+        1.902342
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 12,
+    "A_query": [
+      [
+        -0.84741218,
+        0.08642014
+      ],
+      [
+        -0.56466476,
+        -0.32910358
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.102776,
+        1.24504,
+        2.513081
+      ],
+      [
+        4.123627,
+        2.102776,
+        9.2,
+        2.513081
+      ],
+      [
+        4.123627,
+        1.53663,
+        4.123627,
+        2.102776
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 13,
+    "A_query": [
+      [
+        -0.33938693,
+        0.17100342
+      ],
+      [
+        -0.04245833,
+        -0.51577236
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.959201,
+        1.842572,
+        2.286235
+      ],
+      [
+        4.357264,
+        1.959201,
+        9.2,
+        2.286235
+      ],
+      [
+        1.638011,
+        1.386896,
+        1.842572,
+        1.959201
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 14,
+    "A_query": [
+      [
+        -0.93141575,
+        -0.11463573
+      ],
+      [
+        -0.72256833,
+        -0.29745987
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.830492,
+        1.197787,
+        2.210467
+      ],
+      [
+        3.439106,
+        1.830492,
+        9.2,
+        2.210467
+      ],
+      [
+        0.964394,
+        1.137511,
+        1.197787,
+        1.830492
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 15,
+    "A_query": [
+      [
+        -0.46237015,
+        0.22910608
+      ],
+      [
+        0.78915753,
+        -0.9734319
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.102549,
+        1.610829,
+        2.499071
+      ],
+      [
+        3.89029,
+        2.102549,
+        9.2,
+        2.499071
+      ],
+      [
+        1.35566,
+        1.426425,
+        1.610829,
+        2.102549
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 16,
+    "A_query": [
+      [
+        -0.65401123,
+        -0.29032689
+      ],
+      [
+        -0.5498308,
+        -0.8175938
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.881862,
+        1.352877,
+        2.216147
+      ],
+      [
+        3.672505,
+        1.881862,
+        9.2,
+        2.216147
+      ],
+      [
+        1.124949,
+        1.244054,
+        1.352877,
+        1.881862
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 17,
+    "A_query": [
+      [
+        -0.62714515,
+        0.78074381
+      ],
+      [
+        0.09330631,
+        -0.8306584
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.716228,
+        1.021105,
+        2.041252
+      ],
+      [
+        3.561256,
+        1.716228,
+        9.2,
+        2.041252
+      ],
+      [
+        0.724402,
+        0.989262,
+        1.021105,
+        1.716228
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 18,
+    "A_query": [
+      [
+        -0.31467128,
+        0.79380632
+      ],
+      [
+        0.16837356,
+        -0.78734208
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.794922,
+        1.622376,
+        2.206212
+      ],
+      [
+        4.192541,
+        1.794922,
+        9.2,
+        2.206212
+      ],
+      [
+        4.192541,
+        1.189095,
+        4.192541,
+        1.794922
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 19,
+    "A_query": [
+      [
+        -0.97381867,
+        0.94083411
+      ],
+      [
+        0.27289958,
+        -0.81154682
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.065347,
+        1.020724,
+        2.386729
+      ],
+      [
+        3.581508,
+        2.065347,
+        9.2,
+        2.386729
+      ],
+      [
+        0.836818,
+        1.37164,
+        1.020724,
+        2.065347
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 20,
+    "A_query": [
+      [
+        -0.38644122,
+        0.03681288
+      ],
+      [
+        0.98403492,
+        -0.5227485
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.101395,
+        1.463156,
+        2.48663
+      ],
+      [
+        4.071314,
+        2.101395,
+        9.2,
+        2.48663
+      ],
+      [
+        1.195364,
+        1.305061,
+        1.463156,
+        2.101395
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 21,
+    "A_query": [
+      [
+        -0.68720091,
+        0.80937473
+      ],
+      [
+        0.27389769,
+        -0.74841888
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.976104,
+        1.45593,
+        2.297534
+      ],
+      [
+        4.09895,
+        1.976104,
+        9.2,
+        2.297534
+      ],
+      [
+        1.269408,
+        1.418867,
+        1.45593,
+        1.976104
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 22,
+    "A_query": [
+      [
+        -0.98016826,
+        -0.29080361
+      ],
+      [
+        0.27705955,
+        -0.3656363
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.122398,
+        1.816569,
+        2.483946
+      ],
+      [
+        4.112991,
+        2.122398,
+        9.2,
+        2.483946
+      ],
+      [
+        1.597191,
+        1.34196,
+        1.816569,
+        2.122398
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 23,
+    "A_query": [
+      [
+        -0.1140124,
+        -0.4676725
+      ],
+      [
+        0.33763307,
+        -0.94741452
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.721668,
+        1.503299,
+        2.049438
+      ],
+      [
+        3.938554,
+        1.721668,
+        9.2,
+        2.049438
+      ],
+      [
+        3.938554,
+        0.984391,
+        3.938554,
+        1.721668
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 24,
+    "A_query": [
+      [
+        -0.17110727,
+        0.01163951
+      ],
+      [
+        0.23799527,
+        -0.89858008
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.835661,
+        1.298649,
+        2.241114
+      ],
+      [
+        3.625154,
+        1.835661,
+        9.2,
+        2.241114
+      ],
+      [
+        1.042993,
+        1.093536,
+        1.298649,
+        1.835661
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 25,
+    "A_query": [
+      [
+        -0.32400524,
+        -0.1106445
+      ],
+      [
+        0.02927072,
+        -0.78274513
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.821535,
+        1.188765,
+        2.145814
+      ],
+      [
+        4.06066,
+        1.821535,
+        9.2,
+        2.145814
+      ],
+      [
+        4.06066,
+        1.184858,
+        4.06066,
+        1.821535
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 26,
+    "A_query": [
+      [
+        -0.91154068,
+        -0.04754491
+      ],
+      [
+        -0.09486343,
+        -0.79585959
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.920957,
+        1.373592,
+        2.322776
+      ],
+      [
+        3.68774,
+        1.920957,
+        9.2,
+        2.322776
+      ],
+      [
+        3.68774,
+        1.415447,
+        3.68774,
+        1.920957
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 27,
+    "A_query": [
+      [
+        -0.24385151,
+        -0.78648066
+      ],
+      [
+        -0.0615583,
+        -0.92025694
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.923139,
+        1.501216,
+        2.260652
+      ],
+      [
+        4.073987,
+        1.923139,
+        9.2,
+        2.260652
+      ],
+      [
+        1.308323,
+        1.190086,
+        1.501216,
+        1.923139
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 28,
+    "A_query": [
+      [
+        -0.91429282,
+        0.23119732
+      ],
+      [
+        -0.01500365,
+        -0.24298505
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.774848,
+        1.776872,
+        2.183739
+      ],
+      [
+        4.252062,
+        1.774848,
+        9.2,
+        2.183739
+      ],
+      [
+        1.536482,
+        1.066955,
+        1.776872,
+        1.774848
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 29,
+    "A_query": [
+      [
+        -0.28807893,
+        0.04270418
+      ],
+      [
+        -0.18132509,
+        -0.72875008
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.996787,
+        1.071709,
+        2.411777
+      ],
+      [
+        3.969903,
+        1.996787,
+        9.2,
+        2.411777
+      ],
+      [
+        0.858786,
+        1.280195,
+        1.071709,
+        1.996787
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 30,
+    "A_query": [
+      [
+        -0.90680918,
+        0.67849819
+      ],
+      [
+        0.52483336,
+        -0.99742607
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.971803,
+        1.162082,
+        2.346477
+      ],
+      [
+        3.705043,
+        1.971803,
+        9.2,
+        2.346477
+      ],
+      [
+        0.93127,
+        1.180116,
+        1.162082,
+        1.971803
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 31,
+    "A_query": [
+      [
+        -0.68169384,
+        0.30679079
+      ],
+      [
+        0.36714129,
+        -0.82549364
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.910252,
+        1.449945,
+        2.262185
+      ],
+      [
+        3.663685,
+        1.910252,
+        9.2,
+        2.262185
+      ],
+      [
+        3.663685,
+        1.370458,
+        3.663685,
+        1.910252
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 32,
+    "A_query": [
+      [
+        -0.7413752,
+        0.43378226
+      ],
+      [
+        0.0995417,
+        -0.76941377
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.934427,
+        1.522382,
+        2.260292
+      ],
+      [
+        3.941258,
+        1.934427,
+        9.2,
+        2.260292
+      ],
+      [
+        3.941258,
+        1.409624,
+        3.941258,
+        1.934427
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 33,
+    "A_query": [
+      [
+        0.14240917,
+        0.34304282
+      ],
+      [
+        -0.64456766,
+        -0.91727021
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.037054,
+        1.75721,
+        2.435163
+      ],
+      [
+        4.240694,
+        2.037054,
+        9.2,
+        2.435163
+      ],
+      [
+        1.492485,
+        1.479994,
+        1.75721,
+        2.037054
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 34,
+    "A_query": [
+      [
+        -0.39884686,
+        -0.50272982
+      ],
+      [
+        -0.26528337,
+        -0.81430267
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.983524,
+        1.148348,
+        2.349326
+      ],
+      [
+        3.671128,
+        1.983524,
+        9.2,
+        2.349326
+      ],
+      [
+        0.868156,
+        1.295379,
+        1.148348,
+        1.983524
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 35,
+    "A_query": [
+      [
+        -0.22536821,
+        -0.32917178
+      ],
+      [
+        -0.01408217,
+        -0.48839045
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.934088,
+        1.018271,
+        2.292721
+      ],
+      [
+        3.670825,
+        1.934088,
+        9.2,
+        2.292721
+      ],
+      [
+        0.763947,
+        1.209509,
+        1.018271,
+        1.934088
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 36,
+    "A_query": [
+      [
+        -0.71732571,
+        0.82950562
+      ],
+      [
+        -0.32201697,
+        0.32267744
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.963487,
+        1.114192,
+        2.333984
+      ],
+      [
+        3.442331,
+        1.963487,
+        9.2,
+        2.333984
+      ],
+      [
+        0.84658,
+        1.186413,
+        1.114192,
+        1.963487
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 37,
+    "A_query": [
+      [
+        -0.92647317,
+        -0.07502601
+      ],
+      [
+        0.47728407,
+        -0.19803844
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.82632,
+        1.384987,
+        2.215697
+      ],
+      [
+        3.658816,
+        1.82632,
+        9.2,
+        2.215697
+      ],
+      [
+        3.658816,
+        1.121377,
+        3.658816,
+        1.82632
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 38,
+    "A_query": [
+      [
+        -0.73653963,
+        0.50658079
+      ],
+      [
+        0.39418788,
+        -0.53886143
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.017081,
+        1.062721,
+        2.362523
+      ],
+      [
+        3.884703,
+        2.017081,
+        9.2,
+        2.362523
+      ],
+      [
+        0.773074,
+        1.342835,
+        1.062721,
+        2.017081
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 39,
+    "A_query": [
+      [
+        -0.21911907,
+        -0.32664169
+      ],
+      [
+        0.03845413,
+        -0.56417493
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.122134,
+        1.37538,
+        2.488802
+      ],
+      [
+        3.713753,
+        2.122134,
+        9.2,
+        2.488802
+      ],
+      [
+        3.713753,
+        1.325114,
+        3.713753,
+        2.122134
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 40,
+    "A_query": [
+      [
+        -0.21989411,
+        0.0296331
+      ],
+      [
+        0.09548326,
+        -0.29171013
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.938473,
+        1.100709,
+        2.311131
+      ],
+      [
+        3.823441,
+        1.938473,
+        9.2,
+        2.311131
+      ],
+      [
+        3.823441,
+        1.271292,
+        3.823441,
+        1.938473
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 41,
+    "A_query": [
+      [
+        -0.16217958,
+        0.06357503
+      ],
+      [
+        -0.46873,
+        -0.53079874
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.982456,
+        1.798293,
+        2.370957
+      ],
+      [
+        4.069592,
+        1.982456,
+        9.2,
+        2.370957
+      ],
+      [
+        1.52367,
+        1.434615,
+        1.798293,
+        1.982456
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 42,
+    "A_query": [
+      [
+        -0.75131544,
+        -0.2748637
+      ],
+      [
+        -0.51483045,
+        -0.69152094
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.922966,
+        1.188167,
+        2.28085
+      ],
+      [
+        3.536162,
+        1.922966,
+        9.2,
+        2.28085
+      ],
+      [
+        0.983053,
+        1.221448,
+        1.188167,
+        1.922966
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 43,
+    "A_query": [
+      [
+        -0.9777521,
+        0.44936277
+      ],
+      [
+        0.30705417,
+        -0.58611356
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.705402,
+        1.440841,
+        2.026974
+      ],
+      [
+        3.800961,
+        1.705402,
+        9.2,
+        2.026974
+      ],
+      [
+        1.240447,
+        0.956136,
+        1.440841,
+        1.705402
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 44,
+    "A_query": [
+      [
+        -0.31798792,
+        -0.36981186
+      ],
+      [
+        -0.05049424,
+        -0.67114284
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.116772,
+        1.819711,
+        2.460839
+      ],
+      [
+        4.189655,
+        2.116772,
+        9.2,
+        2.460839
+      ],
+      [
+        4.189655,
+        1.548603,
+        4.189655,
+        2.116772
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 45,
+    "A_query": [
+      [
+        -0.33074103,
+        -0.2563098
+      ],
+      [
+        -0.02170234,
+        -0.76592493
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.807377,
+        1.691476,
+        2.1836
+      ],
+      [
+        4.081437,
+        1.807377,
+        9.2,
+        2.1836
+      ],
+      [
+        1.416842,
+        1.296937,
+        1.691476,
+        1.807377
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 46,
+    "A_query": [
+      [
+        -0.6103277,
+        -0.07960705
+      ],
+      [
+        0.05780803,
+        -0.7958212
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.910717,
+        1.316333,
+        2.311119
+      ],
+      [
+        3.694367,
+        1.910717,
+        9.2,
+        2.311119
+      ],
+      [
+        3.694367,
+        1.259255,
+        3.694367,
+        1.910717
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 47,
+    "A_query": [
+      [
+        -0.77086114,
+        -0.83967247
+      ],
+      [
+        -0.00718367,
+        -0.39799968
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.861507,
+        1.1262,
+        2.209263
+      ],
+      [
+        3.868835,
+        1.861507,
+        9.2,
+        2.209263
+      ],
+      [
+        3.868835,
+        1.325359,
+        3.868835,
+        1.861507
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 48,
+    "A_query": [
+      [
+        -0.25994538,
+        -0.01259332
+      ],
+      [
+        0.91607913,
+        -0.78832352
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.7862,
+        1.523895,
+        2.15078
+      ],
+      [
+        4.130121,
+        1.7862,
+        9.2,
+        2.15078
+      ],
+      [
+        1.341292,
+        1.094449,
+        1.523895,
+        1.7862
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 49,
+    "A_query": [
+      [
+        -0.33160995,
+        -0.23838556
+      ],
+      [
+        -0.59909772,
+        -0.73580599
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.755767,
+        1.384499,
+        2.087354
+      ],
+      [
+        4.012242,
+        1.755767,
+        9.2,
+        2.087354
+      ],
+      [
+        4.012242,
+        1.179609,
+        4.012242,
+        1.755767
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 50,
+    "A_query": [
+      [
+        -0.45021492,
+        0.17424592
+      ],
+      [
+        0.07524309,
+        -0.91448708
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.704784,
+        0.794592,
+        2.083503
+      ],
+      [
+        3.677062,
+        1.704784,
+        9.2,
+        2.083503
+      ],
+      [
+        0.583394,
+        1.148194,
+        0.794592,
+        1.704784
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 51,
+    "A_query": [
+      [
+        -0.74401786,
+        -0.37028071
+      ],
+      [
+        -0.20088281,
+        -0.88531067
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.891948,
+        1.34451,
+        2.241231
+      ],
+      [
+        3.645495,
+        1.891948,
+        9.2,
+        2.241231
+      ],
+      [
+        1.078057,
+        1.346612,
+        1.34451,
+        1.891948
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 52,
+    "A_query": [
+      [
+        -0.58332986,
+        -0.33208992
+      ],
+      [
+        -0.06639972,
+        -0.54012916
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.924364,
+        1.890464,
+        2.289304
+      ],
+      [
+        4.21868,
+        1.924364,
+        9.2,
+        2.289304
+      ],
+      [
+        4.21868,
+        1.31803,
+        4.21868,
+        1.924364
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 53,
+    "A_query": [
+      [
+        -0.61855107,
+        -0.21876982
+      ],
+      [
+        0.04233453,
+        -0.33462942
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.021899,
+        1.101402,
+        2.405663
+      ],
+      [
+        3.422879,
+        2.021899,
+        9.2,
+        2.405663
+      ],
+      [
+        3.422879,
+        1.498169,
+        3.422879,
+        2.021899
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 54,
+    "A_query": [
+      [
+        -0.78941782,
+        0.4056387
+      ],
+      [
+        0.54845749,
+        -0.49393157
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.733021,
+        1.361752,
+        2.076468
+      ],
+      [
+        4.192554,
+        1.733021,
+        9.2,
+        2.076468
+      ],
+      [
+        1.157661,
+        0.956914,
+        1.361752,
+        1.733021
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 55,
+    "A_query": [
+      [
+        -0.69323286,
+        -0.04074564
+      ],
+      [
+        0.33310145,
+        -0.36530544
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.134631,
+        1.353684,
+        2.496674
+      ],
+      [
+        3.711473,
+        2.134631,
+        9.2,
+        2.496674
+      ],
+      [
+        3.711473,
+        1.356074,
+        3.711473,
+        2.134631
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 56,
+    "A_query": [
+      [
+        -0.21890924,
+        -0.68804585
+      ],
+      [
+        -0.00196799,
+        -0.84081714
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.833868,
+        1.454341,
+        2.245144
+      ],
+      [
+        3.711545,
+        1.833868,
+        9.2,
+        2.245144
+      ],
+      [
+        1.177496,
+        1.134232,
+        1.454341,
+        1.833868
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 57,
+    "A_query": [
+      [
+        -0.90895114,
+        -0.21379796
+      ],
+      [
+        -0.75424834,
+        -0.70102645
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.784001,
+        0.766017,
+        2.149899
+      ],
+      [
+        3.658202,
+        1.784001,
+        9.2,
+        2.149899
+      ],
+      [
+        0.487247,
+        1.106671,
+        0.766017,
+        1.784001
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 58,
+    "A_query": [
+      [
+        -0.11703493,
+        -0.31630381
+      ],
+      [
+        0.1704244,
+        -0.88002656
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.896932,
+        1.344715,
+        2.220391
+      ],
+      [
+        3.6962,
+        1.896932,
+        9.2,
+        2.220391
+      ],
+      [
+        1.058453,
+        1.207034,
+        1.344715,
+        1.896932
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 59,
+    "A_query": [
+      [
+        -0.78112773,
+        0.65867228
+      ],
+      [
+        0.46952079,
+        -0.84354413
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.041363,
+        1.352451,
+        2.408335
+      ],
+      [
+        3.842379,
+        2.041363,
+        9.2,
+        2.408335
+      ],
+      [
+        3.842379,
+        1.26373,
+        3.842379,
+        2.041363
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 60,
+    "A_query": [
+      [
+        -0.75742016,
+        0.06811603
+      ],
+      [
+        0.305597,
+        -0.7104066
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.78853,
+        1.818488,
+        2.115401
+      ],
+      [
+        4.36723,
+        1.78853,
+        9.2,
+        2.115401
+      ],
+      [
+        1.54086,
+        1.222464,
+        1.818488,
+        1.78853
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 61,
+    "A_query": [
+      [
+        -0.85691597,
+        0.22831122
+      ],
+      [
+        0.5063496,
+        -0.91894295
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.833354,
+        1.609469,
+        2.201341
+      ],
+      [
+        4.300439,
+        1.833354,
+        9.2,
+        2.201341
+      ],
+      [
+        4.300439,
+        1.275052,
+        4.300439,
+        1.833354
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 62,
+    "A_query": [
+      [
+        -0.82072508,
+        0.65292069
+      ],
+      [
+        -0.05166772,
+        -0.14731857
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.071461,
+        1.736548,
+        2.464814
+      ],
+      [
+        4.233915,
+        2.071461,
+        9.2,
+        2.464814
+      ],
+      [
+        4.233915,
+        1.387752,
+        4.233915,
+        2.071461
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 63,
+    "A_query": [
+      [
+        -0.65202144,
+        -0.03904273
+      ],
+      [
+        0.04737512,
+        -0.42795849
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.768576,
+        1.034408,
+        2.164268
+      ],
+      [
+        3.820724,
+        1.768576,
+        9.2,
+        2.164268
+      ],
+      [
+        0.739338,
+        1.041929,
+        1.034408,
+        1.768576
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 64,
+    "A_query": [
+      [
+        -0.48601845,
+        -0.04541876
+      ],
+      [
+        -0.56370955,
+        -0.58103533
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.891285,
+        1.91862,
+        2.285983
+      ],
+      [
+        4.180166,
+        1.891285,
+        9.2,
+        2.285983
+      ],
+      [
+        4.180166,
+        1.299556,
+        4.180166,
+        1.891285
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 65,
+    "A_query": [
+      [
+        -0.32110649,
+        0.07785982
+      ],
+      [
+        0.68796445,
+        -0.37484819
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.778371,
+        1.275137,
+        2.163841
+      ],
+      [
+        3.801387,
+        1.778371,
+        9.2,
+        2.163841
+      ],
+      [
+        3.801387,
+        1.025071,
+        3.801387,
+        1.778371
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 66,
+    "A_query": [
+      [
+        -0.5740886,
+        0.97300335
+      ],
+      [
+        0.07124572,
+        -0.46376852
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.82859,
+        1.92675,
+        2.245302
+      ],
+      [
+        4.260875,
+        1.82859,
+        9.2,
+        2.245302
+      ],
+      [
+        4.260875,
+        1.215913,
+        4.260875,
+        1.82859
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 67,
+    "A_query": [
+      [
+        -0.25432558,
+        -0.02358549
+      ],
+      [
+        -0.08269394,
+        -0.25249977
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.146241,
+        1.228691,
+        2.528387
+      ],
+      [
+        3.569566,
+        2.146241,
+        9.2,
+        2.528387
+      ],
+      [
+        1.040751,
+        1.505052,
+        1.228691,
+        2.146241
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 68,
+    "A_query": [
+      [
+        -0.91193555,
+        0.020143
+      ],
+      [
+        0.1598817,
+        -0.11372138
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.729723,
+        1.452572,
+        2.121913
+      ],
+      [
+        4.194816,
+        1.729723,
+        9.2,
+        2.121913
+      ],
+      [
+        4.194816,
+        0.953069,
+        4.194816,
+        1.729723
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 69,
+    "A_query": [
+      [
+        -0.40223916,
+        -0.50892296
+      ],
+      [
+        -0.39398833,
+        -0.90482413
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.822171,
+        1.702723,
+        2.176853
+      ],
+      [
+        4.051175,
+        1.822171,
+        9.2,
+        2.176853
+      ],
+      [
+        1.445643,
+        1.172249,
+        1.702723,
+        1.822171
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 70,
+    "A_query": [
+      [
+        -0.82542421,
+        -0.55859719
+      ],
+      [
+        -0.66566147,
+        -0.87652713
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.784608,
+        1.723206,
+        2.192117
+      ],
+      [
+        3.927722,
+        1.784608,
+        9.2,
+        2.192117
+      ],
+      [
+        3.927722,
+        1.029207,
+        3.927722,
+        1.784608
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 71,
+    "A_query": [
+      [
+        -0.53882532,
+        0.09389762
+      ],
+      [
+        0.82995028,
+        -0.33557421
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.743069,
+        1.138438,
+        2.129946
+      ],
+      [
+        3.379252,
+        1.743069,
+        9.2,
+        2.129946
+      ],
+      [
+        0.949605,
+        1.012626,
+        1.138438,
+        1.743069
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 72,
+    "A_query": [
+      [
+        -0.72339514,
+        -0.5223285
+      ],
+      [
+        0.37654596,
+        0.16581211
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.062905,
+        1.157648,
+        2.389327
+      ],
+      [
+        3.745305,
+        2.062905,
+        9.2,
+        2.389327
+      ],
+      [
+        3.745305,
+        1.392409,
+        3.745305,
+        2.062905
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 73,
+    "A_query": [
+      [
+        -0.76131592,
+        0.80889121
+      ],
+      [
+        -0.0239316,
+        -0.2985203
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.813257,
+        1.613238,
+        2.216443
+      ],
+      [
+        4.141482,
+        1.813257,
+        9.2,
+        2.216443
+      ],
+      [
+        4.141482,
+        1.290998,
+        4.141482,
+        1.813257
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 74,
+    "A_query": [
+      [
+        -0.96616152,
+        0.00720364
+      ],
+      [
+        0.7165415,
+        -0.79803259
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.914705,
+        0.975304,
+        2.277433
+      ],
+      [
+        3.72715,
+        1.914705,
+        9.2,
+        2.277433
+      ],
+      [
+        0.74643,
+        1.382307,
+        0.975304,
+        1.914705
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 75,
+    "A_query": [
+      [
+        -0.76774997,
+        -0.1425292
+      ],
+      [
+        -0.60224022,
+        -0.93425689
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.94803,
+        1.654834,
+        2.298071
+      ],
+      [
+        4.007512,
+        1.94803,
+        9.2,
+        2.298071
+      ],
+      [
+        1.443983,
+        1.257727,
+        1.654834,
+        1.94803
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 76,
+    "A_query": [
+      [
+        -0.31852848,
+        0.5945053
+      ],
+      [
+        0.06914881,
+        -0.84801957
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.867739,
+        0.865419,
+        2.269407
+      ],
+      [
+        3.56033,
+        1.867739,
+        9.2,
+        2.269407
+      ],
+      [
+        0.583545,
+        1.272014,
+        0.865419,
+        1.867739
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 77,
+    "A_query": [
+      [
+        -0.72215634,
+        0.8697935
+      ],
+      [
+        0.19569131,
+        -0.43010104
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.858312,
+        1.678064,
+        2.249483
+      ],
+      [
+        3.977775,
+        1.858312,
+        9.2,
+        2.249483
+      ],
+      [
+        3.977775,
+        1.227926,
+        3.977775,
+        1.858312
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 78,
+    "A_query": [
+      [
+        -0.84488338,
+        -0.22254034
+      ],
+      [
+        -0.15758843,
+        -0.88260884
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.785314,
+        1.773832,
+        2.133034
+      ],
+      [
+        4.006286,
+        1.785314,
+        9.2,
+        2.133034
+      ],
+      [
+        1.554316,
+        1.160727,
+        1.773832,
+        1.785314
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 79,
+    "A_query": [
+      [
+        -0.36535767,
+        -0.12018194
+      ],
+      [
+        0.43913431,
+        -0.97560208
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.002859,
+        1.774723,
+        2.326371
+      ],
+      [
+        4.0479,
+        2.002859,
+        9.2,
+        2.326371
+      ],
+      [
+        1.524541,
+        1.324279,
+        1.774723,
+        2.002859
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 80,
+    "A_query": [
+      [
+        -0.98452251,
+        0.67787993
+      ],
+      [
+        0.3172689,
+        -0.81333846
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.950338,
+        1.260658,
+        2.31615
+      ],
+      [
+        3.651382,
+        1.950338,
+        9.2,
+        2.31615
+      ],
+      [
+        3.651382,
+        1.383231,
+        3.651382,
+        1.950338
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 81,
+    "A_query": [
+      [
+        -0.30938456,
+        -0.21675621
+      ],
+      [
+        -0.00146124,
+        -0.47640151
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.702869,
+        1.209049,
+        2.079719
+      ],
+      [
+        3.971201,
+        1.702869,
+        9.2,
+        2.079719
+      ],
+      [
+        3.971201,
+        1.17392,
+        3.971201,
+        1.702869
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 82,
+    "A_query": [
+      [
+        -0.90114403,
+        0.13391511
+      ],
+      [
+        0.34352981,
+        -0.79084381
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.902091,
+        1.304535,
+        2.247384
+      ],
+      [
+        3.857016,
+        1.902091,
+        9.2,
+        2.247384
+      ],
+      [
+        3.857016,
+        1.369647,
+        3.857016,
+        1.902091
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 83,
+    "A_query": [
+      [
+        -0.56395168,
+        0.60826203
+      ],
+      [
+        0.46529541,
+        -0.7655156
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.122354,
+        1.689587,
+        2.442452
+      ],
+      [
+        4.30391,
+        2.122354,
+        9.2,
+        2.442452
+      ],
+      [
+        1.438395,
+        1.48055,
+        1.689587,
+        2.122354
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 84,
+    "A_query": [
+      [
+        -0.72115547,
+        0.22206415
+      ],
+      [
+        0.6752158,
+        -0.95232851
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.078394,
+        1.668247,
+        2.473548
+      ],
+      [
+        4.520397,
+        2.078394,
+        9.2,
+        2.473548
+      ],
+      [
+        1.455015,
+        1.409544,
+        1.668247,
+        2.078394
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 85,
+    "A_query": [
+      [
+        -0.98286767,
+        0.1025718
+      ],
+      [
+        0.55690188,
+        -0.28303344
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.122017,
+        1.521941,
+        2.444484
+      ],
+      [
+        4.182864,
+        2.122017,
+        9.2,
+        2.444484
+      ],
+      [
+        1.30845,
+        1.486443,
+        1.521941,
+        2.122017
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 86,
+    "A_query": [
+      [
+        -0.90571285,
+        -0.08342847
+      ],
+      [
+        0.33712292,
+        -0.42491409
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.095139,
+        1.321131,
+        2.42343
+      ],
+      [
+        3.582399,
+        2.095139,
+        9.2,
+        2.42343
+      ],
+      [
+        1.051151,
+        1.541384,
+        1.321131,
+        2.095139
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 87,
+    "A_query": [
+      [
+        -0.85461253,
+        0.27725746
+      ],
+      [
+        -0.5955868,
+        0.11650177
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.145713,
+        1.017775,
+        2.485103
+      ],
+      [
+        3.684304,
+        2.145713,
+        9.2,
+        2.485103
+      ],
+      [
+        0.751967,
+        1.415296,
+        1.017775,
+        2.145713
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 88,
+    "A_query": [
+      [
+        -0.51776507,
+        -0.50970824
+      ],
+      [
+        -0.10034186,
+        -0.27368361
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.737434,
+        1.720796,
+        2.06605
+      ],
+      [
+        4.170347,
+        1.737434,
+        9.2,
+        2.06605
+      ],
+      [
+        4.170347,
+        0.95358,
+        4.170347,
+        1.737434
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 89,
+    "A_query": [
+      [
+        -0.41082009,
+        -0.05686572
+      ],
+      [
+        0.74385532,
+        0.03505088
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.966978,
+        1.743813,
+        2.30277
+      ],
+      [
+        4.416401,
+        1.966978,
+        9.2,
+        2.30277
+      ],
+      [
+        4.416401,
+        1.381575,
+        4.416401,
+        1.966978
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 90,
+    "A_query": [
+      [
+        -0.18559772,
+        -0.07234506
+      ],
+      [
+        0.92781644,
+        -0.90043647
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.029353,
+        1.898952,
+        2.429762
+      ],
+      [
+        4.109142,
+        2.029353,
+        9.2,
+        2.429762
+      ],
+      [
+        1.711584,
+        1.514727,
+        1.898952,
+        2.029353
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 91,
+    "A_query": [
+      [
+        -0.24529572,
+        0.04903091
+      ],
+      [
+        -0.29776395,
+        -0.5359283
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.950881,
+        0.96813,
+        2.321663
+      ],
+      [
+        3.544212,
+        1.950881,
+        9.2,
+        2.321663
+      ],
+      [
+        3.544212,
+        1.422099,
+        3.544212,
+        1.950881
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 92,
+    "A_query": [
+      [
+        -0.71024779,
+        0.90540058
+      ],
+      [
+        0.31726413,
+        -0.80068902
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.812324,
+        1.017813,
+        2.217483
+      ],
+      [
+        3.38562,
+        1.812324,
+        9.2,
+        2.217483
+      ],
+      [
+        0.721655,
+        1.03848,
+        1.017813,
+        1.812324
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 93,
+    "A_query": [
+      [
+        -0.48538048,
+        -0.64358338
+      ],
+      [
+        -0.23807948,
+        -0.75518915
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.955992,
+        0.993526,
+        2.28921
+      ],
+      [
+        3.654977,
+        1.955992,
+        9.2,
+        2.28921
+      ],
+      [
+        3.654977,
+        1.30152,
+        3.654977,
+        1.955992
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 94,
+    "A_query": [
+      [
+        -0.91444449,
+        0.00485139
+      ],
+      [
+        -0.26426171,
+        -0.60165914
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.022472,
+        1.802701,
+        2.367023
+      ],
+      [
+        4.070194,
+        2.022472,
+        9.2,
+        2.367023
+      ],
+      [
+        1.559075,
+        1.377842,
+        1.802701,
+        2.022472
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 95,
+    "A_query": [
+      [
+        -0.63900055,
+        -0.07340325
+      ],
+      [
+        -0.55949132,
+        -0.26149359
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.846413,
+        1.709625,
+        2.192454
+      ],
+      [
+        3.937571,
+        1.846413,
+        9.2,
+        2.192454
+      ],
+      [
+        3.937571,
+        1.075262,
+        3.937571,
+        1.846413
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 96,
+    "A_query": [
+      [
+        -0.99094662,
+        -0.73954231
+      ],
+      [
+        -0.91202495,
+        -0.91363587
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        1.923035,
+        1.540657,
+        2.337303
+      ],
+      [
+        4.14943,
+        1.923035,
+        9.2,
+        2.337303
+      ],
+      [
+        4.14943,
+        1.36536,
+        4.14943,
+        1.923035
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 97,
+    "A_query": [
+      [
+        -0.92563537,
+        0.13809024
+      ],
+      [
+        0.50321121,
+        -0.98162557
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.039759,
+        1.385164,
+        2.432877
+      ],
+      [
+        3.721636,
+        2.039759,
+        9.2,
+        2.432877
+      ],
+      [
+        3.721636,
+        1.501142,
+        3.721636,
+        2.039759
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 98,
+    "A_query": [
+      [
+        -0.93537073,
+        0.08158203
+      ],
+      [
+        0.24247816,
+        -0.71370037
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.060649,
+        1.581422,
+        2.415982
+      ],
+      [
+        3.924871,
+        2.060649,
+        9.2,
+        2.415982
+      ],
+      [
+        1.376875,
+        1.319342,
+        1.581422,
+        2.060649
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 99,
+    "A_query": [
+      [
+        -0.98181971,
+        -0.42277566
+      ],
+      [
+        -0.01001036,
+        -0.498977
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -9.2,
+        2.136813,
+        1.461645,
+        2.539645
+      ],
+      [
+        3.750672,
+        2.136813,
+        9.2,
+        2.539645
+      ],
+      [
+        1.223577,
+        1.342198,
+        1.461645,
+        2.136813
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "interp_medium",
+    "difficulty_score": 3,
+    "map_type": "wall_gap_interp_neural_advantage",
+    "benchmark_family": "wall_gap_interp_neural_advantage",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  }
+]

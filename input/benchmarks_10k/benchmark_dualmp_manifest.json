@@ -1,0 +1,100 @@
+{
+  "prefix": "benchmark_dualmp",
+  "seed": 7,
+  "root": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning",
+  "input_dir": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning/input/benchmarks_10k",
+  "n_per_family": 10000,
+  "total_scenarios": 70000,
+  "families": [
+    {
+      "family": "small_open",
+      "difficulty": "easy",
+      "count": 10000,
+      "file": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning/input/benchmarks_10k/benchmark_dualmp_small_open.json",
+      "scenario_ids": [
+        0,
+        9999
+      ]
+    },
+    {
+      "family": "large_sparse",
+      "difficulty": "easy_medium",
+      "count": 10000,
+      "file": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning/input/benchmarks_10k/benchmark_dualmp_large_sparse.json",
+      "scenario_ids": [
+        0,
+        9999
+      ]
+    },
+    {
+      "family": "dense_clutter",
+      "difficulty": "medium_hard",
+      "count": 10000,
+      "file": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning/input/benchmarks_10k/benchmark_dualmp_dense_clutter.json",
+      "scenario_ids": [
+        0,
+        9999
+      ]
+    },
+    {
+      "family": "wall_gap",
+      "difficulty": "medium",
+      "count": 10000,
+      "file": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning/input/benchmarks_10k/benchmark_dualmp_wall_gap.json",
+      "scenario_ids": [
+        0,
+        9999
+      ]
+    },
+    {
+      "family": "serial_walls",
+      "difficulty": "hard",
+      "count": 10000,
+      "file": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning/input/benchmarks_10k/benchmark_dualmp_serial_walls.json",
+      "scenario_ids": [
+        0,
+        9999
+      ]
+    },
+    {
+      "family": "maze_branching",
+      "difficulty": "hard",
+      "count": 10000,
+      "file": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning/input/benchmarks_10k/benchmark_dualmp_maze_branching.json",
+      "scenario_ids": [
+        0,
+        9999
+      ]
+    },
+    {
+      "family": "bugtrap",
+      "difficulty": "hard",
+      "count": 10000,
+      "file": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning/input/benchmarks_10k/benchmark_dualmp_bugtrap.json",
+      "scenario_ids": [
+        0,
+        9999
+      ]
+    }
+  ],
+  "combined_file": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning/input/benchmarks_10k/benchmark_dualmp_all.json",
+  "schema": {
+    "solver": "motion_planning_solver.py",
+    "problem_dictionary_location": "input/",
+    "problem_name_format": "<json_stem>_sc_<scenario_id>",
+    "required_keys": [
+      "scenario_id",
+      "A_query",
+      "B_query",
+      "rectangles",
+      "bounds",
+      "start",
+      "goal"
+    ]
+  },
+  "notes": [
+    "Generated dictionaries are 2D because the current solver is 2D.",
+    "Files are separated by benchmark_family so NeurIPS tables can report by family.",
+    "The optional *_all.json file is for aggregate sweeps."
+  ]
+}

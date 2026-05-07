@@ -1,0 +1,7360 @@
+[
+  {
+    "scenario_id": 0,
+    "A_query": [
+      [
+        -0.47334218,
+        0.3295146
+      ],
+      [
+        -0.1647573,
+        -0.51946831
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -8.703893,
+        0.976294,
+        -6.263896,
+        3.239903
+      ],
+      [
+        -8.228277,
+        -3.413974,
+        -5.892747,
+        -1.654455
+      ],
+      [
+        3.43146,
+        -2.625645,
+        6.093788,
+        -0.122055
+      ],
+      [
+        -7.568233,
+        -8.315214,
+        -5.773338,
+        -6.121592
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.011765,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 1,
+    "A_query": [
+      [
+        -0.65142466,
+        -1.04814941
+      ],
+      [
+        -0.39861223,
+        -0.56741319
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        1.748666,
+        -2.616392,
+        3.19595,
+        -0.561996
+      ],
+      [
+        5.619976,
+        -2.502895,
+        6.902154,
+        -0.110354
+      ],
+      [
+        4.333031,
+        0.978887,
+        5.562172,
+        3.405547
+      ],
+      [
+        -7.338664,
+        0.570885,
+        -5.888157,
+        1.952548
+      ],
+      [
+        -6.744257,
+        -8.016137,
+        -4.960694,
+        -5.57925
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.768706,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 2,
+    "A_query": [
+      [
+        -0.70489726,
+        1.50473336
+      ],
+      [
+        -1.50473336,
+        -0.70489726
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        2.615133,
+        -6.239062,
+        4.731716,
+        -3.555498
+      ],
+      [
+        -6.078356,
+        -7.716985,
+        -4.321644,
+        -6.258081
+      ],
+      [
+        -8.107635,
+        4.947051,
+        -6.42505,
+        7.486718
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.625803,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 3,
+    "A_query": [
+      [
+        -0.71308391,
+        -0.858712
+      ],
+      [
+        0.858712,
+        -0.71308391
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        2.391729,
+        4.799026,
+        3.7298,
+        7.138722
+      ],
+      [
+        0.295587,
+        -8.147479,
+        1.809368,
+        -6.19075
+      ],
+      [
+        -3.448409,
+        -6.38616,
+        -0.74673,
+        -4.935794
+      ],
+      [
+        -5.940553,
+        4.54187,
+        -3.187445,
+        7.046909
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.84539,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 4,
+    "A_query": [
+      [
+        -0.65073786,
+        -0.15821748
+      ],
+      [
+        0.07910874,
+        -0.48390191
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -4.047582,
+        -2.332266,
+        -1.967499,
+        -0.128998
+      ],
+      [
+        1.390848,
+        -1.777,
+        3.523047,
+        0.104184
+      ],
+      [
+        -7.074716,
+        -6.790584,
+        -5.587406,
+        -4.833434
+      ],
+      [
+        -7.456611,
+        2.482173,
+        -6.191385,
+        4.700473
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.715579,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 5,
+    "A_query": [
+      [
+        -0.28255896,
+        0.00353166
+      ],
+      [
+        -0.00176583,
+        -0.47671758
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        1.246223,
+        2.484258,
+        2.487594,
+        3.790467
+      ],
+      [
+        5.570099,
+        -4.139366,
+        6.945439,
+        -2.728778
+      ],
+      [
+        0.995315,
+        -4.999754,
+        2.549118,
+        -2.466896
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.374855,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 6,
+    "A_query": [
+      [
+        -0.3874963,
+        -1.78619097
+      ],
+      [
+        1.78619097,
+        -0.3874963
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        6.075171,
+        -5.550895,
+        7.504887,
+        -3.547346
+      ],
+      [
+        -3.701329,
+        -8.225758,
+        -2.080741,
+        -6.216147
+      ],
+      [
+        6.284196,
+        2.171416,
+        7.775551,
+        3.629383
+      ],
+      [
+        2.947405,
+        -6.943779,
+        5.580066,
+        -5.473792
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.608279,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 7,
+    "A_query": [
+      [
+        -0.63179121,
+        -0.12619879
+      ],
+      [
+        0.06309939,
+        -0.77377126
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        5.148419,
+        -4.944412,
+        7.182743,
+        -2.642446
+      ],
+      [
+        2.669449,
+        -3.21707,
+        4.726571,
+        -0.646511
+      ],
+      [
+        -6.490285,
+        -3.569699,
+        -4.689101,
+        -1.779388
+      ],
+      [
+        1.211996,
+        6.558262,
+        2.542213,
+        8.126337
+      ],
+      [
+        -3.861852,
+        6.244039,
+        -2.187639,
+        8.26981
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.933652,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 8,
+    "A_query": [
+      [
+        -0.62355989,
+        -1.60634265
+      ],
+      [
+        1.60634265,
+        -0.62355989
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -5.398575,
+        1.773017,
+        -2.765707,
+        3.184255
+      ],
+      [
+        -2.991273,
+        -7.056098,
+        -1.75561,
+        -5.851913
+      ],
+      [
+        -1.166758,
+        -6.724639,
+        0.359937,
+        -4.526352
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.427984,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 9,
+    "A_query": [
+      [
+        -0.47542655,
+        1.57821988
+      ],
+      [
+        -1.57821988,
+        -0.47542655
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        3.228673,
+        -2.768318,
+        5.449809,
+        -0.174261
+      ],
+      [
+        1.504464,
+        0.411888,
+        3.127247,
+        1.630282
+      ],
+      [
+        -1.771169,
+        5.601325,
+        -0.010637,
+        7.834291
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.583508,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 10,
+    "A_query": [
+      [
+        -0.48667336,
+        0.96840833
+      ],
+      [
+        -0.45599802,
+        -0.64234007
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        5.881733,
+        -7.106075,
+        7.378785,
+        -5.651328
+      ],
+      [
+        -5.758323,
+        -2.458077,
+        -3.5781,
+        -0.207197
+      ],
+      [
+        1.28359,
+        -2.41699,
+        3.312803,
+        -0.18868
+      ],
+      [
+        -7.81678,
+        0.956446,
+        -5.635686,
+        2.970168
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.799954,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 11,
+    "A_query": [
+      [
+        -0.74346924,
+        -1.18476143
+      ],
+      [
+        0.34443248,
+        -0.7598531
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -5.94616,
+        6.499117,
+        -4.617394,
+        8.747967
+      ],
+      [
+        -4.871661,
+        -8.01771,
+        -2.191376,
+        -5.309149
+      ],
+      [
+        1.748377,
+        5.246441,
+        3.965763,
+        7.533217
+      ],
+      [
+        0.87555,
+        -2.813029,
+        2.382649,
+        -0.991097
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.90322,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 12,
+    "A_query": [
+      [
+        -0.60967729,
+        0.07348388
+      ],
+      [
+        -0.49361829,
+        -0.36458422
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        3.847658,
+        -2.932668,
+        5.421784,
+        -0.317054
+      ],
+      [
+        -6.147303,
+        -8.289981,
+        -4.010771,
+        -6.185654
+      ],
+      [
+        -6.175264,
+        6.256824,
+        -4.796236,
+        8.451975
+      ],
+      [
+        -6.685378,
+        1.722348,
+        -4.364195,
+        2.97174
+      ],
+      [
+        -8.037485,
+        5.153616,
+        -6.769251,
+        6.46214
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.810001,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 13,
+    "A_query": [
+      [
+        -0.72728488,
+        -1.01924341
+      ],
+      [
+        1.01924341,
+        -0.72728488
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        4.194279,
+        6.099818,
+        6.820328,
+        7.405335
+      ],
+      [
+        -5.736968,
+        -6.982886,
+        -3.026047,
+        -5.611501
+      ],
+      [
+        4.472384,
+        0.740274,
+        5.727466,
+        3.296622
+      ],
+      [
+        -5.470205,
+        -3.952849,
+        -4.113626,
+        -1.541067
+      ],
+      [
+        -3.905836,
+        6.441946,
+        -1.560617,
+        8.230785
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.891075,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 14,
+    "A_query": [
+      [
+        -0.81825753,
+        0.28386206
+      ],
+      [
+        -0.46901864,
+        -0.57710652
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -1.498482,
+        -8.018447,
+        0.531313,
+        -6.661168
+      ],
+      [
+        4.026597,
+        -0.034243,
+        6.132353,
+        2.308781
+      ],
+      [
+        -0.454195,
+        -4.27248,
+        1.205181,
+        -2.374788
+      ],
+      [
+        -5.304949,
+        -6.329923,
+        -2.800564,
+        -3.62866
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.880141,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 15,
+    "A_query": [
+      [
+        -0.54417502,
+        0.4420037
+      ],
+      [
+        -0.22100185,
+        -0.58675278
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        4.50483,
+        -8.390617,
+        7.129482,
+        -7.05274
+      ],
+      [
+        5.682728,
+        -0.791539,
+        7.212515,
+        0.829574
+      ],
+      [
+        -5.111115,
+        -1.893001,
+        -3.304227,
+        0.721365
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.535764,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 16,
+    "A_query": [
+      [
+        -0.45909127,
+        -0.15600582
+      ],
+      [
+        0.07800291,
+        -0.34319605
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -6.198986,
+        -2.124644,
+        -3.939626,
+        0.262535
+      ],
+      [
+        -5.929497,
+        -3.970059,
+        -3.313296,
+        -2.389355
+      ],
+      [
+        -0.443119,
+        -6.244924,
+        1.153011,
+        -4.522423
+      ],
+      [
+        6.680556,
+        2.930522,
+        8.405476,
+        4.43336
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.743527,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 17,
+    "A_query": [
+      [
+        -0.34876092,
+        0.14210986
+      ],
+      [
+        -0.07105493,
+        -0.36725923
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        2.071699,
+        -2.220407,
+        4.845831,
+        0.251414
+      ],
+      [
+        -7.080884,
+        -5.625051,
+        -5.566978,
+        -3.404281
+      ],
+      [
+        -2.503984,
+        4.129526,
+        -0.682638,
+        5.383817
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.625184,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 18,
+    "A_query": [
+      [
+        -0.56618887,
+        1.35053522
+      ],
+      [
+        -1.35053522,
+        -0.56618887
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        3.281018,
+        -8.711781,
+        4.516405,
+        -7.100239
+      ],
+      [
+        2.427247,
+        0.032182,
+        4.014901,
+        2.596808
+      ],
+      [
+        -0.046015,
+        -5.285571,
+        2.558156,
+        -3.058863
+      ],
+      [
+        -1.832137,
+        -4.590783,
+        -0.341729,
+        -3.192038
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.697302,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 19,
+    "A_query": [
+      [
+        -0.78684654,
+        -0.23184349
+      ],
+      [
+        0.11592175,
+        -0.49007917
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        1.60248,
+        5.846003,
+        3.79699,
+        7.700954
+      ],
+      [
+        3.734214,
+        -2.832231,
+        5.227114,
+        -0.585047
+      ],
+      [
+        -8.20431,
+        -0.736208,
+        -6.220565,
+        2.023183
+      ],
+      [
+        6.38358,
+        -0.934267,
+        7.840928,
+        1.516599
+      ],
+      [
+        -0.014527,
+        2.304248,
+        1.347212,
+        4.423545
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.967858,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 20,
+    "A_query": [
+      [
+        -0.63355677,
+        0.29608679
+      ],
+      [
+        -0.14804339,
+        -0.56301296
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        6.264727,
+        -5.920007,
+        8.652102,
+        -3.988951
+      ],
+      [
+        2.557972,
+        0.353357,
+        4.580039,
+        3.045665
+      ],
+      [
+        -2.927394,
+        -7.816181,
+        -0.707284,
+        -6.212248
+      ],
+      [
+        -4.104405,
+        -2.302175,
+        -1.976124,
+        -0.927361
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.827054,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 21,
+    "A_query": [
+      [
+        -0.73042576,
+        1.89365328
+      ],
+      [
+        -1.89365328,
+        -0.73042576
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -0.152732,
+        -5.263454,
+        2.062146,
+        -3.3128
+      ],
+      [
+        0.691121,
+        4.164726,
+        3.433304,
+        5.929737
+      ],
+      [
+        -4.357164,
+        -0.219041,
+        -1.851277,
+        1.729921
+      ],
+      [
+        -3.053206,
+        4.016196,
+        -1.652941,
+        6.550187
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.879629,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 22,
+    "A_query": [
+      [
+        -0.59372575,
+        -1.57462036
+      ],
+      [
+        1.57462036,
+        -0.59372575
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -3.730212,
+        -1.355057,
+        -1.957448,
+        0.891987
+      ],
+      [
+        5.016357,
+        -6.315726,
+        7.21374,
+        -4.979051
+      ],
+      [
+        -7.442776,
+        0.111377,
+        -5.757706,
+        1.927555
+      ],
+      [
+        -0.373059,
+        -3.660085,
+        1.346463,
+        -0.951905
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.731891,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 23,
+    "A_query": [
+      [
+        -0.64438193,
+        -0.26122547
+      ],
+      [
+        0.13061274,
+        -0.29319976
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -6.516285,
+        -5.006228,
+        -4.916243,
+        -3.643809
+      ],
+      [
+        -6.485813,
+        5.525886,
+        -4.043724,
+        7.280197
+      ],
+      [
+        4.685837,
+        1.013777,
+        7.152516,
+        2.482437
+      ],
+      [
+        1.632014,
+        -0.262576,
+        4.174099,
+        1.253217
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.697005,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 24,
+    "A_query": [
+      [
+        -0.71917568,
+        -0.9192465
+      ],
+      [
+        -0.38157742,
+        -0.58047098
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -1.223081,
+        5.242356,
+        0.734106,
+        7.333881
+      ],
+      [
+        -6.284773,
+        0.79692,
+        -3.964098,
+        2.391426
+      ],
+      [
+        -6.128305,
+        -3.279597,
+        -3.328384,
+        -0.998083
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.709095,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 25,
+    "A_query": [
+      [
+        -0.26233586,
+        -0.40871674
+      ],
+      [
+        0.20435837,
+        -0.69192478
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -1.485991,
+        3.503768,
+        1.007769,
+        4.854129
+      ],
+      [
+        -2.080376,
+        -6.762135,
+        -0.649193,
+        -5.220757
+      ],
+      [
+        -3.25408,
+        3.146888,
+        -1.902936,
+        5.401326
+      ],
+      [
+        -4.391851,
+        -3.691095,
+        -2.30525,
+        -1.031364
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.708467,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 26,
+    "A_query": [
+      [
+        -0.66336243,
+        -1.40943037
+      ],
+      [
+        1.40943037,
+        -0.66336243
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -3.516611,
+        6.564747,
+        -1.748325,
+        8.554716
+      ],
+      [
+        -5.746365,
+        -0.999576,
+        -3.149621,
+        0.75212
+      ],
+      [
+        2.761602,
+        -6.747093,
+        4.150287,
+        -5.239399
+      ],
+      [
+        5.991588,
+        -2.314287,
+        8.747987,
+        -0.974165
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.692758,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 27,
+    "A_query": [
+      [
+        -0.64997061,
+        -1.080721
+      ],
+      [
+        -0.1995936,
+        -0.35341587
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        2.754762,
+        -7.859278,
+        5.2699,
+        -5.899193
+      ],
+      [
+        -2.934217,
+        -6.516264,
+        -0.932869,
+        -4.446425
+      ],
+      [
+        -1.000132,
+        4.069147,
+        1.662,
+        6.065571
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.719355,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 28,
+    "A_query": [
+      [
+        -0.66642673,
+        1.00471125
+      ],
+      [
+        -0.05352831,
+        -0.35777175
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        1.387567,
+        -6.499912,
+        3.537748,
+        -3.71091
+      ],
+      [
+        -7.542183,
+        -1.470669,
+        -5.110364,
+        0.607419
+      ],
+      [
+        -2.409195,
+        -8.656385,
+        0.224041,
+        -6.453353
+      ],
+      [
+        4.359453,
+        -5.565309,
+        6.630439,
+        -2.786671
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.158087,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 29,
+    "A_query": [
+      [
+        -0.32738109,
+        -0.43400063
+      ],
+      [
+        0.21700032,
+        -0.68161062
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        5.668407,
+        -3.235329,
+        7.58965,
+        -0.844597
+      ],
+      [
+        -6.598408,
+        2.809113,
+        -4.202821,
+        5.120861
+      ],
+      [
+        -0.864835,
+        1.583258,
+        0.804194,
+        3.67524
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.681137,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 30,
+    "A_query": [
+      [
+        -0.27633043,
+        -1.80487325
+      ],
+      [
+        1.80487325,
+        -0.27633043
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        1.859569,
+        4.58517,
+        3.077811,
+        5.808737
+      ],
+      [
+        3.069852,
+        -6.160265,
+        4.397341,
+        -4.462565
+      ],
+      [
+        -7.901973,
+        -3.057937,
+        -5.324424,
+        -1.079811
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.44215,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 31,
+    "A_query": [
+      [
+        -0.60839112,
+        -0.80047137
+      ],
+      [
+        0.46635529,
+        -0.41418797
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -1.102994,
+        2.96247,
+        0.359447,
+        5.445427
+      ],
+      [
+        3.031463,
+        -3.469574,
+        4.955871,
+        -1.834405
+      ],
+      [
+        1.584004,
+        3.553847,
+        3.231855,
+        5.748803
+      ],
+      [
+        2.405067,
+        -8.567356,
+        4.564911,
+        -5.976063
+      ],
+      [
+        5.902993,
+        3.526425,
+        7.53183,
+        4.978074
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.917808,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 32,
+    "A_query": [
+      [
+        -0.42311287,
+        -0.32339723
+      ],
+      [
+        0.16169861,
+        -0.78436748
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        4.087548,
+        -0.670259,
+        5.522746,
+        2.090334
+      ],
+      [
+        -7.94647,
+        -2.509698,
+        -5.174827,
+        -0.814545
+      ],
+      [
+        0.15219,
+        -8.66022,
+        2.485533,
+        -5.978622
+      ],
+      [
+        -0.337355,
+        -3.283406,
+        1.478603,
+        -1.218507
+      ],
+      [
+        -1.173721,
+        -5.593016,
+        1.359604,
+        -3.879427
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 6.150415,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 33,
+    "A_query": [
+      [
+        -0.34034664,
+        1.01154544
+      ],
+      [
+        -1.01154544,
+        -0.34034664
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -3.080603,
+        3.26523,
+        -1.416929,
+        5.389815
+      ],
+      [
+        5.065916,
+        -0.904786,
+        7.637037,
+        0.689302
+      ],
+      [
+        -1.842094,
+        -7.508081,
+        0.744101,
+        -5.713412
+      ],
+      [
+        -4.340762,
+        1.12755,
+        -2.635499,
+        2.376124
+      ],
+      [
+        5.509326,
+        -4.306504,
+        7.648064,
+        -2.764771
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.885054,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 34,
+    "A_query": [
+      [
+        -0.81789975,
+        0.24052407
+      ],
+      [
+        -0.12026203,
+        -0.74129844
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -5.585459,
+        -5.846891,
+        -3.979066,
+        -4.586298
+      ],
+      [
+        0.266431,
+        5.407895,
+        1.600281,
+        6.689491
+      ],
+      [
+        5.455485,
+        -7.844628,
+        7.388735,
+        -5.1291
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.449213,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 35,
+    "A_query": [
+      [
+        -0.85718508,
+        0.49530328
+      ],
+      [
+        -0.41004287,
+        -0.52529082
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        1.496959,
+        -2.954438,
+        3.721972,
+        -0.224166
+      ],
+      [
+        6.34581,
+        7.21069,
+        8.263159,
+        8.666256
+      ],
+      [
+        -4.694628,
+        -3.048779,
+        -3.139873,
+        -1.786968
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.541376,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 36,
+    "A_query": [
+      [
+        -0.75233074,
+        -0.40766197
+      ],
+      [
+        0.20383098,
+        -0.72182394
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -1.443873,
+        -7.265821,
+        0.93944,
+        -4.847181
+      ],
+      [
+        -5.638318,
+        3.463946,
+        -3.930026,
+        4.673191
+      ],
+      [
+        1.285502,
+        -1.412459,
+        3.429159,
+        0.49359
+      ],
+      [
+        -2.873279,
+        -2.810733,
+        -1.078578,
+        -0.986656
+      ],
+      [
+        3.70308,
+        -6.455097,
+        5.651717,
+        -3.794958
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 6.018667,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 37,
+    "A_query": [
+      [
+        -0.5593268,
+        0.88556514
+      ],
+      [
+        -0.88556514,
+        -0.5593268
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -2.101131,
+        -7.231095,
+        0.520801,
+        -5.807474
+      ],
+      [
+        -7.882645,
+        2.651964,
+        -6.454216,
+        4.206606
+      ],
+      [
+        4.708923,
+        -4.492774,
+        6.794321,
+        -3.061236
+      ],
+      [
+        -4.532462,
+        4.759705,
+        -2.673611,
+        6.208804
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.581616,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 38,
+    "A_query": [
+      [
+        -0.38033607,
+        -1.68455887
+      ],
+      [
+        1.68455887,
+        -0.38033607
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -6.985743,
+        5.835221,
+        -5.276836,
+        8.48029
+      ],
+      [
+        2.099002,
+        -5.639392,
+        3.389967,
+        -3.007331
+      ],
+      [
+        -4.769128,
+        -5.585739,
+        -2.805199,
+        -3.927766
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.558711,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 39,
+    "A_query": [
+      [
+        -0.3807614,
+        -1.27526544
+      ],
+      [
+        1.27526544,
+        -0.3807614
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -4.481762,
+        5.757771,
+        -1.801634,
+        7.113875
+      ],
+      [
+        -3.217885,
+        -6.682606,
+        -1.992239,
+        -4.191369
+      ],
+      [
+        -0.165599,
+        -5.999979,
+        1.037478,
+        -3.468387
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.48668,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 40,
+    "A_query": [
+      [
+        -0.37230135,
+        -0.21854269
+      ],
+      [
+        -0.22315275,
+        -0.44937756
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -6.066296,
+        0.829249,
+        -4.031651,
+        2.397921
+      ],
+      [
+        1.99844,
+        1.368696,
+        3.478948,
+        2.787962
+      ],
+      [
+        -8.63849,
+        2.211598,
+        -7.131002,
+        3.904469
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.392245,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 41,
+    "A_query": [
+      [
+        -0.81258728,
+        0.99899538
+      ],
+      [
+        0.01845918,
+        -0.54120275
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -1.378639,
+        -8.568064,
+        1.168413,
+        -5.984855
+      ],
+      [
+        4.231071,
+        -4.636388,
+        6.887417,
+        -2.673805
+      ],
+      [
+        -8.726668,
+        -0.769687,
+        -6.932803,
+        1.382145
+      ],
+      [
+        -6.905478,
+        2.329738,
+        -4.99225,
+        4.354739
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.976362,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 42,
+    "A_query": [
+      [
+        -0.68404573,
+        -1.65703679
+      ],
+      [
+        1.65703679,
+        -0.68404573
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        4.464773,
+        6.75302,
+        6.866879,
+        8.050952
+      ],
+      [
+        -5.138741,
+        -6.091065,
+        -3.905641,
+        -3.343183
+      ],
+      [
+        4.467078,
+        -8.318845,
+        5.831358,
+        -6.718112
+      ],
+      [
+        -0.725747,
+        2.075283,
+        1.433291,
+        4.197655
+      ],
+      [
+        2.842387,
+        -8.122045,
+        4.20697,
+        -5.530803
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.840414,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 43,
+    "A_query": [
+      [
+        -0.52890721,
+        0.07731188
+      ],
+      [
+        -0.03865594,
+        -0.70690682
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -6.580686,
+        0.521608,
+        -5.185426,
+        2.370649
+      ],
+      [
+        -0.19463,
+        3.268029,
+        2.383115,
+        4.703582
+      ],
+      [
+        6.329822,
+        -2.93836,
+        7.792739,
+        -0.416738
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.498465,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 44,
+    "A_query": [
+      [
+        -0.67837213,
+        0.24669654
+      ],
+      [
+        -0.46379272,
+        -0.88377049
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -5.156617,
+        -3.486153,
+        -2.713565,
+        -1.744475
+      ],
+      [
+        -7.991565,
+        -1.016726,
+        -5.487496,
+        1.539483
+      ],
+      [
+        -0.632237,
+        -7.704454,
+        1.580067,
+        -5.921363
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.730034,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 45,
+    "A_query": [
+      [
+        -0.46043168,
+        0.40593689
+      ],
+      [
+        -0.27452155,
+        -0.58140038
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        0.797886,
+        3.258834,
+        3.240414,
+        5.95793
+      ],
+      [
+        -8.284911,
+        0.813717,
+        -5.669914,
+        3.429145
+      ],
+      [
+        -4.43197,
+        -0.495646,
+        -2.806735,
+        1.789857
+      ],
+      [
+        -4.284139,
+        -4.255896,
+        -2.390233,
+        -1.534511
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.115024,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 46,
+    "A_query": [
+      [
+        -0.54714458,
+        0.93241938
+      ],
+      [
+        -0.93241938,
+        -0.54714458
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        0.02877,
+        6.357629,
+        2.671044,
+        7.692788
+      ],
+      [
+        2.276033,
+        -5.326529,
+        3.935501,
+        -3.399903
+      ],
+      [
+        -3.011181,
+        5.042916,
+        -1.192539,
+        7.120635
+      ],
+      [
+        4.23076,
+        -8.31589,
+        5.916682,
+        -6.351321
+      ],
+      [
+        -6.241318,
+        5.406238,
+        -4.406991,
+        8.084945
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.93647,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 47,
+    "A_query": [
+      [
+        -0.49570368,
+        -1.41231852
+      ],
+      [
+        1.41231852,
+        -0.49570368
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -7.946694,
+        -8.450247,
+        -5.341298,
+        -6.904421
+      ],
+      [
+        -3.399747,
+        1.348936,
+        -1.317942,
+        3.518415
+      ],
+      [
+        1.748792,
+        5.038444,
+        3.782279,
+        7.821335
+      ],
+      [
+        -6.592204,
+        -5.695625,
+        -4.725401,
+        -3.426437
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.921951,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 48,
+    "A_query": [
+      [
+        -0.5088843,
+        -1.70331301
+      ],
+      [
+        1.70331301,
+        -0.5088843
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        6.163839,
+        -4.789981,
+        8.733859,
+        -2.114721
+      ],
+      [
+        2.027549,
+        -2.443994,
+        4.236617,
+        -0.232579
+      ],
+      [
+        0.128176,
+        -6.950981,
+        1.493546,
+        -5.094312
+      ],
+      [
+        -6.441182,
+        3.788832,
+        -4.605193,
+        6.577511
+      ],
+      [
+        -3.407835,
+        -3.174236,
+        -1.099606,
+        -1.513336
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 6.16247,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 49,
+    "A_query": [
+      [
+        -0.70651065,
+        -1.18377121
+      ],
+      [
+        0.24577766,
+        -0.89435008
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -4.029863,
+        -6.464888,
+        -2.119414,
+        -4.97015
+      ],
+      [
+        -7.438909,
+        5.434413,
+        -5.318216,
+        7.564945
+      ],
+      [
+        5.83574,
+        -8.631942,
+        7.362636,
+        -6.749627
+      ],
+      [
+        -0.681419,
+        5.461248,
+        0.594488,
+        7.565144
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.646615,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 50,
+    "A_query": [
+      [
+        -0.74916379,
+        -1.39234957
+      ],
+      [
+        1.39234957,
+        -0.74916379
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -1.399246,
+        -8.641005,
+        -0.134107,
+        -6.359043
+      ],
+      [
+        -6.430813,
+        -5.992872,
+        -4.193155,
+        -3.307412
+      ],
+      [
+        2.740505,
+        -7.389287,
+        4.880349,
+        -5.082762
+      ],
+      [
+        5.675813,
+        1.036213,
+        8.372439,
+        3.050421
+      ],
+      [
+        -5.566409,
+        4.681198,
+        -3.527918,
+        7.187058
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 6.218574,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 51,
+    "A_query": [
+      [
+        -0.45032546,
+        0.31223566
+      ],
+      [
+        0.10312764,
+        -0.54425133
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -2.471747,
+        4.063901,
+        -0.253327,
+        5.331602
+      ],
+      [
+        -8.737746,
+        -4.143371,
+        -7.046961,
+        -1.838255
+      ],
+      [
+        1.256703,
+        -5.759376,
+        3.804156,
+        -3.621455
+      ],
+      [
+        -4.6492,
+        1.235149,
+        -2.652622,
+        3.320349
+      ],
+      [
+        -7.842233,
+        -8.611264,
+        -5.661427,
+        -6.120704
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 6.087535,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 52,
+    "A_query": [
+      [
+        -0.36913146,
+        -0.95831986
+      ],
+      [
+        0.95831986,
+        -0.36913146
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -7.195885,
+        5.637661,
+        -5.724822,
+        7.264237
+      ],
+      [
+        -1.841726,
+        -2.690517,
+        0.289888,
+        -0.932287
+      ],
+      [
+        0.704684,
+        5.570331,
+        1.99217,
+        8.195196
+      ],
+      [
+        -4.886382,
+        -8.122388,
+        -2.982956,
+        -5.930103
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.68465,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 53,
+    "A_query": [
+      [
+        -0.69943389,
+        1.14627285
+      ],
+      [
+        -1.14627285,
+        -0.69943389
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        6.478014,
+        -1.150703,
+        8.163897,
+        1.013381
+      ],
+      [
+        -2.999665,
+        2.703582,
+        -0.280127,
+        4.292266
+      ],
+      [
+        -6.17516,
+        -3.061873,
+        -3.706749,
+        -1.472448
+      ],
+      [
+        -4.119279,
+        -0.463733,
+        -2.620795,
+        2.290743
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.800989,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 54,
+    "A_query": [
+      [
+        -0.45100872,
+        0.3343364
+      ],
+      [
+        -0.1671682,
+        -0.45152821
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        4.657058,
+        -3.108828,
+        5.961773,
+        -1.711565
+      ],
+      [
+        -4.260312,
+        -4.98289,
+        -2.668415,
+        -3.476977
+      ],
+      [
+        -4.682011,
+        4.770373,
+        -2.352617,
+        6.118583
+      ],
+      [
+        2.864395,
+        -2.831765,
+        4.31915,
+        -1.067095
+      ],
+      [
+        5.337187,
+        -0.688848,
+        8.070633,
+        0.844047
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.705902,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 55,
+    "A_query": [
+      [
+        -0.58765123,
+        1.74422893
+      ],
+      [
+        -1.74422893,
+        -0.58765123
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -2.281402,
+        6.491591,
+        0.515269,
+        8.645116
+      ],
+      [
+        -0.869269,
+        -6.822691,
+        1.186189,
+        -4.97605
+      ],
+      [
+        -7.409764,
+        4.246567,
+        -5.008672,
+        6.531135
+      ],
+      [
+        2.690593,
+        2.575807,
+        4.122705,
+        3.799808
+      ],
+      [
+        -7.384913,
+        -4.399321,
+        -5.876394,
+        -2.04937
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 6.030085,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 56,
+    "A_query": [
+      [
+        -0.50530023,
+        -0.23189244
+      ],
+      [
+        0.408923,
+        -0.77624824
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -4.646115,
+        -8.321239,
+        -2.068066,
+        -6.909771
+      ],
+      [
+        -3.418707,
+        -2.471899,
+        -1.131308,
+        -0.210122
+      ],
+      [
+        -4.987856,
+        4.138813,
+        -2.733354,
+        6.45761
+      ],
+      [
+        1.845839,
+        -8.1841,
+        4.506137,
+        -5.809614
+      ],
+      [
+        -5.564039,
+        -3.908116,
+        -4.300041,
+        -2.448895
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 6.110072,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 57,
+    "A_query": [
+      [
+        -0.75607792,
+        0.12562638
+      ],
+      [
+        0.12945559,
+        -0.86785649
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        1.990257,
+        -4.855133,
+        4.533401,
+        -2.742868
+      ],
+      [
+        -3.318652,
+        -8.785127,
+        -1.42276,
+        -6.490203
+      ],
+      [
+        -8.088218,
+        -5.028472,
+        -5.521582,
+        -2.856653
+      ],
+      [
+        -5.391101,
+        5.039487,
+        -4.013202,
+        7.505787
+      ],
+      [
+        1.759619,
+        -2.398629,
+        4.158859,
+        -1.06081
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 6.095253,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 58,
+    "A_query": [
+      [
+        -0.29496679,
+        1.10928226
+      ],
+      [
+        -1.10928226,
+        -0.29496679
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -0.905797,
+        2.115169,
+        1.002294,
+        3.859648
+      ],
+      [
+        6.071849,
+        4.482956,
+        8.055065,
+        5.985829
+      ],
+      [
+        -6.261825,
+        3.788049,
+        -4.167223,
+        5.267298
+      ],
+      [
+        6.639287,
+        -6.113946,
+        8.216892,
+        -4.497503
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.597885,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 59,
+    "A_query": [
+      [
+        -0.35070546,
+        -1.25280179
+      ],
+      [
+        1.25280179,
+        -0.35070546
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        1.760284,
+        -6.618377,
+        4.089278,
+        -5.40897
+      ],
+      [
+        -6.74905,
+        2.016098,
+        -4.523595,
+        4.332978
+      ],
+      [
+        -2.776293,
+        -5.693395,
+        -0.009398,
+        -3.150218
+      ],
+      [
+        -1.356935,
+        -8.089152,
+        0.947273,
+        -6.869358
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.891009,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 60,
+    "A_query": [
+      [
+        -0.30529767,
+        -1.134294
+      ],
+      [
+        1.134294,
+        -0.30529767
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -3.711271,
+        -1.19871,
+        -1.794442,
+        0.182071
+      ],
+      [
+        -7.663889,
+        -8.625556,
+        -5.883127,
+        -7.156604
+      ],
+      [
+        -7.55616,
+        2.100037,
+        -4.768755,
+        4.50075
+      ],
+      [
+        -7.186279,
+        -1.223319,
+        -4.417932,
+        0.878526
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.888649,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 61,
+    "A_query": [
+      [
+        -0.61858884,
+        0.68130279
+      ],
+      [
+        -0.17818697,
+        -0.54761252
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        5.573642,
+        1.247233,
+        7.804853,
+        3.451624
+      ],
+      [
+        -6.581874,
+        -8.357126,
+        -4.979615,
+        -6.763545
+      ],
+      [
+        -4.307593,
+        -6.003453,
+        -1.868491,
+        -3.460127
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.683761,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 62,
+    "A_query": [
+      [
+        -0.60942667,
+        0.91239479
+      ],
+      [
+        -0.91239479,
+        -0.60942667
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -5.992682,
+        4.303979,
+        -3.604965,
+        6.026657
+      ],
+      [
+        -0.043717,
+        -2.961614,
+        1.668532,
+        -1.171972
+      ],
+      [
+        -8.178327,
+        0.279544,
+        -5.648098,
+        1.862551
+      ],
+      [
+        -1.362943,
+        -6.341857,
+        1.348951,
+        -4.35085
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.829117,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 63,
+    "A_query": [
+      [
+        -0.56324708,
+        -1.46288763
+      ],
+      [
+        1.46288763,
+        -0.56324708
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -2.019561,
+        6.851012,
+        0.281213,
+        8.312833
+      ],
+      [
+        -1.655207,
+        -5.682841,
+        -0.311749,
+        -4.418932
+      ],
+      [
+        -4.51123,
+        1.600276,
+        -2.052159,
+        3.480987
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.484306,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 64,
+    "A_query": [
+      [
+        -0.83984315,
+        -1.04947746
+      ],
+      [
+        -0.49120208,
+        -0.87580441
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -4.377617,
+        -1.648862,
+        -1.731218,
+        -0.185718
+      ],
+      [
+        -5.771327,
+        -7.452679,
+        -3.66993,
+        -5.695715
+      ],
+      [
+        6.626206,
+        5.433289,
+        8.344118,
+        7.370049
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.544566,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 65,
+    "A_query": [
+      [
+        -0.73090897,
+        1.87180606
+      ],
+      [
+        -1.87180606,
+        -0.73090897
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        2.959224,
+        -3.792231,
+        4.289526,
+        -1.296719
+      ],
+      [
+        -2.336938,
+        -3.087589,
+        -0.083441,
+        -0.983552
+      ],
+      [
+        4.481438,
+        -0.217513,
+        6.731834,
+        1.201451
+      ],
+      [
+        -5.376871,
+        2.32757,
+        -3.162876,
+        4.884546
+      ],
+      [
+        6.679313,
+        -5.54749,
+        8.297043,
+        -3.983898
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.972253,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 66,
+    "A_query": [
+      [
+        -0.38275553,
+        0.3035888
+      ],
+      [
+        -0.1517944,
+        -0.63980449
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -6.987476,
+        -0.854023,
+        -5.424988,
+        1.262308
+      ],
+      [
+        -2.492538,
+        -7.604472,
+        -0.351008,
+        -6.276107
+      ],
+      [
+        -0.15795,
+        1.932253,
+        1.745294,
+        4.513816
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.553241,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 67,
+    "A_query": [
+      [
+        -0.62595682,
+        0.41434133
+      ],
+      [
+        -0.20717067,
+        -0.55909373
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -6.2189,
+        6.34247,
+        -3.690562,
+        8.169611
+      ],
+      [
+        -6.67968,
+        2.96667,
+        -4.578827,
+        5.406638
+      ],
+      [
+        -2.727799,
+        -8.556944,
+        -1.435712,
+        -6.977901
+      ],
+      [
+        -4.166349,
+        2.560552,
+        -2.015457,
+        4.101566
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.755023,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 68,
+    "A_query": [
+      [
+        -0.8496943,
+        -0.98950716
+      ],
+      [
+        0.48861948,
+        -0.4608796
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -6.29135,
+        2.386552,
+        -3.623342,
+        4.979791
+      ],
+      [
+        1.988801,
+        3.731593,
+        3.735033,
+        6.153383
+      ],
+      [
+        0.404942,
+        -7.172753,
+        2.759788,
+        -5.903147
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.706876,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 69,
+    "A_query": [
+      [
+        -0.30648468,
+        -1.68332312
+      ],
+      [
+        1.68332312,
+        -0.30648468
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        2.311228,
+        -8.463023,
+        3.899147,
+        -6.696056
+      ],
+      [
+        2.923696,
+        -1.139507,
+        5.705667,
+        0.764298
+      ],
+      [
+        -6.353715,
+        6.085046,
+        -5.035707,
+        7.698521
+      ],
+      [
+        3.382778,
+        -4.821856,
+        4.983199,
+        -2.026227
+      ],
+      [
+        6.802928,
+        -0.829705,
+        8.713471,
+        0.409908
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.853561,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 70,
+    "A_query": [
+      [
+        -0.83018233,
+        0.72109042
+      ],
+      [
+        -0.46454113,
+        -0.45025685
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -1.514838,
+        -6.303568,
+        0.772382,
+        -4.475465
+      ],
+      [
+        4.337055,
+        0.833361,
+        6.889234,
+        2.662827
+      ],
+      [
+        -5.278708,
+        5.390363,
+        -3.957294,
+        7.117199
+      ],
+      [
+        -6.176476,
+        -2.905059,
+        -4.033719,
+        -1.635209
+      ],
+      [
+        -2.729043,
+        -3.326154,
+        -0.780627,
+        -1.202886
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.899513,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 71,
+    "A_query": [
+      [
+        -0.45130309,
+        -0.01490602
+      ],
+      [
+        0.00745301,
+        -0.38597022
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -8.089101,
+        -6.638562,
+        -6.154049,
+        -3.860326
+      ],
+      [
+        -4.6107,
+        -0.818106,
+        -2.337142,
+        0.818161
+      ],
+      [
+        -0.359822,
+        6.022996,
+        1.259487,
+        8.133333
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.625673,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 72,
+    "A_query": [
+      [
+        -0.79903296,
+        0.36237563
+      ],
+      [
+        -0.18118781,
+        -0.30715122
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        0.821601,
+        -3.215884,
+        3.260479,
+        -1.002921
+      ],
+      [
+        -3.338289,
+        -0.327598,
+        -1.324038,
+        1.888738
+      ],
+      [
+        -3.488688,
+        -3.53078,
+        -1.639148,
+        -2.234061
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.612987,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 73,
+    "A_query": [
+      [
+        -0.6270533,
+        0.94608068
+      ],
+      [
+        0.30921777,
+        -0.89814823
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        5.295018,
+        -1.373963,
+        6.71201,
+        -0.162391
+      ],
+      [
+        -4.05604,
+        -6.183435,
+        -2.14321,
+        -4.073472
+      ],
+      [
+        -3.773397,
+        2.766614,
+        -2.467276,
+        4.448998
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.397509,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 74,
+    "A_query": [
+      [
+        -0.3451186,
+        -0.88085059
+      ],
+      [
+        0.88085059,
+        -0.3451186
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -3.333591,
+        -1.354643,
+        -1.197714,
+        0.332137
+      ],
+      [
+        -6.161295,
+        5.464225,
+        -3.619556,
+        7.175036
+      ],
+      [
+        0.926019,
+        -5.202316,
+        3.000394,
+        -2.788729
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.647894,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 75,
+    "A_query": [
+      [
+        -0.38098855,
+        -0.09038378
+      ],
+      [
+        0.04519189,
+        -0.37020864
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -7.212081,
+        -5.029665,
+        -5.559864,
+        -3.026599
+      ],
+      [
+        -8.007359,
+        -7.610667,
+        -6.716479,
+        -6.204244
+      ],
+      [
+        2.052669,
+        -8.721829,
+        4.558854,
+        -6.601058
+      ],
+      [
+        5.392544,
+        -8.369746,
+        6.636662,
+        -6.655269
+      ],
+      [
+        3.703462,
+        -6.108378,
+        5.681581,
+        -3.932719
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.843839,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 76,
+    "A_query": [
+      [
+        -0.78794413,
+        -0.99072469
+      ],
+      [
+        0.11279188,
+        -0.77677846
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        4.964051,
+        -8.416573,
+        6.803342,
+        -5.71219
+      ],
+      [
+        -3.818558,
+        -2.426245,
+        -2.111532,
+        -0.179697
+      ],
+      [
+        -6.408493,
+        -8.519787,
+        -4.072263,
+        -5.983912
+      ],
+      [
+        4.70286,
+        -3.234502,
+        6.239631,
+        -1.18733
+      ],
+      [
+        1.960815,
+        4.923811,
+        3.739578,
+        6.674384
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 6.049667,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 77,
+    "A_query": [
+      [
+        -0.55078457,
+        1.52309529
+      ],
+      [
+        -1.52309529,
+        -0.55078457
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        4.241292,
+        -1.440729,
+        5.809297,
+        0.749153
+      ],
+      [
+        1.853927,
+        -0.357419,
+        3.10454,
+        1.878271
+      ],
+      [
+        -3.282178,
+        -0.587959,
+        -0.951993,
+        1.506921
+      ],
+      [
+        0.108745,
+        -7.203814,
+        1.74703,
+        -5.599149
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.687004,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 78,
+    "A_query": [
+      [
+        -0.56445304,
+        -0.96565245
+      ],
+      [
+        0.96565245,
+        -0.56445304
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -8.375436,
+        -6.619351,
+        -5.964895,
+        -5.275492
+      ],
+      [
+        0.252613,
+        -5.964156,
+        1.548879,
+        -3.961194
+      ],
+      [
+        6.08726,
+        -0.811082,
+        8.532228,
+        0.777054
+      ],
+      [
+        3.513979,
+        -1.507783,
+        5.73178,
+        0.242981
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.68008,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 79,
+    "A_query": [
+      [
+        -0.26323618,
+        -1.6687993
+      ],
+      [
+        1.6687993,
+        -0.26323618
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        1.028147,
+        -2.251674,
+        3.401564,
+        -0.946971
+      ],
+      [
+        0.562562,
+        -5.463838,
+        3.233169,
+        -2.751917
+      ],
+      [
+        -1.860627,
+        -5.102471,
+        -0.257541,
+        -3.482757
+      ],
+      [
+        -4.785755,
+        2.47999,
+        -2.204844,
+        5.070813
+      ],
+      [
+        -3.799403,
+        -1.056477,
+        -1.282876,
+        0.595628
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 6.188994,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 80,
+    "A_query": [
+      [
+        -0.59138668,
+        0.97775748
+      ],
+      [
+        -0.97775748,
+        -0.59138668
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -8.024907,
+        3.762248,
+        -5.293981,
+        5.301557
+      ],
+      [
+        -6.605512,
+        5.902353,
+        -4.70299,
+        7.798047
+      ],
+      [
+        -0.664143,
+        -3.202829,
+        0.749272,
+        -1.518496
+      ],
+      [
+        -5.785767,
+        0.900998,
+        -3.153805,
+        3.037437
+      ],
+      [
+        0.946325,
+        0.50354,
+        2.170895,
+        1.91927
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.877384,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 81,
+    "A_query": [
+      [
+        -0.6871026,
+        -0.40651321
+      ],
+      [
+        0.20325661,
+        -0.78640447
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -1.492459,
+        -6.598887,
+        1.113256,
+        -5.206146
+      ],
+      [
+        1.970529,
+        -6.416216,
+        3.856088,
+        -4.929847
+      ],
+      [
+        -7.089961,
+        -3.284678,
+        -4.708823,
+        -1.283512
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.559839,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 82,
+    "A_query": [
+      [
+        -0.87648171,
+        -1.01441393
+      ],
+      [
+        0.47049068,
+        -0.81924721
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -6.100987,
+        -4.575355,
+        -3.730749,
+        -2.938598
+      ],
+      [
+        -8.635753,
+        2.086323,
+        -6.545162,
+        3.866499
+      ],
+      [
+        -0.373013,
+        1.919931,
+        1.871971,
+        3.990282
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.612451,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 83,
+    "A_query": [
+      [
+        -0.40913263,
+        -1.23921146
+      ],
+      [
+        1.23921146,
+        -0.40913263
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        0.797083,
+        -5.222464,
+        3.283089,
+        -2.585508
+      ],
+      [
+        2.020011,
+        2.017221,
+        4.021693,
+        4.799049
+      ],
+      [
+        2.237505,
+        -2.166413,
+        4.430837,
+        -0.912569
+      ],
+      [
+        -1.939572,
+        1.423429,
+        0.154058,
+        3.719191
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.98402,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 84,
+    "A_query": [
+      [
+        -0.88438719,
+        -1.19776251
+      ],
+      [
+        0.24620646,
+        -0.81941001
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -2.777854,
+        4.0089,
+        -1.030081,
+        6.082788
+      ],
+      [
+        -3.424425,
+        -7.83766,
+        -0.958233,
+        -5.246564
+      ],
+      [
+        0.987495,
+        4.397483,
+        3.748986,
+        6.023738
+      ],
+      [
+        0.242004,
+        6.647714,
+        1.998448,
+        8.7909
+      ],
+      [
+        2.066085,
+        -6.388931,
+        3.536698,
+        -4.603664
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 6.044777,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 85,
+    "A_query": [
+      [
+        -0.44774245,
+        1.07366661
+      ],
+      [
+        0.35579538,
+        -0.70865013
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        4.918393,
+        -2.027562,
+        6.633534,
+        -0.248741
+      ],
+      [
+        -2.893703,
+        -3.227779,
+        -1.037661,
+        -0.903584
+      ],
+      [
+        -4.161418,
+        1.50698,
+        -1.900611,
+        3.543117
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.598402,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 86,
+    "A_query": [
+      [
+        -0.74848098,
+        -1.23510308
+      ],
+      [
+        1.23510308,
+        -0.74848098
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        3.052434,
+        -6.115184,
+        4.431311,
+        -3.899767
+      ],
+      [
+        -6.76747,
+        -0.788699,
+        -4.73973,
+        0.420773
+      ],
+      [
+        -0.769383,
+        3.546867,
+        1.487041,
+        5.74326
+      ],
+      [
+        -8.787077,
+        -4.772541,
+        -7.182491,
+        -2.682621
+      ],
+      [
+        -6.797156,
+        6.781012,
+        -4.80773,
+        8.123148
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.824341,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 87,
+    "A_query": [
+      [
+        -0.43580947,
+        -1.47964762
+      ],
+      [
+        1.47964762,
+        -0.43580947
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -8.163185,
+        3.098038,
+        -5.815338,
+        4.8992
+      ],
+      [
+        0.219473,
+        -4.765688,
+        2.971126,
+        -2.87614
+      ],
+      [
+        -0.19212,
+        -7.847296,
+        2.572182,
+        -5.284557
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.825621,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 88,
+    "A_query": [
+      [
+        -0.28538993,
+        1.16239563
+      ],
+      [
+        -1.16239563,
+        -0.28538993
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -0.957223,
+        5.22326,
+        0.849822,
+        7.264564
+      ],
+      [
+        2.366349,
+        -2.643331,
+        4.885821,
+        -0.370722
+      ],
+      [
+        -5.452251,
+        -7.549534,
+        -3.020445,
+        -6.160543
+      ],
+      [
+        -7.468124,
+        3.431725,
+        -4.960157,
+        4.794455
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.810497,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 89,
+    "A_query": [
+      [
+        -0.38025258,
+        0.43435784
+      ],
+      [
+        0.21105972,
+        -0.6155353
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        4.29242,
+        -6.668194,
+        6.373024,
+        -4.271508
+      ],
+      [
+        1.066935,
+        -3.569677,
+        2.918054,
+        -2.289524
+      ],
+      [
+        -5.803868,
+        -0.809182,
+        -4.299467,
+        1.962386
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.576291,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 90,
+    "A_query": [
+      [
+        -0.44186211,
+        -0.89527594
+      ],
+      [
+        0.89527594,
+        -0.44186211
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -5.763956,
+        -7.966875,
+        -3.193331,
+        -6.35554
+      ],
+      [
+        3.595184,
+        -5.632826,
+        5.729225,
+        -3.847661
+      ],
+      [
+        -8.036227,
+        -3.925663,
+        -5.365221,
+        -1.83586
+      ],
+      [
+        -0.016979,
+        -3.705412,
+        2.035947,
+        -1.851126
+      ],
+      [
+        -4.14644,
+        1.948056,
+        -2.508748,
+        4.421797
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 6.069579,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 91,
+    "A_query": [
+      [
+        -0.57330257,
+        0.54673754
+      ],
+      [
+        -0.29613981,
+        -0.46176743
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -8.030984,
+        4.464808,
+        -6.137031,
+        6.687645
+      ],
+      [
+        -5.866018,
+        5.447316,
+        -4.550933,
+        7.601371
+      ],
+      [
+        -1.076488,
+        1.387887,
+        1.021207,
+        3.869004
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.612367,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 92,
+    "A_query": [
+      [
+        -0.51722407,
+        -1.6821216
+      ],
+      [
+        1.6821216,
+        -0.51722407
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -5.454975,
+        -7.293982,
+        -4.021734,
+        -4.625409
+      ],
+      [
+        6.649392,
+        -2.519421,
+        8.001768,
+        -0.064617
+      ],
+      [
+        5.10142,
+        2.166275,
+        7.355628,
+        3.778419
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.538932,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_ccw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 93,
+    "A_query": [
+      [
+        -0.71192782,
+        1.75499197
+      ],
+      [
+        -1.75499197,
+        -0.71192782
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -4.004002,
+        -5.295515,
+        -2.737192,
+        -2.757712
+      ],
+      [
+        -0.12863,
+        -6.353113,
+        2.00266,
+        -4.643146
+      ],
+      [
+        3.769904,
+        -6.387715,
+        6.42895,
+        -4.668687
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.571516,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 94,
+    "A_query": [
+      [
+        -0.26647117,
+        1.2306513
+      ],
+      [
+        -1.2306513,
+        -0.26647117
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        1.775766,
+        2.261472,
+        3.22534,
+        3.927168
+      ],
+      [
+        -5.841548,
+        -3.41521,
+        -4.324499,
+        -1.976935
+      ],
+      [
+        -3.256142,
+        1.942075,
+        -1.413944,
+        3.204175
+      ],
+      [
+        -0.378167,
+        -7.680443,
+        1.158593,
+        -5.430642
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 4.518946,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 95,
+    "A_query": [
+      [
+        -0.5413717,
+        0.60088527
+      ],
+      [
+        -0.00344957,
+        -0.86140573
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -3.928768,
+        0.514525,
+        -2.407952,
+        2.162523
+      ],
+      [
+        -1.653775,
+        3.544176,
+        0.756218,
+        5.066296
+      ],
+      [
+        -0.016388,
+        -4.316061,
+        2.407734,
+        -1.669297
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.629534,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "weak_shear",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 96,
+    "A_query": [
+      [
+        -0.83041275,
+        -0.1401313
+      ],
+      [
+        0.07006565,
+        -0.8166406
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -3.224354,
+        -1.043296,
+        -1.544316,
+        0.431872
+      ],
+      [
+        -7.059585,
+        4.360594,
+        -5.332297,
+        6.143075
+      ],
+      [
+        -1.92722,
+        2.585239,
+        0.567196,
+        4.943126
+      ],
+      [
+        -2.421555,
+        -8.22053,
+        -1.04083,
+        -6.762337
+      ],
+      [
+        1.290447,
+        -7.375192,
+        3.665233,
+        -5.600093
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.88338,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 97,
+    "A_query": [
+      [
+        -0.75537764,
+        0.33609049
+      ],
+      [
+        -0.16804525,
+        -0.53814827
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -4.984794,
+        -6.315653,
+        -3.366745,
+        -4.945196
+      ],
+      [
+        -4.830889,
+        6.706183,
+        -2.72149,
+        7.973485
+      ],
+      [
+        6.955683,
+        5.290709,
+        8.609257,
+        7.379177
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.417207,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 98,
+    "A_query": [
+      [
+        -0.25755569,
+        1.77966993
+      ],
+      [
+        -1.77966993,
+        -0.25755569
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        0.109007,
+        1.626928,
+        2.090448,
+        4.092605
+      ],
+      [
+        -6.336389,
+        -4.78457,
+        -4.76957,
+        -2.384503
+      ],
+      [
+        -0.328526,
+        -4.1956,
+        0.920946,
+        -2.366372
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 3.546582,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "rotate_cw",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 99,
+    "A_query": [
+      [
+        -0.30059562,
+        0.07066541
+      ],
+      [
+        -0.0353327,
+        -0.39035073
+      ]
+    ],
+    "B_query": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "rectangles": [
+      [
+        -7.203028,
+        -5.391619,
+        -5.886143,
+        -3.651947
+      ],
+      [
+        -4.196286,
+        -7.445833,
+        -1.759716,
+        -5.966313
+      ],
+      [
+        -8.31932,
+        3.140735,
+        -5.629098,
+        5.5993
+      ],
+      [
+        5.2286,
+        2.227359,
+        7.660882,
+        3.753341
+      ],
+      [
+        4.576034,
+        -7.979721,
+        6.741635,
+        -6.679495
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "easy_medium",
+    "difficulty_score": 5.951869,
+    "map_type": "large_sparse",
+    "benchmark_family": "large_sparse",
+    "regime": "sink",
+    "B_mode": "identity",
+    "connected_checked": false,
+    "map_resample_tries": 1
+  }
+]
