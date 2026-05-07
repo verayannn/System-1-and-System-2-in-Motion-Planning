@@ -496,21 +496,29 @@ def flat(result: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def write_outputs(out_dir: Path, prefix: str, results: List[Dict[str, Any]]) -> Tuple[Path, Path]:
+def init_output_files(out_dir: Path, prefix: str) -> Tuple[Path, Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     jsonl_path = out_dir / f"{prefix}_runs.jsonl"
     csv_path = out_dir / f"{prefix}_summary.csv"
-
-    with jsonl_path.open("w") as f:
-        for result in results:
-            f.write(json.dumps(jsonable(result)) + "\n")
-
+    jsonl_path.write_text("")
     with csv_path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
         writer.writeheader()
-        for result in results:
-            writer.writerow(flat(result))
+    return jsonl_path, csv_path
 
+
+def append_output_row(jsonl_path: Path, csv_path: Path, result: Dict[str, Any]) -> None:
+    with jsonl_path.open("a") as f:
+        f.write(json.dumps(jsonable(result)) + "\n")
+    with csv_path.open("a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
+        writer.writerow(flat(result))
+
+
+def write_outputs(out_dir: Path, prefix: str, results: List[Dict[str, Any]]) -> Tuple[Path, Path]:
+    jsonl_path, csv_path = init_output_files(out_dir, prefix)
+    for result in results:
+        append_output_row(jsonl_path, csv_path, result)
     return jsonl_path, csv_path
 
 
@@ -630,11 +638,13 @@ def main() -> None:
             print(f"[message] {result['error_message']}")
 
     results: List[Dict[str, Any]] = []
+    jsonl_path, csv_path = init_output_files(out_dir, args.out_prefix)
     if int(args.workers) <= 1:
         for i, (dictionary, sid) in enumerate(planned, start=1):
             print(f"[run {i}/{len(planned)}] {dictionary.name} scenario={sid}")
             result = run_case_timed(make_opts(dictionary, sid), args.timeout_sec, args.same_process)
             results.append(result)
+            append_output_row(jsonl_path, csv_path, result)
             print_result(result, i)
     else:
         print(f"[parallel] workers={args.workers} cases={len(planned)}")
@@ -646,9 +656,9 @@ def main() -> None:
             for i, fut in enumerate(as_completed(futures), start=1):
                 result = fut.result()
                 results.append(result)
+                append_output_row(jsonl_path, csv_path, result)
                 print_result(result, i)
 
-    jsonl_path, csv_path = write_outputs(out_dir, args.out_prefix, results)
     print_aggregate(results)
     print(f"[write] {jsonl_path}")
     print(f"[write] {csv_path}")

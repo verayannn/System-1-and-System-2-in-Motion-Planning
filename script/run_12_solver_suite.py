@@ -90,7 +90,7 @@ PYTHONDONTWRITEBYTECODE=1 \
   --scenario_ids all \
   --limit_per_environment 500 \
   --workers 5 \
-  --case_workers 4 \
+  --case_workers 1 \
   --timeout_sec 300 \
   --retrain_every 100 \
   --train_epochs_cl 25 \
@@ -120,23 +120,14 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
 
-# FAMILIES = [
-#     "small_open",
-#     "large_sparse",
-#     "dense_clutter",
-#     "wall_gap",
-#     "serial_walls",
-#     "maze_branching",
-#     "bugtrap",
-# ]
-
-
 FAMILIES = [
-    "bugtrap",
-    "wall_gap",
-    "dense_clutter",
-    "large_sparse",
     "small_open",
+    "large_sparse",
+    "dense_clutter",
+    "wall_gap",
+    "serial_walls",
+    "maze_branching",
+    "bugtrap",
 ]
 
 
@@ -154,6 +145,21 @@ CONFIGS = [
     {"label": "sofai_cbf_primitives_cl", "run_type": "sofai", "s1": "primitives", "s2": "cbf", "cl": True},
     {"label": "sofai_cbf_neural_cl", "run_type": "sofai", "s1": "neural", "s2": "cbf", "cl": True},
 ]
+
+PAPER_METHOD_LABELS = {
+    "s1_primitives": "Pri",
+    "s1_neural": "NN",
+    "s2_mpc": "MPC",
+    "s2_cbf": "CBF",
+    "sofai_mpc_primitives": "DMP-Pri-MPC",
+    "sofai_mpc_neural": "DMP-NN-MPC",
+    "sofai_cbf_primitives": "DMP-Pri-CBF",
+    "sofai_cbf_neural": "DMP-NN-CBF",
+    "sofai_mpc_primitives_cl": "DMP-Pri-MPC-CL",
+    "sofai_mpc_neural_cl": "DMP-NN-MPC-CL",
+    "sofai_cbf_primitives_cl": "DMP-Pri-CBF-CL",
+    "sofai_cbf_neural_cl": "DMP-NN-CBF-CL",
+}
 
 
 def default_mplconfigdir() -> str:
@@ -384,6 +390,19 @@ def summarize_csv(path: Path, label: str, family: str, runtime_metric: str) -> D
     cfg = config_by_label(label)
     with path.open(newline="") as f:
         rows = list(csv.DictReader(f))
+    if not rows:
+        return {
+            "environment": family,
+            "solver": label,
+            "success_rate": None,
+            "average_runtime": None,
+            "mean_runtime": None,
+            "p90_runtime": None,
+            "ok": 0,
+            "total": 0,
+            "s1_solved": None,
+            "s2_solved": None,
+        }
     ok = [r for r in rows if r.get("status") == "ok"]
     runtime_field = {
         "attempt": "attempt_runtime_sec",
@@ -411,6 +430,30 @@ def summarize_csv(path: Path, label: str, family: str, runtime_metric: str) -> D
     }
 
 
+def empty_row(family: str, label: str) -> Dict[str, Any]:
+    return {
+        "environment": family,
+        "solver": label,
+        "success_rate": None,
+        "average_runtime": None,
+        "mean_runtime": None,
+        "p90_runtime": None,
+        "ok": 0,
+        "total": 0,
+        "s1_solved": None,
+        "s2_solved": None,
+    }
+
+
+def summarize_partial_csv(path: Path, label: str, family: str, runtime_metric: str) -> Dict[str, Any]:
+    if not path.exists() or path.stat().st_size == 0:
+        return empty_row(family, label)
+    try:
+        return summarize_csv(path, label, family, runtime_metric)
+    except Exception:
+        return empty_row(family, label)
+
+
 def write_table_csv(path: Path, rows: List[Dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fields = [
@@ -432,9 +475,9 @@ def write_table_csv(path: Path, rows: List[Dict[str, Any]]) -> None:
 
 def write_markdown_tables(path: Path, rows: List[Dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    by_family: Dict[str, List[Dict[str, Any]]] = {}
+    by_family: Dict[str, Dict[str, Dict[str, Any]]] = {}
     for row in rows:
-        by_family.setdefault(str(row["environment"]), []).append(row)
+        by_family.setdefault(str(row["environment"]), {})[str(row["solver"])] = row
 
     def fmt_float(v: Any) -> str:
         if v is None or v == "":
@@ -451,7 +494,8 @@ def write_markdown_tables(path: Path, rows: List[Dict[str, Any]]) -> None:
             "| solver | success rate | average runtime | mean runtime | p90 runtime | s1 solved | s2 solved |",
             "|---|---:|---:|---:|---:|---:|---:|",
         ]
-        for row in by_family[family]:
+        for cfg in CONFIGS:
+            row = by_family[family].get(cfg["label"], empty_row(family, cfg["label"]))
             lines.append(
                 "| {solver} | {success_rate} | {average_runtime} | {mean_runtime} | {p90_runtime} | {s1_solved} | {s2_solved} |".format(
                     solver=row["solver"],
@@ -488,6 +532,106 @@ def average_rows(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             "s2_solved": statistics.mean(float(r["s2_solved"]) for r in group),
         })
     return out
+
+
+def average_rows_partial(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    out = []
+    for cfg in CONFIGS:
+        label = cfg["label"]
+        group = [r for r in rows if r["solver"] == label and r["environment"] != "average" and r["success_rate"] is not None]
+        if not group:
+            out.append(empty_row("average", label))
+            continue
+        avg_runtime = [float(r["average_runtime"]) for r in group if r["average_runtime"] is not None]
+        mean_runtime = [float(r["mean_runtime"]) for r in group if r["mean_runtime"] is not None]
+        p90_runtime = [float(r["p90_runtime"]) for r in group if r["p90_runtime"] is not None]
+        s1_solved = [float(r["s1_solved"]) for r in group if r["s1_solved"] is not None]
+        s2_solved = [float(r["s2_solved"]) for r in group if r["s2_solved"] is not None]
+        out.append({
+            "environment": "average",
+            "solver": label,
+            "success_rate": statistics.mean(float(r["success_rate"]) for r in group),
+            "average_runtime": statistics.mean(avg_runtime) if avg_runtime else None,
+            "mean_runtime": statistics.mean(mean_runtime) if mean_runtime else None,
+            "p90_runtime": statistics.mean(p90_runtime) if p90_runtime else None,
+            "s1_solved": statistics.mean(s1_solved) if s1_solved else None,
+            "s2_solved": statistics.mean(s2_solved) if s2_solved else None,
+        })
+    return out
+
+
+def write_paper_markdown_tables(path: Path, rows: List[Dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    by_family: Dict[str, List[Dict[str, Any]]] = {}
+    for row in rows:
+        by_family.setdefault(str(row["environment"]), []).append(row)
+
+    def fmt_pct(v: Any) -> str:
+        if v is None or v == "":
+            return "—"
+        return f"{100.0 * float(v):.1f}"
+
+    def fmt_ms(v: Any) -> str:
+        if v is None or v == "":
+            return "—"
+        return f"{1000.0 * float(v):.1f}"
+
+    def fmt_solves(s1: Any, s2: Any) -> str:
+        if s1 is None and s2 is None:
+            return "— / —"
+        left = "—" if s1 is None else str(int(round(float(s1))))
+        right = "—" if s2 is None else str(int(round(float(s2))))
+        return f"{left} / {right}"
+
+    lines = ["# Paper Tables", ""]
+    for family in list(FAMILIES) + ["average"]:
+        if family not in by_family:
+            continue
+        rows_by_solver = {str(r["solver"]): r for r in by_family[family]}
+        lines += [
+            f"## {family}",
+            "",
+            "| Method | Success (%) | Mean RT (ms) | P90 RT (ms) | S1 / S2 Solves |",
+            "|---|---:|---:|---:|---:|",
+        ]
+        for cfg in CONFIGS:
+            row = rows_by_solver.get(cfg["label"], empty_row(family, cfg["label"]))
+            lines.append(
+                "| {method} | {success} | {mean_rt} | {p90_rt} | {solves} |".format(
+                    method=PAPER_METHOD_LABELS[cfg["label"]],
+                    success=fmt_pct(row.get("success_rate")),
+                    mean_rt=fmt_ms(row.get("mean_runtime")),
+                    p90_rt=fmt_ms(row.get("p90_runtime")),
+                    solves=fmt_solves(row.get("s1_solved"), row.get("s2_solved")),
+                )
+            )
+        lines.append("")
+    path.write_text("\n".join(lines) + "\n")
+
+
+def collect_live_rows(
+    root: Path,
+    out_dir: str,
+    families: List[str],
+    configs: List[Dict[str, Any]],
+    runtime_metric: str,
+) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    out_root = root / out_dir
+    for family in families:
+        for cfg in configs:
+            csv_path = out_root / family / cfg["label"] / f"{cfg['label']}_summary.csv"
+            rows.append(summarize_partial_csv(csv_path, cfg["label"], family, runtime_metric))
+    rows.extend(average_rows_partial(rows))
+    return rows
+
+
+def write_live_tables(root: Path, out_dir: str, families: List[str], configs: List[Dict[str, Any]], runtime_metric: str) -> None:
+    out_root = root / out_dir
+    rows = collect_live_rows(root, out_dir, families, configs, runtime_metric)
+    write_table_csv(out_root / "twelve_solver_tables_live.csv", rows)
+    write_markdown_tables(out_root / "twelve_solver_tables_live.md", rows)
+    write_paper_markdown_tables(out_root / "twelve_solver_paper_tables_live.md", rows)
 
 
 def copy_cl_assets(src: Path, dst: Path) -> None:
@@ -688,6 +832,7 @@ def make_cl_args(
 def run_cl_cases_immediately(
     *,
     root: Path,
+    out_root: Path,
     family: str,
     benchmark_file: Path,
     cfg: Dict[str, Any],
@@ -724,6 +869,7 @@ def run_cl_cases_immediately(
     retrain_block_id = 0
     s2_success_count = 0
     next_retrain_at = max(1, int(args.retrain_every))
+    jsonl_path, csv_path = runner_mod.init_output_files(out_root, cfg["label"])
 
     def make_opts(sid: int) -> Dict[str, Any]:
         return {
@@ -747,9 +893,10 @@ def run_cl_cases_immediately(
         result = runner_mod.run_case_timed(
             make_opts(sid),
             float(args.timeout_sec),
-            False,
+            True,
         )
         all_results.append(result)
+        runner_mod.append_output_row(jsonl_path, csv_path, result)
         completed += 1
         block_id = 1 + (completed - 1) // max(1, int(args.retrain_every))
         updates = update_cl_state_for_result(
@@ -837,6 +984,7 @@ def run_one_config(args: argparse.Namespace, family: str, cfg: Dict[str, Any]) -
             cfg["run_type"],
             "--timeout_sec",
             str(args.timeout_sec),
+            "--same_process",
             "--disable_s1_confidence_gate" if not args.enable_s1_confidence_gate else "--enable_s1_confidence_gate",
             "--s1_confidence_threshold",
             str(args.s1_confidence_threshold),
@@ -934,6 +1082,7 @@ def run_one_config(args: argparse.Namespace, family: str, cfg: Dict[str, Any]) -
     else:
         all_results = run_cl_cases_immediately(
             root=root,
+            out_root=out_root,
             family=family,
             benchmark_file=benchmark_file,
             cfg=cfg,
@@ -943,22 +1092,14 @@ def run_one_config(args: argparse.Namespace, family: str, cfg: Dict[str, Any]) -
             cl_args=cl_args,
         )
 
-    if not args.dry_run:
-        sys.path.insert(0, str(root))
-        import run_motion_planning_benchmarks as runner_mod
-        runner_mod.write_outputs(out_root, cfg["label"], all_results)
-    elif placeholder is not None:
+    if args.dry_run and placeholder is not None:
         return placeholder
     return summarize_csv(out_root / f"{cfg['label']}_summary.csv", cfg["label"], family, args.runtime_metric)
 
 
-def run_one_family(args: argparse.Namespace, family: str, configs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    rows: List[Dict[str, Any]] = []
-    print(f"\n========== ENVIRONMENT: {family} ==========")
-    for cfg in configs:
-        print(f"\n----- {family} / {cfg['label']} -----")
-        rows.append(run_one_config(args, family, cfg))
-    return rows
+def run_one_task(args: argparse.Namespace, family: str, cfg: Dict[str, Any]) -> Dict[str, Any]:
+    print(f"\n----- {family} / {cfg['label']} -----")
+    return run_one_config(args, family, cfg)
 
 
 def parse_args() -> argparse.Namespace:
@@ -972,8 +1113,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out_dir", default="output/benchmark_runs/twelve_solver_suite")
     p.add_argument("--scenario_ids", default="all")
     p.add_argument("--limit_per_environment", type=int, default=0)
-    p.add_argument("--workers", type=int, default=4, help="Number of environments/families to run in parallel.")
-    p.add_argument("--case_workers", type=int, default=1, help="Optional workers inside one non-CL benchmark run. Keep at 1 for benchmark-level parallelism only.")
+    p.add_argument("--workers", type=int, default=4,
+                   help="Maximum concurrent family/config benchmark jobs across the full 12-solver suite.")
+    p.add_argument("--case_workers", type=int, default=1,
+                   help="Optional workers inside one non-CL benchmark job.")
     p.add_argument("--timeout_sec", type=float, default=300.0)
     p.add_argument("--runtime_metric", choices=["attempt", "selected", "case", "wall"], default="attempt",
                    help="Runtime column used in the final tables. `attempt` is pure solver-attempt time without process overhead.")
@@ -996,6 +1139,8 @@ def parse_args() -> argparse.Namespace:
                    help="Device for neural S1. Examples: auto, cuda, cuda:0, cpu, mps.")
     p.add_argument("--train_device_cl", default="auto",
                    help="Device for neural continual retraining. Examples: auto, cuda, cuda:0, cpu, mps.")
+    p.add_argument("--render_live_tables_only", action="store_true",
+                   help="Do not run experiments. Render live/final tables from whatever per-config outputs currently exist in --out_dir.")
     p.add_argument("--dry_run", action="store_true")
     return p.parse_args()
 
@@ -1009,30 +1154,41 @@ def main() -> None:
     config_labels = selected(args.configs, labels, "config")
     configs = [c for c in CONFIGS if c["label"] in config_labels]
 
-    family_rows: Dict[str, List[Dict[str, Any]]] = {}
-    env_workers = max(1, min(int(args.workers), len(families)))
-
-    if env_workers == 1:
-        for family in families:
-            family_rows[family] = run_one_family(args, family, configs)
-    else:
-        print(f"[parallel] running {len(families)} environment(s) with {env_workers} environment worker(s)")
-        with ProcessPoolExecutor(max_workers=env_workers) as pool:
-            futures = {pool.submit(run_one_family, args, family, configs): family for family in families}
-            for future in as_completed(futures):
-                family = futures[future]
-                family_rows[family] = future.result()
+    if args.render_live_tables_only:
+        write_live_tables(root, args.out_dir, families, configs, args.runtime_metric)
+        out_root = root / args.out_dir
+        print(f"[write] {out_root / 'twelve_solver_tables_live.csv'}")
+        print(f"[write] {out_root / 'twelve_solver_tables_live.md'}")
+        print(f"[write] {out_root / 'twelve_solver_paper_tables_live.md'}")
+        return
 
     rows: List[Dict[str, Any]] = []
-    for family in families:
-        rows.extend(family_rows.get(family, []))
+    tasks = [(family, cfg) for family in families for cfg in configs]
+    suite_workers = max(1, min(int(args.workers), len(tasks)))
+    write_live_tables(root, args.out_dir, families, configs, args.runtime_metric)
+
+    if suite_workers == 1:
+        for family, cfg in tasks:
+            rows.append(run_one_task(args, family, cfg))
+            write_live_tables(root, args.out_dir, families, configs, args.runtime_metric)
+    else:
+        print(f"[parallel] running {len(tasks)} family/config job(s) with {suite_workers} suite worker(s)")
+        with ProcessPoolExecutor(max_workers=suite_workers) as pool:
+            futures = {pool.submit(run_one_task, args, family, cfg): (family, cfg["label"]) for family, cfg in tasks}
+            for future in as_completed(futures):
+                family, label = futures[future]
+                rows.append(future.result())
+                print(f"[suite done] {family} / {label}")
+                write_live_tables(root, args.out_dir, families, configs, args.runtime_metric)
 
     rows.extend(average_rows(rows))
     out_root = root / args.out_dir
     write_table_csv(out_root / "twelve_solver_tables.csv", rows)
     write_markdown_tables(out_root / "twelve_solver_tables.md", rows)
+    write_paper_markdown_tables(out_root / "twelve_solver_paper_tables.md", rows)
     print(f"\n[write] {out_root / 'twelve_solver_tables.csv'}")
     print(f"[write] {out_root / 'twelve_solver_tables.md'}")
+    print(f"[write] {out_root / 'twelve_solver_paper_tables.md'}")
 
 
 if __name__ == "__main__":
