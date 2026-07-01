@@ -39,7 +39,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--python", default=sys.executable)
     p.add_argument("--dictionary", default="input/nl/benchmark_dualmp_nl_bugtrap_eval_bugtrap.json")
     p.add_argument("--bootstrap_results_dir", default="output/bootstrap_bugtrap_nl")
-    p.add_argument("--scenario_ids", default="0-99")
+    p.add_argument("--scenario_ids", default="0-499")
     p.add_argument("--block_size", type=int, default=100) ## block size for continual learning: continual learning happens after a block finishes
     p.add_argument("--configs", nargs="+", default=list(MODES))
     p.add_argument("--assets_dir", default="db/by_env/bugtrap_nl")
