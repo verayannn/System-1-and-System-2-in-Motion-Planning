@@ -1,0 +1,55 @@
+{
+  "block_size": 100,
+  "configs": {
+    "s1_neural": {
+      "mode": "s1_neural",
+      "runs": [
+        {
+          "model": "/Users/apple/Desktop/sofai/db/by_env/dense_clutter_nl/s1_policy_nonlinear.pth",
+          "prefix": "s1_neural"
+        }
+      ]
+    },
+    "s2_cbf": {
+      "mode": "s2_cbf",
+      "runs": [
+        {
+          "prefix": "s2_cbf"
+        }
+      ]
+    },
+    "sofai_cbf_cl": {
+      "mode": "sofai_cbf_cl",
+      "runs": [
+        {
+          "jsonl": "/Users/apple/Desktop/sofai/output/benchmark_runs/nl_dense_clutter_suite/sofai_cbf_cl/runs/sofai_cbf_cl_block00_runs.jsonl",
+          "model": "/Users/apple/Desktop/sofai/output/benchmark_runs/nl_dense_clutter_suite/sofai_cbf_cl/models/sofai_cbf_cl_block00_s1_policy_nonlinear.pth",
+          "prefix": "sofai_cbf_cl_block00"
+        },
+        {
+          "jsonl": "/Users/apple/Desktop/sofai/output/benchmark_runs/nl_dense_clutter_suite/sofai_cbf_cl/runs/sofai_cbf_cl_block01_runs.jsonl",
+          "model": "/Users/apple/Desktop/sofai/output/benchmark_runs/nl_dense_clutter_suite/sofai_cbf_cl/models/sofai_cbf_cl_block01_s1_policy_nonlinear.pth",
+          "prefix": "sofai_cbf_cl_block01"
+        },
+        {
+          "jsonl": "/Users/apple/Desktop/sofai/output/benchmark_runs/nl_dense_clutter_suite/sofai_cbf_cl/runs/sofai_cbf_cl_block02_runs.jsonl",
+          "model": "/Users/apple/Desktop/sofai/output/benchmark_runs/nl_dense_clutter_suite/sofai_cbf_cl/models/sofai_cbf_cl_block02_s1_policy_nonlinear.pth",
+          "prefix": "sofai_cbf_cl_block02"
+        },
+        {
+          "jsonl": "/Users/apple/Desktop/sofai/output/benchmark_runs/nl_dense_clutter_suite/sofai_cbf_cl/runs/sofai_cbf_cl_block03_runs.jsonl",
+          "model": "/Users/apple/Desktop/sofai/output/benchmark_runs/nl_dense_clutter_suite/sofai_cbf_cl/models/sofai_cbf_cl_block03_s1_policy_nonlinear.pth",
+          "prefix": "sofai_cbf_cl_block03"
+        },
+        {
+          "jsonl": "/Users/apple/Desktop/sofai/output/benchmark_runs/nl_dense_clutter_suite/sofai_cbf_cl/runs/sofai_cbf_cl_block04_runs.jsonl",
+          "model": "/Users/apple/Desktop/sofai/output/benchmark_runs/nl_dense_clutter_suite/sofai_cbf_cl/models/sofai_cbf_cl_block04_s1_policy_nonlinear.pth",
+          "prefix": "sofai_cbf_cl_block04"
+        }
+      ]
+    }
+  },
+  "dictionary": "/Users/apple/Desktop/sofai/input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json",
+  "root": "/Users/apple/Desktop/sofai",
+  "scenario_count": 500
+}

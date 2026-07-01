@@ -1,44 +1,27 @@
 #!/usr/bin/env python3
-"""Generate per-environment S1 assets and benchmark dictionaries.
+"""Prepare nonlinear benchmark assets for one or more map families.
 
-Defaults match the planned large run:
-  - 500 successful S2 trajectories per environment for the S1 database
-  - one neural policy trained from the same trajectories per environment
-  - 10k benchmark scenarios per environment
+This script does three things:
+1. Generate the nonlinear benchmark dictionary.
+2. Collect successful System 2 trajectories rollouts for training.
+3. Train the initial neural System 1 checkpoint from all successful bootstrap trajectories.
 
 
 cd /Users/apple/Desktop/sofai
-
 PYTHONDONTWRITEBYTECODE=1 \
-/Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/prepare_environment_assets.py \
-  --families all \
-  --training_trajectories 200 \
-  --benchmark_instances 10000 \
-  --seed 7 \
-  --max_attempts 10000 \
-  --train_epochs 25 \
-  --train_batch 128 \
-  --train_lr 5e-4 \
-  --assets_dir db/by_env \
-  --benchmark_dir input/benchmarks_10k
+python script/prepare_environment_assets.py \
+  --family bugtrap \
+  --s2_solver cbf
+  
 
+all the families:
 
+cd /Users/apple/Desktop/sofai
 PYTHONDONTWRITEBYTECODE=1 \
-/Users/apple/miniconda3/envs/s12_env/bin/python3.10 script/prepare_environment_assets.py \
-  --families all \
-  --training_trajectories 100 \
-  --benchmark_instances 10000 \
-  --seed 7 \
-  --max_attempts 10000 \
-  --train_epochs 25 \
-  --train_batch 128 \
-  --train_lr 5e-4 \
-  --assets_dir db/by_env \
-  --benchmark_dir input/benchmarks_10k
+python script/prepare_environment_assets.py \
+  --families small_open large_sparse wall_gap serial_walls maze_branching bugtrap \
+  --s2_solver cbf
 
-
-
-## families all
 """
 
 from __future__ import annotations
@@ -48,10 +31,10 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Iterable, List
+from typing import List, Sequence
 
 
-FAMILIES = [
+FAMILY_CHOICES = [
     "small_open",
     "large_sparse",
     "dense_clutter",
@@ -62,170 +45,183 @@ FAMILIES = [
 ]
 
 
-def default_mplconfigdir() -> str:
-    if sys.platform == "darwin":
-        return "/private/tmp/mpl"
-    return "/tmp/mpl"
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--root", default=Path(__file__).resolve().parents[1])
+    p.add_argument("--python", default=sys.executable)
+    p.add_argument("--family", choices=FAMILY_CHOICES, default="dense_clutter", help="Single family to process.")
+    p.add_argument("--families", nargs="+", default=[], help="Optional list of families to process in one run.")
+    p.add_argument("--train_n_per_family", type=int, default=100) ## size of the base model 
+    p.add_argument("--eval_n_per_family", type=int, default=500) ## size of the benchmarks 
+    p.add_argument("--train_seed", type=int, default=7)
+    p.add_argument("--eval_seed", type=int, default=8)
+    p.add_argument("--s2_solver", choices=["cbf", "mpc"], default="cbf")
+    p.add_argument("--train_source", choices=["s2", "selected", "all_success"], default="all_success")
+    p.add_argument("--train_trajectories", type=int, default=0)
+    p.add_argument("--train_epochs", type=int, default=40)
+    p.add_argument("--train_batch", type=int, default=64)
+    p.add_argument("--train_lr", type=float, default=3e-4)
+    p.add_argument("--output_dir", default="input/nl")
+    p.add_argument("--assets_dir", default="db/by_env/{family}_nl")
+    p.add_argument("--results_dir", default="output/bootstrap_{family}_nl")
+    p.add_argument("--skip_generate", action="store_true")
+    p.add_argument("--skip_collect", action="store_true")
+    p.add_argument("--skip_train", action="store_true")
+    p.add_argument("--dry_run", action="store_true")
+    return p.parse_args()
 
 
-def normalize_mplconfigdir(path_str: str) -> str:
-    path = str(path_str).strip()
-    if sys.platform != "darwin" and path.startswith("/private/tmp/"):
-        return path.replace("/private/tmp/", "/tmp/", 1)
-    if sys.platform != "darwin" and path == "/private/tmp/mpl":
-        return "/tmp/mpl"
-    return path
-
-
-def run(cmd: List[str], *, cwd: Path, dry_run: bool = False) -> None:
+def run(cmd: List[str], *, cwd: Path, dry_run: bool) -> None:
     print("\n[cmd]", " ".join(cmd))
     if dry_run:
         return
     env = dict(os.environ)
     env.setdefault("PYTHONDONTWRITEBYTECODE", "1")
-    mpldir = Path(normalize_mplconfigdir(default_mplconfigdir())).expanduser()
-    mpldir.mkdir(parents=True, exist_ok=True)
-    env.setdefault("MPLCONFIGDIR", str(mpldir))
+    env.setdefault("MPLCONFIGDIR", "/private/tmp/mpl")
     subprocess.run(cmd, cwd=str(cwd), env=env, check=True)
 
 
-def selected_families(raw: Iterable[str]) -> List[str]:
-    names = list(raw)
-    if not names or names == ["all"]:
-        return list(FAMILIES)
-    missing = [name for name in names if name not in FAMILIES]
-    if missing:
-        raise SystemExit(f"Unknown environment(s): {', '.join(missing)}")
-    return names
-
-
-def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--root", default=Path(__file__).resolve().parents[1])
-    p.add_argument("--python", default=sys.executable)
-    p.add_argument("--families", nargs="+", default=["all"])
-    p.add_argument("--training_trajectories", type=int, default=500)
-    p.add_argument("--benchmark_instances", type=int, default=10000)
-    p.add_argument("--seed", type=int, default=7)
-    p.add_argument("--max_attempts", type=int, default=20000)
-    p.add_argument("--train_epochs", type=int, default=25)
-    p.add_argument("--train_batch", type=int, default=128)
-    p.add_argument("--train_lr", type=float, default=5e-4)
-    p.add_argument("--assets_dir", default="db/by_env")
-    p.add_argument("--benchmark_dir", default="input/benchmarks_10k")
-    p.add_argument("--skip_data", action="store_true")
-    p.add_argument("--skip_train", action="store_true")
-    p.add_argument("--skip_benchmarks", action="store_true")
-    p.add_argument("--dry_run", action="store_true")
-    return p.parse_args()
+def resolve_path(root: Path, spec: str, *, family: str) -> Path:
+    value = spec.format(family=family)
+    path = Path(value).expanduser()
+    if not path.is_absolute():
+        path = root / path
+    return path
 
 
 def main() -> None:
     args = parse_args()
     root = Path(args.root).expanduser().resolve()
-    families = selected_families(args.families)
-    assets_root = root / args.assets_dir
-    benchmark_dir = root / args.benchmark_dir
+    python = args.python
+    out_dir = Path(args.output_dir).expanduser()
+    if not out_dir.is_absolute():
+        out_dir = root / out_dir
+    if not args.dry_run:
+        out_dir.mkdir(parents=True, exist_ok=True)
+    families: Sequence[str] = args.families or [args.family]
 
     for family in families:
-        env_dir = assets_root / family
-        env_dir.mkdir(parents=True, exist_ok=True)
+        assets_dir = resolve_path(root, args.assets_dir, family=family)
+        results_dir = resolve_path(root, args.results_dir, family=family)
+        if not args.dry_run:
+            assets_dir.mkdir(parents=True, exist_ok=True)
+            results_dir.mkdir(parents=True, exist_ok=True)
 
-        dataset = env_dir / "nn_dataset_maze.npz"
-        traj = env_dir / "s1_sfcbf_success_trajs.npz"
-        db = env_dir / "S1_database_maze.json"
-        scenarios = env_dir / "benchmark_scenarios_maze_s1_db.json"
-        report = env_dir / "diversity_report.json"
-        model = env_dir / "s1_policy_control_cnn.pth"
+        train_dict_path = out_dir / f"benchmark_dualmp_nl_{family}_train_{family}.json"
+        eval_dict_path = out_dir / f"benchmark_dualmp_nl_{family}_eval_{family}.json"
+        model_path = assets_dir / "s1_policy_nonlinear.pth"
+        dataset_path = assets_dir / "s1_nonlinear_dataset.npz"
 
-        if not args.skip_data:
+        if not args.skip_generate:
             run(
                 [
-                    args.python,
-                    "solvers/base/make_diverse_training_data_maze.py",
-                    "--target_trajectories",
-                    str(args.training_trajectories),
-                    "--map_types",
-                    family,
-                    "--difficulties",
-                    "benchmark",
-                    "--out_npz",
-                    str(dataset),
-                    "--traj_out",
-                    str(traj),
-                    "--db_out",
-                    str(db),
-                    "--scenarios_out",
-                    str(scenarios),
-                    "--report_out",
-                    str(report),
+                    python,
+                    "input/generate_nl_dict.py",
+                    "--root",
+                    str(root),
+                    "--output_dir",
+                    str(out_dir),
+                    "--prefix",
+                    f"benchmark_dualmp_nl_{family}_train",
+                    "--n_per_family",
+                    str(args.train_n_per_family),
                     "--seed",
-                    str(args.seed),
-                    "--max_attempts",
-                    str(args.max_attempts),
+                    str(args.train_seed),
+                    "--families",
+                    family,
+                ],
+                cwd=root,
+                dry_run=args.dry_run,
+            )
+            run(
+                [
+                    python,
+                    "input/generate_nl_dict.py",
+                    "--root",
+                    str(root),
+                    "--output_dir",
+                    str(out_dir),
+                    "--prefix",
+                    f"benchmark_dualmp_nl_{family}_eval",
+                    "--n_per_family",
+                    str(args.eval_n_per_family),
+                    "--seed",
+                    str(args.eval_seed),
+                    "--families",
+                    family,
+                ],
+                cwd=root,
+                dry_run=args.dry_run,
+            )
+
+        if not args.skip_collect:
+            run(
+                [
+                    python,
+                    "run_motion_planning_benchmarks.py",
+                    "--root",
+                    str(root),
+                    "--input_dir",
+                    str(out_dir),
+                    "--patterns",
+                    train_dict_path.name,
+                    "--scenario_ids",
+                    f"0-{args.train_n_per_family - 1}",
+                    "--run_type",
+                    "s2",
+                    "--s2",
+                    args.s2_solver,
+                    "--timeout_sec",
+                    "300",
+                    "--workers",
+                    "1",
+                    "--out_dir",
+                    str(results_dir),
+                    "--out_prefix",
+                    f"{train_dict_path.stem}_{args.s2_solver}_bootstrap",
                 ],
                 cwd=root,
                 dry_run=args.dry_run,
             )
 
         if not args.skip_train:
+            jsonl = results_dir / f"{train_dict_path.stem}_{args.s2_solver}_bootstrap_runs.jsonl"
             run(
                 [
-                    args.python,
-                    "solvers/base/train_nn_policy.py",
-                    "--dataset",
-                    str(dataset),
-                    "--model_out",
-                    str(model),
+                    python,
+                    "script/train_s1_nonlinear.py",
+                    "--root",
+                    str(root),
+                    "--dictionary",
+                    str(train_dict_path),
+                    "--results_jsonl",
+                    str(jsonl),
+                    "--out_model",
+                    str(model_path),
+                    "--out_dataset",
+                    str(dataset_path),
+                    "--source",
+                    args.train_source,
+                    "--max_trajectories",
+                    str(args.train_trajectories),
                     "--epochs",
                     str(args.train_epochs),
                     "--batch",
                     str(args.train_batch),
                     "--lr",
                     str(args.train_lr),
-                    "--lambda_u",
-                    "1.0",
-                    "--lambda_next",
-                    "1.0",
-                    "--lambda_dir",
-                    "0.5",
-                    "--lambda_speed",
-                    "1.0",
-                    "--lambda_progress",
-                    "1.0",
-                    "--progress_fraction",
-                    "0.9",
                 ],
                 cwd=root,
                 dry_run=args.dry_run,
             )
 
-    if not args.skip_benchmarks:
-        run(
-            [
-                args.python,
-                "input/generate_benchmark_dictionaries.py",
-                "--root",
-                str(root),
-                "--output_dir",
-                str(benchmark_dir),
-                "--prefix",
-                "benchmark_dualmp",
-                "--n_per_family",
-                str(args.benchmark_instances),
-                "--seed",
-                str(args.seed),
-                "--families",
-                *families,
-                "--write_combined",
-            ],
-            cwd=root,
-            dry_run=args.dry_run,
-        )
-
-    print("\n[done] prepared environments:", ", ".join(families))
-    print("[assets]", assets_root)
-    print("[benchmarks]", benchmark_dir)
+        print("\n[done]")
+        print(f"[family] {family}")
+        print(f"[train_dictionary] {train_dict_path}")
+        print(f"[eval_dictionary] {eval_dict_path}")
+        print(f"[model] {model_path}")
+        print(f"[dataset] {dataset_path}")
+        print(f"[results] {results_dir}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,8562 @@
+[
+  {
+    "scenario_id": 0,
+    "rectangles": [
+      [
+        -4.76061,
+        -1.970336,
+        1.51365,
+        -1.585957
+      ],
+      [
+        -4.76061,
+        2.182031,
+        1.51365,
+        2.56641
+      ],
+      [
+        -4.76061,
+        -1.970336,
+        -4.376231,
+        2.56641
+      ],
+      [
+        1.129271,
+        -1.970336,
+        1.51365,
+        -1.428398
+      ],
+      [
+        1.129271,
+        -0.052043,
+        1.51365,
+        2.56641
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.3891,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        1.343596,
+        -0.31553
+      ],
+      "parameters": {
+        "damp": 0.2741432118134062,
+        "omega": 1.703401721190439
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 1,
+    "rectangles": [
+      [
+        -3.814538,
+        -1.968403,
+        -3.068073,
+        -1.395737
+      ],
+      [
+        -1.948216,
+        -1.968403,
+        0.309435,
+        -1.395737
+      ],
+      [
+        -3.814538,
+        2.011635,
+        0.309435,
+        2.584301
+      ],
+      [
+        -3.814538,
+        -1.968403,
+        -3.241872,
+        2.584301
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.33446,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -1.322668,
+        0.196361
+      ],
+      "parameters": {
+        "a": 0.8710973353891182,
+        "b": 0.6968442536524554,
+        "shear": 0.14939442802873326
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 2,
+    "rectangles": [
+      [
+        -4.138654,
+        -4.15471,
+        -0.923901,
+        -3.557106
+      ],
+      [
+        0.522872,
+        -4.15471,
+        1.641623,
+        -3.557106
+      ],
+      [
+        -4.138654,
+        -4.15471,
+        -3.541051,
+        1.25621
+      ],
+      [
+        1.044019,
+        -4.15471,
+        1.641623,
+        1.25621
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.452845,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        0.212741,
+        0.180772
+      ],
+      "parameters": {
+        "a": 0.6592016168567227,
+        "b": 0.31183342746615483,
+        "shear": 0.08544526969415067
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 3,
+    "rectangles": [
+      [
+        -3.68011,
+        -2.825997,
+        1.632882,
+        -2.184218
+      ],
+      [
+        -3.68011,
+        2.720069,
+        1.632882,
+        3.361847
+      ],
+      [
+        -3.68011,
+        -2.825997,
+        -3.038331,
+        -1.961127
+      ],
+      [
+        -3.68011,
+        -0.701983,
+        -3.038331,
+        3.361847
+      ],
+      [
+        0.991104,
+        -2.825997,
+        1.632882,
+        3.361847
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.697694,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        0.256686,
+        -0.140447
+      ],
+      "parameters": {
+        "a": 0.5148718482750253,
+        "b": 0.7869087148373701,
+        "shear": 0.3581899807132284
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 4,
+    "rectangles": [
+      [
+        -4.675886,
+        -2.813869,
+        -2.029696,
+        -2.32782
+      ],
+      [
+        -0.714535,
+        -2.813869,
+        1.29685,
+        -2.32782
+      ],
+      [
+        -4.675886,
+        2.745965,
+        1.29685,
+        3.232014
+      ],
+      [
+        -4.675886,
+        -2.813869,
+        -4.189837,
+        3.232014
+      ],
+      [
+        0.810801,
+        -2.813869,
+        1.29685,
+        3.232014
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.552202,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -1.005114,
+        -0.473833
+      ],
+      "parameters": {
+        "a": 0.8632986166993507,
+        "b": 0.5819340949622094,
+        "shear": 0.8316343501417974
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 5,
+    "rectangles": [
+      [
+        -1.797795,
+        -3.53696,
+        3.64707,
+        -3.008704
+      ],
+      [
+        -1.797795,
+        1.637877,
+        -1.542552,
+        2.166133
+      ],
+      [
+        0.102413,
+        1.637877,
+        3.64707,
+        2.166133
+      ],
+      [
+        -1.797795,
+        -3.53696,
+        -1.269539,
+        2.166133
+      ],
+      [
+        3.118814,
+        -3.53696,
+        3.64707,
+        2.166133
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.54545,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -1.293711,
+        -1.219212
+      ],
+      "parameters": {
+        "a": 0.4984666024204647,
+        "b": 0.7333731373048105,
+        "shear": -0.7830000437110293
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 6,
+    "rectangles": [
+      [
+        -2.192567,
+        -2.988202,
+        4.099474,
+        -2.571655
+      ],
+      [
+        -2.192567,
+        1.836519,
+        1.918213,
+        2.253065
+      ],
+      [
+        3.279692,
+        1.836519,
+        4.099474,
+        2.253065
+      ],
+      [
+        -2.192567,
+        -2.988202,
+        -1.77602,
+        2.253065
+      ],
+      [
+        3.682927,
+        -2.988202,
+        4.099474,
+        2.253065
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.45206,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -0.433608,
+        0.332759
+      ],
+      "parameters": {
+        "a": 0.6215311470063398,
+        "b": 0.4700142761508237,
+        "shear": -0.3826225323020489
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 7,
+    "rectangles": [
+      [
+        -0.389347,
+        -3.546631,
+        4.051197,
+        -3.103296
+      ],
+      [
+        3.607863,
+        -3.546631,
+        4.051197,
+        -2.587006
+      ],
+      [
+        3.607863,
+        -1.15054,
+        4.051197,
+        1.033261
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.168112,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        1.091953,
+        -0.664737
+      ],
+      "parameters": {
+        "a": 0.5784130844664342,
+        "b": 0.5473241409323937,
+        "shear": 0.6915470889567906
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 8,
+    "rectangles": [
+      [
+        -1.3819,
+        -1.303925,
+        0.174104,
+        -0.771267
+      ],
+      [
+        1.957985,
+        -1.303925,
+        4.255516,
+        -0.771267
+      ],
+      [
+        -1.3819,
+        4.01288,
+        4.255516,
+        4.545537
+      ],
+      [
+        -1.3819,
+        -1.303925,
+        -0.849243,
+        4.545537
+      ],
+      [
+        3.722858,
+        -1.303925,
+        4.255516,
+        4.545537
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.564347,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        -1.062971,
+        0.103773
+      ],
+      "parameters": {
+        "a": 0.6158874611541981,
+        "b": 0.4411670086671319,
+        "shear": -0.44941018500482754
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 9,
+    "rectangles": [
+      [
+        -3.416507,
+        -2.576098,
+        0.714932,
+        -2.165592
+      ],
+      [
+        -3.416507,
+        1.013979,
+        -1.654022,
+        1.424485
+      ],
+      [
+        -0.562704,
+        1.013979,
+        0.714932,
+        1.424485
+      ],
+      [
+        -3.416507,
+        -2.576098,
+        -3.006001,
+        1.424485
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.229312,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -1.189389,
+        0.402869
+      ],
+      "parameters": {
+        "a": 0.38423630189027813,
+        "b": 0.38704118871366366,
+        "shear": -0.5242262661969039
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 10,
+    "rectangles": [
+      [
+        -3.604517,
+        -4.599146,
+        2.517825,
+        -4.062751
+      ],
+      [
+        -3.604517,
+        1.347215,
+        2.517825,
+        1.88361
+      ],
+      [
+        -3.604517,
+        -4.599146,
+        -3.068122,
+        -3.670828
+      ],
+      [
+        -3.604517,
+        -2.235377,
+        -3.068122,
+        1.88361
+      ],
+      [
+        1.981429,
+        -4.599146,
+        2.517825,
+        1.88361
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.637634,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        1.122997,
+        0.342207
+      ],
+      "parameters": {
+        "a": 0.3391302911985349,
+        "b": 0.40135465393424635,
+        "shear": -0.18313254473555812
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 11,
+    "rectangles": [
+      [
+        -3.631331,
+        3.774202,
+        -0.630554,
+        4.48986
+      ],
+      [
+        1.051774,
+        3.774202,
+        1.273051,
+        4.48986
+      ],
+      [
+        -3.631331,
+        -1.235309,
+        -2.915672,
+        4.48986
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.320158,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        0.721054,
+        -0.064134
+      ],
+      "parameters": {
+        "damp": 0.5960283844226546,
+        "omega": 1.3679679708585537
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 12,
+    "rectangles": [
+      [
+        -2.281712,
+        2.608795,
+        2.542451,
+        3.2834
+      ],
+      [
+        -2.281712,
+        -1.274204,
+        -1.607107,
+        3.2834
+      ],
+      [
+        1.867846,
+        -1.274204,
+        2.542451,
+        0.844209
+      ],
+      [
+        1.867846,
+        2.730642,
+        2.542451,
+        3.2834
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.406548,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        0.58859,
+        -0.716654
+      ],
+      "parameters": {
+        "a": 0.4700198750567073,
+        "b": 0.3502252207206018,
+        "shear": 0.3263254900824375
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 13,
+    "rectangles": [
+      [
+        -4.21222,
+        -3.659746,
+        0.435716,
+        -2.92714
+      ],
+      [
+        -4.21222,
+        1.338953,
+        -1.384692,
+        2.071559
+      ],
+      [
+        0.017813,
+        1.338953,
+        0.435716,
+        2.071559
+      ],
+      [
+        -4.21222,
+        -3.659746,
+        -3.479614,
+        2.071559
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.499076,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        0.719619,
+        -0.819782
+      ],
+      "parameters": {
+        "a": 0.6347012983339281,
+        "b": 0.545559398845227,
+        "shear": -0.8478357286655424
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 14,
+    "rectangles": [
+      [
+        -2.832214,
+        3.035602,
+        2.693441,
+        3.749282
+      ],
+      [
+        -2.832214,
+        -0.255489,
+        -2.118535,
+        1.762987
+      ],
+      [
+        -2.832214,
+        3.072594,
+        -2.118535,
+        3.749282
+      ],
+      [
+        1.979761,
+        -0.255489,
+        2.693441,
+        3.749282
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.436258,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -1.258386,
+        -1.193529
+      ],
+      "parameters": {
+        "damp": 0.4850399911280951,
+        "omega": 1.1715112278223834
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 15,
+    "rectangles": [
+      [
+        -1.844488,
+        -3.81751,
+        4.157571,
+        -3.309174
+      ],
+      [
+        -1.844488,
+        2.103298,
+        4.157571,
+        2.611634
+      ],
+      [
+        -1.844488,
+        -3.81751,
+        -1.336152,
+        -0.287897
+      ],
+      [
+        -1.844488,
+        1.073351,
+        -1.336152,
+        2.611634
+      ],
+      [
+        3.649236,
+        -3.81751,
+        4.157571,
+        2.611634
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.597323,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        1.229331,
+        0.846909
+      ],
+      "parameters": {
+        "a": 0.700084275898275,
+        "b": 0.5368196467564001,
+        "shear": -0.38577393799491166
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 16,
+    "rectangles": [
+      [
+        -2.121405,
+        -2.191282,
+        3.368271,
+        -1.466295
+      ],
+      [
+        -2.121405,
+        2.269623,
+        3.368271,
+        2.99461
+      ],
+      [
+        -2.121405,
+        -2.191282,
+        -1.396418,
+        2.99461
+      ],
+      [
+        2.643284,
+        -2.191282,
+        3.368271,
+        -1.693275
+      ],
+      [
+        2.643284,
+        -0.552954,
+        3.368271,
+        2.99461
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.732629,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        1.479337,
+        -1.417353
+      ],
+      "parameters": {
+        "damp": 0.5454061512084756,
+        "omega": 1.31188927059734
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 17,
+    "rectangles": [
+      [
+        -3.522039,
+        -3.194069,
+        -0.859385,
+        -2.609494
+      ],
+      [
+        0.374043,
+        -3.194069,
+        1.210378,
+        -2.609494
+      ],
+      [
+        -3.522039,
+        0.822705,
+        1.210378,
+        1.40728
+      ],
+      [
+        -3.522039,
+        -3.194069,
+        -2.937464,
+        1.40728
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.375085,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        0.079743,
+        1.300874
+      ],
+      "parameters": {
+        "a": 0.5102856620544913,
+        "b": 0.7730457567936424,
+        "shear": 0.3913863021782653
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 18,
+    "rectangles": [
+      [
+        1.090715,
+        -1.160985,
+        2.309574,
+        -0.601583
+      ],
+      [
+        -2.944548,
+        3.609174,
+        2.309574,
+        4.168577
+      ],
+      [
+        -2.944548,
+        -1.160985,
+        -2.385145,
+        4.168577
+      ],
+      [
+        1.750172,
+        -1.160985,
+        2.309574,
+        4.168577
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.479187,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        1.230051,
+        -0.438648
+      ],
+      "parameters": {
+        "a": 0.5248965918830402,
+        "b": 0.60000926322511,
+        "shear": 0.4851561294504477
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 19,
+    "rectangles": [
+      [
+        -4.416387,
+        -1.946716,
+        0.910429,
+        -1.28612
+      ],
+      [
+        -4.416387,
+        2.598906,
+        0.910429,
+        3.259502
+      ],
+      [
+        -4.416387,
+        -1.946716,
+        -3.755791,
+        -1.047442
+      ],
+      [
+        -4.416387,
+        0.747464,
+        -3.755791,
+        3.259502
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.464562,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        0.828117,
+        -1.050593
+      ],
+      "parameters": {
+        "a": 0.33493538263511474,
+        "b": 0.621460743510097,
+        "shear": -0.4555960665064249
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 20,
+    "rectangles": [
+      [
+        -0.830969,
+        -4.788572,
+        3.983065,
+        -4.196117
+      ],
+      [
+        -0.830969,
+        1.052373,
+        0.852216,
+        1.644828
+      ],
+      [
+        2.031679,
+        1.052373,
+        3.983065,
+        1.644828
+      ],
+      [
+        3.39061,
+        -4.788572,
+        3.983065,
+        1.644828
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.440846,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -1.373403,
+        -1.206764
+      ],
+      "parameters": {
+        "damp": 0.47608796343851606,
+        "omega": 0.830652334064189
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 21,
+    "rectangles": [
+      [
+        -0.562099,
+        3.456673,
+        -0.056828,
+        3.973328
+      ],
+      [
+        1.2963,
+        3.456673,
+        3.944373,
+        3.973328
+      ],
+      [
+        3.427718,
+        -1.145492,
+        3.944373,
+        3.973328
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.213693,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        0.023256,
+        -0.757033
+      ],
+      "parameters": {
+        "a": 0.6377653090811857,
+        "b": 0.8317871542140791,
+        "shear": 0.7700567399506725
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 22,
+    "rectangles": [
+      [
+        -1.696592,
+        3.588703,
+        3.912053,
+        4.039946
+      ],
+      [
+        -1.696592,
+        -0.875512,
+        -1.245349,
+        4.039946
+      ],
+      [
+        3.46081,
+        -0.875512,
+        3.912053,
+        4.039946
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.34835,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.214984,
+        -0.861931
+      ],
+      "parameters": {
+        "damp": 0.4013900376257897,
+        "omega": 0.9345848760510167
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 23,
+    "rectangles": [
+      [
+        -2.697808,
+        -2.188503,
+        2.149982,
+        -1.711092
+      ],
+      [
+        -2.697808,
+        1.823449,
+        2.149982,
+        2.300859
+      ],
+      [
+        -2.697808,
+        -2.188503,
+        -2.220398,
+        -1.172117
+      ],
+      [
+        -2.697808,
+        0.477819,
+        -2.220398,
+        2.300859
+      ],
+      [
+        1.672572,
+        -2.188503,
+        2.149982,
+        2.300859
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.40638,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        -0.305229,
+        -0.038218
+      ],
+      "parameters": {
+        "a": 0.8439228728465719,
+        "b": 0.7494668016897685,
+        "shear": -0.406240728142945
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 24,
+    "rectangles": [
+      [
+        -4.728291,
+        -1.46832,
+        1.242617,
+        -1.076408
+      ],
+      [
+        -4.728291,
+        4.569008,
+        1.242617,
+        4.96092
+      ],
+      [
+        -4.728291,
+        -1.46832,
+        -4.336379,
+        2.924618
+      ],
+      [
+        -4.728291,
+        4.163626,
+        -4.336379,
+        4.96092
+      ],
+      [
+        0.850705,
+        -1.46832,
+        1.242617,
+        4.96092
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.461697,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -0.178626,
+        -1.445754
+      ],
+      "parameters": {
+        "a": 0.5323238390280949,
+        "b": 0.6931598906405252,
+        "shear": 0.022072112034219993
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 25,
+    "rectangles": [
+      [
+        -0.910794,
+        -4.017972,
+        3.462626,
+        -3.439734
+      ],
+      [
+        -0.910794,
+        1.701719,
+        3.462626,
+        2.279957
+      ],
+      [
+        -0.910794,
+        -4.017972,
+        -0.332556,
+        -2.63377
+      ],
+      [
+        2.884388,
+        -4.017972,
+        3.462626,
+        2.279957
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.474993,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.688662,
+        -1.111333
+      ],
+      "parameters": {
+        "damp": 0.46112709063883056,
+        "omega": 1.8025551978019698
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 26,
+    "rectangles": [
+      [
+        -1.863771,
+        -3.581805,
+        4.2768,
+        -2.886695
+      ],
+      [
+        3.957421,
+        -0.110359,
+        4.2768,
+        0.584751
+      ],
+      [
+        -1.863771,
+        -3.581805,
+        -1.168661,
+        0.584751
+      ],
+      [
+        3.58169,
+        -3.581805,
+        4.2768,
+        0.584751
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.51414,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.224049,
+        -1.282758
+      ],
+      "parameters": {
+        "damp": 0.7191748545200813,
+        "omega": 1.4978834569262154
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 27,
+    "rectangles": [
+      [
+        -3.625169,
+        -3.470994,
+        0.500781,
+        -2.996197
+      ],
+      [
+        -3.625169,
+        -3.470994,
+        -3.150372,
+        1.033427
+      ],
+      [
+        0.025984,
+        -3.470994,
+        0.500781,
+        -2.382062
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.230735,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        1.280008,
+        -0.696421
+      ],
+      "parameters": {
+        "a": 0.42107363994243086,
+        "b": 0.6398032645899445,
+        "shear": -0.4708148949695629
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 28,
+    "rectangles": [
+      [
+        -5.148829,
+        -2.622439,
+        -1.931735,
+        -2.174167
+      ],
+      [
+        -0.529385,
+        -2.622439,
+        1.2963,
+        -2.174167
+      ],
+      [
+        -5.148829,
+        2.214876,
+        1.2963,
+        2.663148
+      ],
+      [
+        -5.148829,
+        -2.622439,
+        -4.700557,
+        2.663148
+      ],
+      [
+        0.848028,
+        -2.622439,
+        1.2963,
+        2.663148
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.494423,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.688433,
+        0.911037
+      ],
+      "parameters": {
+        "damp": 0.7472494924457698,
+        "omega": 0.8406442866987044
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 29,
+    "rectangles": [
+      [
+        -0.646936,
+        -2.412959,
+        3.702361,
+        -1.670206
+      ],
+      [
+        -0.646936,
+        3.317884,
+        3.702361,
+        4.060637
+      ],
+      [
+        -0.646936,
+        -2.412959,
+        0.095817,
+        -1.973218
+      ],
+      [
+        2.959608,
+        -2.412959,
+        3.702361,
+        4.060637
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.57979,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        1.410937,
+        -0.576651
+      ],
+      "parameters": {
+        "a": 0.4683496157850496,
+        "b": 0.476261436853465,
+        "shear": -0.542475930615397
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 30,
+    "rectangles": [
+      [
+        -2.724701,
+        -1.170509,
+        2.772245,
+        -0.802414
+      ],
+      [
+        -2.724701,
+        4.19311,
+        -0.749085,
+        4.561205
+      ],
+      [
+        0.417732,
+        4.19311,
+        2.772245,
+        4.561205
+      ],
+      [
+        -2.724701,
+        -1.170509,
+        -2.356606,
+        4.561205
+      ],
+      [
+        2.40415,
+        -1.170509,
+        2.772245,
+        4.561205
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.391846,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -0.207778,
+        -1.333797
+      ],
+      "parameters": {
+        "damp": 0.5826138401078766,
+        "omega": 1.2189699639200537
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 31,
+    "rectangles": [
+      [
+        -4.134545,
+        3.121163,
+        -2.39293,
+        3.605296
+      ],
+      [
+        -1.317429,
+        3.121163,
+        0.410119,
+        3.605296
+      ],
+      [
+        -4.134545,
+        -0.852099,
+        -3.650412,
+        3.605296
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.191875,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -0.407576,
+        -0.513221
+      ],
+      "parameters": {
+        "damp": 0.7424556521589807,
+        "omega": 1.155887283898079
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 32,
+    "rectangles": [
+      [
+        -3.917013,
+        -2.062075,
+        1.067934,
+        -1.460207
+      ],
+      [
+        -3.917013,
+        2.085172,
+        1.067934,
+        2.68704
+      ],
+      [
+        -3.917013,
+        -2.062075,
+        -3.315145,
+        2.68704
+      ],
+      [
+        0.466066,
+        1.283606,
+        1.067934,
+        2.68704
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.485179,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.755462,
+        0.828714
+      ],
+      "parameters": {
+        "damp": 0.29542584815684214,
+        "omega": 1.6987487092519458
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 33,
+    "rectangles": [
+      [
+        -4.314755,
+        -1.471741,
+        1.472773,
+        -0.950043
+      ],
+      [
+        -4.314755,
+        3.289014,
+        1.472773,
+        3.810712
+      ],
+      [
+        -4.314755,
+        -1.471741,
+        -3.793057,
+        3.810712
+      ],
+      [
+        0.951075,
+        -1.471741,
+        1.472773,
+        1.699449
+      ],
+      [
+        0.951075,
+        3.330397,
+        1.472773,
+        3.810712
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.534975,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        0.792934,
+        0.662032
+      ],
+      "parameters": {
+        "a": 0.6218049144909139,
+        "b": 0.5062971182039803,
+        "shear": 0.21367290584590293
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 34,
+    "rectangles": [
+      [
+        -3.246604,
+        -4.138706,
+        1.086129,
+        -3.74674
+      ],
+      [
+        -3.246604,
+        -4.138706,
+        -2.854637,
+        -2.193191
+      ],
+      [
+        -3.246604,
+        -0.440952,
+        -2.854637,
+        0.763062
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.14664,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        0.979227,
+        0.252185
+      ],
+      "parameters": {
+        "a": 0.7856978418433046,
+        "b": 0.6597372217003004,
+        "shear": 0.23199136235913453
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 35,
+    "rectangles": [
+      [
+        -2.81224,
+        -1.955844,
+        2.836009,
+        -1.311128
+      ],
+      [
+        -2.81224,
+        1.564567,
+        2.836009,
+        2.209282
+      ],
+      [
+        -2.81224,
+        -1.955844,
+        -2.167525,
+        0.262655
+      ],
+      [
+        -2.81224,
+        1.489629,
+        -2.167525,
+        2.209282
+      ],
+      [
+        2.191293,
+        -1.955844,
+        2.836009,
+        2.209282
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.593131,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.032117,
+        -1.490057
+      ],
+      "parameters": {
+        "damp": 0.6488487760354262,
+        "omega": 1.6230919072460763
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 36,
+    "rectangles": [
+      [
+        -2.622968,
+        -3.277403,
+        2.574558,
+        -2.620615
+      ],
+      [
+        -2.622968,
+        1.77505,
+        2.574558,
+        2.431838
+      ],
+      [
+        -2.622968,
+        -3.277403,
+        -1.96618,
+        2.431838
+      ],
+      [
+        1.91777,
+        -3.277403,
+        2.574558,
+        -2.76768
+      ],
+      [
+        1.91777,
+        -1.212403,
+        2.574558,
+        2.431838
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.665269,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        0.688005,
+        -0.884347
+      ],
+      "parameters": {
+        "damp": 0.6199142957103709,
+        "omega": 1.8733086035130475
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 37,
+    "rectangles": [
+      [
+        -4.073484,
+        -3.278922,
+        -2.736489,
+        -2.889114
+      ],
+      [
+        -1.540565,
+        -3.278922,
+        1.141012,
+        -2.889114
+      ],
+      [
+        -4.073484,
+        2.762543,
+        1.141012,
+        3.152351
+      ],
+      [
+        -4.073484,
+        -3.278922,
+        -3.683676,
+        3.152351
+      ],
+      [
+        0.751204,
+        -3.278922,
+        1.141012,
+        3.152351
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.430652,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.504681,
+        0.454603
+      ],
+      "parameters": {
+        "damp": 0.5964434120968622,
+        "omega": 1.4832658262888927
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 38,
+    "rectangles": [
+      [
+        1.810085,
+        -0.300628,
+        1.967318,
+        0.23296
+      ],
+      [
+        -4.373318,
+        3.209545,
+        1.967318,
+        3.743133
+      ],
+      [
+        -4.373318,
+        -0.300628,
+        -3.839729,
+        3.743133
+      ],
+      [
+        1.43373,
+        -0.300628,
+        1.967318,
+        3.743133
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.38913,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -0.106011,
+        -0.100983
+      ],
+      "parameters": {
+        "damp": 0.309251431350784,
+        "omega": 1.7830292187927972
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 39,
+    "rectangles": [
+      [
+        -2.069493,
+        -1.395406,
+        2.262019,
+        -0.841908
+      ],
+      [
+        -2.069493,
+        4.101639,
+        -1.429108,
+        4.655136
+      ],
+      [
+        0.369068,
+        4.101639,
+        2.262019,
+        4.655136
+      ],
+      [
+        -2.069493,
+        -1.395406,
+        -1.515996,
+        4.655136
+      ],
+      [
+        1.708521,
+        -1.395406,
+        2.262019,
+        4.655136
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.52488,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -0.870488,
+        1.336762
+      ],
+      "parameters": {
+        "a": 0.46588983864364825,
+        "b": 0.6698098022465907,
+        "shear": -0.644866779852844
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 40,
+    "rectangles": [
+      [
+        -1.561402,
+        -2.452884,
+        3.378864,
+        -1.970355
+      ],
+      [
+        -1.561402,
+        1.366859,
+        1.25976,
+        1.849389
+      ],
+      [
+        2.551853,
+        1.366859,
+        3.378864,
+        1.849389
+      ],
+      [
+        -1.561402,
+        -2.452884,
+        -1.078872,
+        1.849389
+      ],
+      [
+        2.896334,
+        -2.452884,
+        3.378864,
+        1.849389
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.414806,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -0.317758,
+        -1.022804
+      ],
+      "parameters": {
+        "a": 0.8724777647885148,
+        "b": 0.7248734641665083,
+        "shear": -0.170245206776918
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 41,
+    "rectangles": [
+      [
+        -4.827556,
+        -2.490921,
+        1.347374,
+        -1.770755
+      ],
+      [
+        -4.827556,
+        0.979915,
+        1.347374,
+        1.700081
+      ],
+      [
+        -4.827556,
+        -2.490921,
+        -4.107389,
+        -1.716089
+      ],
+      [
+        -4.827556,
+        -0.035998,
+        -4.107389,
+        1.700081
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.535111,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        1.319643,
+        -0.912777
+      ],
+      "parameters": {
+        "a": 0.2570329706440861,
+        "b": 0.6939446953974646,
+        "shear": -0.2961453404525936
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 42,
+    "rectangles": [
+      [
+        -2.422835,
+        -4.31175,
+        0.391195,
+        -3.608043
+      ],
+      [
+        2.121962,
+        -4.31175,
+        2.510539,
+        -3.608043
+      ],
+      [
+        -2.422835,
+        1.374957,
+        2.510539,
+        2.078663
+      ],
+      [
+        -2.422835,
+        -4.31175,
+        -1.719128,
+        2.078663
+      ],
+      [
+        1.806832,
+        -4.31175,
+        2.510539,
+        2.078663
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.735965,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        1.004028,
+        -0.64313
+      ],
+      "parameters": {
+        "a": 0.8113539329867707,
+        "b": 0.3995948298470911,
+        "shear": -0.2811263820269042
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 43,
+    "rectangles": [
+      [
+        -1.347088,
+        -1.541055,
+        0.222201,
+        -0.820344
+      ],
+      [
+        1.336781,
+        -1.541055,
+        3.368432,
+        -0.820344
+      ],
+      [
+        -1.347088,
+        1.860677,
+        3.368432,
+        2.581388
+      ],
+      [
+        2.647722,
+        -1.541055,
+        3.368432,
+        2.581388
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.448243,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        0.658718,
+        -1.351572
+      ],
+      "parameters": {
+        "damp": 0.6161762342262491,
+        "omega": 1.2959464652568509
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 44,
+    "rectangles": [
+      [
+        -2.072671,
+        -3.209949,
+        3.320633,
+        -2.793016
+      ],
+      [
+        -2.072671,
+        1.359037,
+        3.320633,
+        1.77597
+      ],
+      [
+        -2.072671,
+        -3.209949,
+        -1.655738,
+        1.77597
+      ],
+      [
+        2.9037,
+        -3.209949,
+        3.320633,
+        -1.287929
+      ],
+      [
+        2.9037,
+        -0.142438,
+        3.320633,
+        1.77597
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.408864,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -0.606684,
+        0.717098
+      ],
+      "parameters": {
+        "damp": 0.738148088204927,
+        "omega": 1.0861859600754842
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 45,
+    "rectangles": [
+      [
+        -2.027228,
+        -3.616134,
+        2.40951,
+        -3.138419
+      ],
+      [
+        -2.027228,
+        1.295836,
+        2.40951,
+        1.773551
+      ],
+      [
+        -2.027228,
+        -3.616134,
+        -1.549513,
+        1.773551
+      ],
+      [
+        1.931795,
+        -3.616134,
+        2.40951,
+        -0.274369
+      ],
+      [
+        1.931795,
+        1.057106,
+        2.40951,
+        1.773551
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.43762,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        0.15116,
+        -0.141042
+      ],
+      "parameters": {
+        "a": 0.533058842257122,
+        "b": 0.7675863217374552,
+        "shear": -0.13063855729048768
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 46,
+    "rectangles": [
+      [
+        -2.457598,
+        -2.591031,
+        2.442765,
+        -2.02934
+      ],
+      [
+        -2.457598,
+        2.564162,
+        2.442765,
+        3.125852
+      ],
+      [
+        -2.457598,
+        -2.591031,
+        -1.895908,
+        3.125852
+      ],
+      [
+        1.881075,
+        -2.591031,
+        2.442765,
+        -2.102495
+      ],
+      [
+        1.881075,
+        -0.391214,
+        2.442765,
+        3.125852
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.5483,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -0.351486,
+        0.737522
+      ],
+      "parameters": {
+        "a": 0.46550271479246164,
+        "b": 0.4986319160909332,
+        "shear": 0.45379980587741076
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 47,
+    "rectangles": [
+      [
+        -0.901703,
+        -0.846554,
+        -0.763201,
+        -0.191078
+      ],
+      [
+        0.960623,
+        -0.846554,
+        3.416415,
+        -0.191078
+      ],
+      [
+        -0.901703,
+        3.560969,
+        3.416415,
+        4.216445
+      ],
+      [
+        2.760938,
+        -0.846554,
+        3.416415,
+        4.216445
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.39248,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.346318,
+        0.437375
+      ],
+      "parameters": {
+        "damp": 0.46591834334263044,
+        "omega": 1.1432176182683709
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 48,
+    "rectangles": [
+      [
+        -1.057657,
+        -4.209178,
+        -0.726762,
+        -3.815622
+      ],
+      [
+        1.016094,
+        -4.209178,
+        3.322514,
+        -3.815622
+      ],
+      [
+        -1.057657,
+        1.826985,
+        3.322514,
+        2.220541
+      ],
+      [
+        2.928958,
+        -4.209178,
+        3.322514,
+        2.220541
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.264612,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        1.290716,
+        1.284482
+      ],
+      "parameters": {
+        "a": 0.6403237783946429,
+        "b": 0.6074832810814128,
+        "shear": -0.09188924545617783
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 49,
+    "rectangles": [
+      [
+        -0.810577,
+        -2.091486,
+        4.510056,
+        -1.435949
+      ],
+      [
+        -0.810577,
+        2.346552,
+        1.386135,
+        3.00209
+      ],
+      [
+        2.475635,
+        2.346552,
+        4.510056,
+        3.00209
+      ],
+      [
+        3.854518,
+        -2.091486,
+        4.510056,
+        3.00209
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.480029,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        -1.495902,
+        -1.123045
+      ],
+      "parameters": {
+        "a": 0.591629372179151,
+        "b": 0.2725550382383426,
+        "shear": 0.2580259529094302
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 50,
+    "rectangles": [
+      [
+        -3.99259,
+        -2.947233,
+        2.40476,
+        -2.243724
+      ],
+      [
+        -3.99259,
+        1.960696,
+        2.40476,
+        2.664206
+      ],
+      [
+        -3.99259,
+        -2.947233,
+        -3.28908,
+        2.664206
+      ],
+      [
+        1.701251,
+        -2.947233,
+        2.40476,
+        -0.685655
+      ],
+      [
+        1.701251,
+        0.742119,
+        2.40476,
+        2.664206
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.794607,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.335754,
+        -0.829251
+      ],
+      "parameters": {
+        "damp": 0.550530448560238,
+        "omega": 0.8115078038813468
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 51,
+    "rectangles": [
+      [
+        -1.623717,
+        -3.122137,
+        3.019423,
+        -2.402072
+      ],
+      [
+        -1.623717,
+        1.826187,
+        3.019423,
+        2.546251
+      ],
+      [
+        -1.623717,
+        -3.122137,
+        -0.903653,
+        -0.171643
+      ],
+      [
+        -1.623717,
+        1.032465,
+        -0.903653,
+        2.546251
+      ],
+      [
+        2.299359,
+        -3.122137,
+        3.019423,
+        2.546251
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.699145,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        1.381843,
+        0.613961
+      ],
+      "parameters": {
+        "a": 0.4344386967508884,
+        "b": 0.26307243046514045,
+        "shear": -0.002027706341309665
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 52,
+    "rectangles": [
+      [
+        -3.980787,
+        -2.972817,
+        0.520247,
+        -2.545244
+      ],
+      [
+        -3.980787,
+        2.514252,
+        -1.788125,
+        2.941826
+      ],
+      [
+        -0.369523,
+        2.514252,
+        0.520247,
+        2.941826
+      ],
+      [
+        -3.980787,
+        -2.972817,
+        -3.553214,
+        2.941826
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.288572,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -0.41304,
+        -0.310925
+      ],
+      "parameters": {
+        "a": 0.35371440603126075,
+        "b": 0.5106611647197683,
+        "shear": 0.621269499575951
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 53,
+    "rectangles": [
+      [
+        -2.13031,
+        3.502159,
+        2.010732,
+        4.220928
+      ],
+      [
+        -2.13031,
+        -1.266077,
+        -1.411541,
+        2.606222
+      ],
+      [
+        -2.13031,
+        3.655145,
+        -1.411541,
+        4.220928
+      ],
+      [
+        1.291963,
+        -1.266077,
+        2.010732,
+        4.220928
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.505515,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -1.172976,
+        0.370791
+      ],
+      "parameters": {
+        "damp": 0.555049155605261,
+        "omega": 1.7861237991277616
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 54,
+    "rectangles": [
+      [
+        -1.293368,
+        -2.768082,
+        -0.806362,
+        -2.351828
+      ],
+      [
+        0.365253,
+        -2.768082,
+        2.989646,
+        -2.351828
+      ],
+      [
+        -1.293368,
+        1.014068,
+        2.989646,
+        1.430321
+      ],
+      [
+        -1.293368,
+        -2.768082,
+        -0.877114,
+        1.430321
+      ],
+      [
+        2.573392,
+        -2.768082,
+        2.989646,
+        1.430321
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.328657,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.253845,
+        0.629576
+      ],
+      "parameters": {
+        "damp": 0.3420524127532605,
+        "omega": 1.2946061610280286
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 55,
+    "rectangles": [
+      [
+        -4.783414,
+        -2.988752,
+        1.429518,
+        -2.33523
+      ],
+      [
+        -4.783414,
+        1.760549,
+        -0.991409,
+        2.414071
+      ],
+      [
+        0.350708,
+        1.760549,
+        1.429518,
+        2.414071
+      ],
+      [
+        -4.783414,
+        -2.988752,
+        -4.129892,
+        2.414071
+      ],
+      [
+        0.775996,
+        -2.988752,
+        1.429518,
+        2.414071
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.71526,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        1.017381,
+        1.454949
+      ],
+      "parameters": {
+        "a": 0.5933393306515627,
+        "b": 0.40992669836863055,
+        "shear": -0.759164375784609
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 56,
+    "rectangles": [
+      [
+        -3.299931,
+        -1.935226,
+        -2.951842,
+        -1.486021
+      ],
+      [
+        -1.388975,
+        -1.935226,
+        1.886405,
+        -1.486021
+      ],
+      [
+        -3.299931,
+        3.194724,
+        1.886405,
+        3.643929
+      ],
+      [
+        -3.299931,
+        -1.935226,
+        -2.850726,
+        3.643929
+      ],
+      [
+        1.437199,
+        -1.935226,
+        1.886405,
+        3.643929
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.448489,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -1.236719,
+        0.615769
+      ],
+      "parameters": {
+        "a": 0.45764370787883485,
+        "b": 0.6478409700522463,
+        "shear": -0.09657450208479812
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 57,
+    "rectangles": [
+      [
+        -1.996248,
+        -3.685496,
+        2.841179,
+        -3.318061
+      ],
+      [
+        -1.996248,
+        2.331476,
+        0.790284,
+        2.69891
+      ],
+      [
+        2.462079,
+        2.331476,
+        2.841179,
+        2.69891
+      ],
+      [
+        -1.996248,
+        -3.685496,
+        -1.628814,
+        2.69891
+      ],
+      [
+        2.473745,
+        -3.685496,
+        2.841179,
+        2.69891
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.381615,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        -0.107848,
+        0.910014
+      ],
+      "parameters": {
+        "a": 0.28720233853317473,
+        "b": 0.3669648710516995,
+        "shear": -0.5245779106150409
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 58,
+    "rectangles": [
+      [
+        -0.519332,
+        -4.306662,
+        1.592774,
+        -3.573951
+      ],
+      [
+        3.451293,
+        -4.306662,
+        4.065333,
+        -3.573951
+      ],
+      [
+        3.332622,
+        -4.306662,
+        4.065333,
+        0.88131
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.289938,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -1.488685,
+        0.766957
+      ],
+      "parameters": {
+        "damp": 0.7082298018249062,
+        "omega": 1.4973780471171176
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 59,
+    "rectangles": [
+      [
+        -2.975885,
+        -1.603582,
+        1.402403,
+        -0.909085
+      ],
+      [
+        -2.975885,
+        2.292277,
+        1.402403,
+        2.986774
+      ],
+      [
+        -2.975885,
+        -1.603582,
+        -2.281388,
+        0.01503
+      ],
+      [
+        -2.975885,
+        1.429733,
+        -2.281388,
+        2.986774
+      ],
+      [
+        0.707906,
+        -1.603582,
+        1.402403,
+        2.986774
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.573744,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        0.944401,
+        -1.101878
+      ],
+      "parameters": {
+        "a": 0.6230973340616865,
+        "b": 0.3547878503159625,
+        "shear": 0.7759012261724353
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 60,
+    "rectangles": [
+      [
+        -3.80131,
+        -1.505859,
+        2.407377,
+        -1.049902
+      ],
+      [
+        -3.80131,
+        4.507744,
+        2.407377,
+        4.963701
+      ],
+      [
+        -3.80131,
+        -1.505859,
+        -3.345353,
+        0.838258
+      ],
+      [
+        -3.80131,
+        1.913932,
+        -3.345353,
+        4.963701
+      ],
+      [
+        1.95142,
+        -1.505859,
+        2.407377,
+        4.963701
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.55355,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        0.758657,
+        -0.758077
+      ],
+      "parameters": {
+        "a": 0.38560316419042867,
+        "b": 0.36862504567898396,
+        "shear": 0.09467035815350633
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 61,
+    "rectangles": [
+      [
+        -2.7952,
+        -1.988743,
+        3.103717,
+        -1.521173
+      ],
+      [
+        -2.7952,
+        3.493064,
+        -0.966746,
+        3.960634
+      ],
+      [
+        0.284712,
+        3.493064,
+        3.103717,
+        3.960634
+      ],
+      [
+        -2.7952,
+        -1.988743,
+        -2.327631,
+        3.960634
+      ],
+      [
+        2.636147,
+        -1.988743,
+        3.103717,
+        3.960634
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.524733,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -0.980424,
+        -1.101207
+      ],
+      "parameters": {
+        "a": 0.6035080711630672,
+        "b": 0.840194407260118,
+        "shear": -0.4771200333061914
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 62,
+    "rectangles": [
+      [
+        -0.871251,
+        -2.213276,
+        3.944594,
+        -1.466297
+      ],
+      [
+        -0.871251,
+        2.029918,
+        3.944594,
+        2.776898
+      ],
+      [
+        3.197614,
+        -2.213276,
+        3.944594,
+        0.000966
+      ],
+      [
+        3.197614,
+        1.457558,
+        3.944594,
+        2.776898
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.491709,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -0.90243,
+        -0.757713
+      ],
+      "parameters": {
+        "damp": 0.3726701484453082,
+        "omega": 0.9686544195524566
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 63,
+    "rectangles": [
+      [
+        -0.688227,
+        3.461162,
+        3.412678,
+        3.858849
+      ],
+      [
+        3.014991,
+        -0.875345,
+        3.412678,
+        2.082622
+      ],
+      [
+        3.014991,
+        3.253238,
+        3.412678,
+        3.858849
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.152403,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        0.45998,
+        1.472867
+      ],
+      "parameters": {
+        "a": 0.3113994524083678,
+        "b": 0.5348576555378364,
+        "shear": 0.3829232474963088
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 64,
+    "rectangles": [
+      [
+        -2.137799,
+        -4.66431,
+        3.455844,
+        -4.174431
+      ],
+      [
+        -2.137799,
+        0.620075,
+        -1.146622,
+        1.109955
+      ],
+      [
+        -2.137799,
+        -4.66431,
+        -1.647919,
+        1.109955
+      ],
+      [
+        2.965964,
+        -4.66431,
+        3.455844,
+        1.109955
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.444158,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        0.038007,
+        -0.966723
+      ],
+      "parameters": {
+        "damp": 0.551521093621657,
+        "omega": 1.6524980295863292
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 65,
+    "rectangles": [
+      [
+        -1.252269,
+        -1.316962,
+        3.770219,
+        -0.718557
+      ],
+      [
+        -1.252269,
+        3.014155,
+        3.770219,
+        3.612561
+      ],
+      [
+        -1.252269,
+        2.547903,
+        -0.653863,
+        3.612561
+      ],
+      [
+        3.171813,
+        -1.316962,
+        3.770219,
+        3.612561
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.479896,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        1.499621,
+        -1.385292
+      ],
+      "parameters": {
+        "damp": 0.6161142239408299,
+        "omega": 1.8053506689055707
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 66,
+    "rectangles": [
+      [
+        -4.504647,
+        -3.722955,
+        1.233868,
+        -3.259634
+      ],
+      [
+        -4.504647,
+        0.838197,
+        1.233868,
+        1.301518
+      ],
+      [
+        -4.504647,
+        -3.722955,
+        -4.041326,
+        -2.416643
+      ],
+      [
+        -4.504647,
+        -1.139807,
+        -4.041326,
+        1.301518
+      ],
+      [
+        0.770547,
+        -3.722955,
+        1.233868,
+        1.301518
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.469092,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -1.310187,
+        -1.195837
+      ],
+      "parameters": {
+        "a": 0.567413191983212,
+        "b": 0.6525756857171929,
+        "shear": 0.25052750230725784
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 67,
+    "rectangles": [
+      [
+        -1.928304,
+        -3.570852,
+        3.08413,
+        -3.047187
+      ],
+      [
+        -1.928304,
+        2.260451,
+        3.08413,
+        2.784116
+      ],
+      [
+        -1.928304,
+        -3.570852,
+        -1.404638,
+        0.431372
+      ],
+      [
+        -1.928304,
+        1.572282,
+        -1.404638,
+        2.784116
+      ],
+      [
+        2.560464,
+        -3.570852,
+        3.08413,
+        2.784116
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.565399,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -0.25776,
+        -1.44536
+      ],
+      "parameters": {
+        "damp": 0.6333313099914057,
+        "omega": 1.682442029566761
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 68,
+    "rectangles": [
+      [
+        -3.925912,
+        -1.612795,
+        1.065886,
+        -0.891904
+      ],
+      [
+        -3.925912,
+        3.098475,
+        1.065886,
+        3.819366
+      ],
+      [
+        -3.925912,
+        -1.612795,
+        -3.205021,
+        3.819366
+      ],
+      [
+        0.344995,
+        -1.612795,
+        1.065886,
+        -0.94385
+      ],
+      [
+        0.344995,
+        0.719674,
+        1.065886,
+        3.819366
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.691493,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        0.233387,
+        -0.405819
+      ],
+      "parameters": {
+        "a": 0.775179969067868,
+        "b": 0.421486302525989,
+        "shear": -0.8069482744277556
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 69,
+    "rectangles": [
+      [
+        0.789717,
+        -1.325298,
+        4.02011,
+        -0.640381
+      ],
+      [
+        -1.991664,
+        2.743823,
+        4.02011,
+        3.42874
+      ],
+      [
+        -1.991664,
+        -1.325298,
+        -1.306747,
+        3.42874
+      ],
+      [
+        3.335194,
+        -1.325298,
+        4.02011,
+        3.42874
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.642118,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -1.014556,
+        -0.984644
+      ],
+      "parameters": {
+        "damp": 0.2835483704089852,
+        "omega": 1.2221082265642331
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 70,
+    "rectangles": [
+      [
+        -1.342061,
+        -1.80935,
+        4.194762,
+        -1.270168
+      ],
+      [
+        -1.342061,
+        2.14175,
+        4.194762,
+        2.680932
+      ],
+      [
+        -1.342061,
+        -1.80935,
+        -0.802879,
+        -0.568313
+      ],
+      [
+        -1.342061,
+        0.940572,
+        -0.802879,
+        2.680932
+      ],
+      [
+        3.655579,
+        -1.80935,
+        4.194762,
+        2.680932
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.499965,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -1.241117,
+        0.636931
+      ],
+      "parameters": {
+        "a": 0.7285191111527805,
+        "b": 0.8401255167137971,
+        "shear": 0.25258396874730293
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 71,
+    "rectangles": [
+      [
+        -1.113749,
+        -4.59887,
+        4.292109,
+        -4.233619
+      ],
+      [
+        -1.113749,
+        0.929532,
+        4.292109,
+        1.294783
+      ],
+      [
+        -1.113749,
+        -4.59887,
+        -0.748498,
+        -2.958174
+      ],
+      [
+        -1.113749,
+        -1.20379,
+        -0.748498,
+        1.294783
+      ],
+      [
+        3.926858,
+        -4.59887,
+        4.292109,
+        1.294783
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.380677,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.349271,
+        -1.13083
+      ],
+      "parameters": {
+        "damp": 0.37352944899608304,
+        "omega": 1.5973709597976111
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 72,
+    "rectangles": [
+      [
+        -2.855527,
+        -1.976107,
+        -1.183785,
+        -1.616757
+      ],
+      [
+        0.373218,
+        -1.976107,
+        2.261446,
+        -1.616757
+      ],
+      [
+        -2.855527,
+        2.760424,
+        2.261446,
+        3.119774
+      ],
+      [
+        -2.855527,
+        -1.976107,
+        -2.496177,
+        3.119774
+      ],
+      [
+        1.902096,
+        -1.976107,
+        2.261446,
+        3.119774
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.339024,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        0.150156,
+        0.381127
+      ],
+      "parameters": {
+        "a": 0.5184177790356079,
+        "b": 0.5810395257138936,
+        "shear": 0.14872438943882227
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 73,
+    "rectangles": [
+      [
+        -4.109944,
+        -3.4522,
+        0.966553,
+        -2.925413
+      ],
+      [
+        -4.109944,
+        -3.4522,
+        -3.583158,
+        -3.091149
+      ],
+      [
+        -4.109944,
+        -1.632004,
+        -3.583158,
+        0.777083
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.206675,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        0.790696,
+        0.839925
+      ],
+      "parameters": {
+        "a": 0.6020589724935579,
+        "b": 0.4487629688962634,
+        "shear": -0.04820607661741805
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 74,
+    "rectangles": [
+      [
+        -4.255269,
+        -3.174458,
+        0.689388,
+        -2.769984
+      ],
+      [
+        -4.255269,
+        2.798237,
+        0.689388,
+        3.202712
+      ],
+      [
+        -4.255269,
+        -3.174458,
+        -3.850794,
+        -2.21225
+      ],
+      [
+        -4.255269,
+        -0.440887,
+        -3.850794,
+        3.202712
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.293145,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -1.253277,
+        0.700441
+      ],
+      "parameters": {
+        "damp": 0.6388180431738253,
+        "omega": 1.3626299059984441
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 75,
+    "rectangles": [
+      [
+        -3.878549,
+        -1.116346,
+        -3.148386,
+        -0.63681
+      ],
+      [
+        -3.878549,
+        3.03467,
+        1.647563,
+        3.514206
+      ],
+      [
+        -3.878549,
+        -1.116346,
+        -3.399013,
+        3.514206
+      ],
+      [
+        1.168027,
+        -1.116346,
+        1.647563,
+        3.514206
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.372057,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -0.636355,
+        0.932985
+      ],
+      "parameters": {
+        "a": 0.7872367288232693,
+        "b": 0.7273736762524383,
+        "shear": 0.39794273432381655
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 76,
+    "rectangles": [
+      [
+        -4.442119,
+        -4.069174,
+        1.89889,
+        -3.361009
+      ],
+      [
+        -4.442119,
+        0.92186,
+        -3.518495,
+        1.630026
+      ],
+      [
+        -2.366628,
+        0.92186,
+        1.89889,
+        1.630026
+      ],
+      [
+        -4.442119,
+        -4.069174,
+        -3.733954,
+        1.630026
+      ],
+      [
+        1.190725,
+        -4.069174,
+        1.89889,
+        1.630026
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.81186,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -0.87503,
+        -0.711397
+      ],
+      "parameters": {
+        "a": 0.6283038350237127,
+        "b": 0.5254926342870803,
+        "shear": -0.8337004977606546
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 77,
+    "rectangles": [
+      [
+        -1.711054,
+        -4.210629,
+        4.771333,
+        -3.702926
+      ],
+      [
+        -1.711054,
+        0.856109,
+        0.114206,
+        1.363812
+      ],
+      [
+        1.832109,
+        0.856109,
+        4.771333,
+        1.363812
+      ],
+      [
+        -1.711054,
+        -4.210629,
+        -1.203351,
+        1.363812
+      ],
+      [
+        4.26363,
+        -4.210629,
+        4.771333,
+        1.363812
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.568519,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        0.408956,
+        -0.420663
+      ],
+      "parameters": {
+        "a": 0.7737712597237763,
+        "b": 0.5831080728238187,
+        "shear": 0.09605242331679498
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 78,
+    "rectangles": [
+      [
+        -3.35334,
+        -2.147839,
+        0.767389,
+        -1.696378
+      ],
+      [
+        -3.35334,
+        3.45026,
+        -1.586421,
+        3.901721
+      ],
+      [
+        -0.011107,
+        3.45026,
+        0.767389,
+        3.901721
+      ],
+      [
+        -3.35334,
+        -2.147839,
+        -2.901879,
+        3.901721
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.287032,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        0.232082,
+        -0.419246
+      ],
+      "parameters": {
+        "damp": 0.6323195959679243,
+        "omega": 1.286509790666789
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 79,
+    "rectangles": [
+      [
+        -4.574544,
+        -2.098759,
+        0.956755,
+        -1.727002
+      ],
+      [
+        -4.574544,
+        1.643443,
+        -3.95415,
+        2.0152
+      ],
+      [
+        -2.443741,
+        1.643443,
+        0.956755,
+        2.0152
+      ],
+      [
+        -4.574544,
+        -2.098759,
+        -4.202787,
+        2.0152
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.254024,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        -0.835087,
+        -0.627085
+      ],
+      "parameters": {
+        "a": 0.6253707994471469,
+        "b": 0.5006121792465954,
+        "shear": -0.16308120582512814
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 80,
+    "rectangles": [
+      [
+        -2.733341,
+        -0.835142,
+        -2.322102,
+        -0.164541
+      ],
+      [
+        -2.733341,
+        2.529537,
+        1.663217,
+        3.200138
+      ],
+      [
+        -2.733341,
+        -0.835142,
+        -2.06274,
+        3.200138
+      ],
+      [
+        0.992616,
+        -0.835142,
+        1.663217,
+        3.200138
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.431812,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        0.102339,
+        -0.260285
+      ],
+      "parameters": {
+        "damp": 0.40057749148119837,
+        "omega": 0.9470993811235041
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 81,
+    "rectangles": [
+      [
+        -4.65693,
+        -1.916105,
+        -3.510281,
+        -1.307864
+      ],
+      [
+        -2.110902,
+        -1.916105,
+        0.748898,
+        -1.307864
+      ],
+      [
+        -4.65693,
+        2.351485,
+        0.748898,
+        2.959726
+      ],
+      [
+        -4.65693,
+        -1.916105,
+        -4.048688,
+        2.959726
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.434531,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        1.113857,
+        0.846468
+      ],
+      "parameters": {
+        "damp": 0.4509764455689882,
+        "omega": 1.0906638239610862
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 82,
+    "rectangles": [
+      [
+        -1.573165,
+        -4.93169,
+        1.584089,
+        -4.524784
+      ],
+      [
+        2.763655,
+        -4.93169,
+        3.804143,
+        -4.524784
+      ],
+      [
+        -1.573165,
+        1.013704,
+        3.804143,
+        1.420611
+      ],
+      [
+        -1.573165,
+        -4.93169,
+        -1.166258,
+        1.420611
+      ],
+      [
+        3.397236,
+        -4.93169,
+        3.804143,
+        1.420611
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.453287,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        -1.367994,
+        0.094582
+      ],
+      "parameters": {
+        "a": 0.4935932346537316,
+        "b": 0.39260128360636504,
+        "shear": -0.5299449839138214
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 83,
+    "rectangles": [
+      [
+        -1.775784,
+        -2.548417,
+        3.570232,
+        -2.023758
+      ],
+      [
+        -1.775784,
+        1.86482,
+        3.570232,
+        2.389479
+      ],
+      [
+        -1.775784,
+        -2.548417,
+        -1.251125,
+        -0.279735
+      ],
+      [
+        -1.775784,
+        1.541299,
+        -1.251125,
+        2.389479
+      ],
+      [
+        3.045573,
+        -2.548417,
+        3.570232,
+        2.389479
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.491784,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        0.025728,
+        -1.308698
+      ],
+      "parameters": {
+        "damp": 0.5629819074589415,
+        "omega": 1.8934674849978659
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 84,
+    "rectangles": [
+      [
+        3.160501,
+        -0.798482,
+        4.743659,
+        -0.427469
+      ],
+      [
+        -1.613468,
+        3.488751,
+        4.743659,
+        3.859765
+      ],
+      [
+        -1.613468,
+        -0.798482,
+        -1.242454,
+        3.859765
+      ],
+      [
+        4.372646,
+        -0.798482,
+        4.743659,
+        3.859765
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.320125,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -0.973825,
+        1.489831
+      ],
+      "parameters": {
+        "a": 0.4937847076189754,
+        "b": 0.7042108641665403,
+        "shear": -0.678120249480539
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 85,
+    "rectangles": [
+      [
+        -3.101164,
+        -4.240983,
+        3.160592,
+        -3.809873
+      ],
+      [
+        -3.101164,
+        1.432214,
+        -1.854809,
+        1.863324
+      ],
+      [
+        -0.711541,
+        1.432214,
+        3.160592,
+        1.863324
+      ],
+      [
+        -3.101164,
+        -4.240983,
+        -2.670053,
+        1.863324
+      ],
+      [
+        2.729482,
+        -4.240983,
+        3.160592,
+        1.863324
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.50847,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -0.613149,
+        1.285712
+      ],
+      "parameters": {
+        "damp": 0.6970889799929989,
+        "omega": 0.893963225692881
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 86,
+    "rectangles": [
+      [
+        2.993089,
+        -1.325191,
+        3.247811,
+        -0.696144
+      ],
+      [
+        -1.925921,
+        4.14504,
+        3.247811,
+        4.774087
+      ],
+      [
+        -1.925921,
+        -1.325191,
+        -1.296874,
+        4.774087
+      ],
+      [
+        2.618764,
+        -1.325191,
+        3.247811,
+        4.774087
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.554411,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -0.514339,
+        -0.782497
+      ],
+      "parameters": {
+        "a": 0.8491626167190102,
+        "b": 0.696882823533735,
+        "shear": 0.34711732839784915
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 87,
+    "rectangles": [
+      [
+        -3.869534,
+        3.1198,
+        -1.479424,
+        3.512471
+      ],
+      [
+        0.356629,
+        3.1198,
+        0.491953,
+        3.512471
+      ],
+      [
+        -3.869534,
+        -0.554785,
+        -3.476863,
+        3.512471
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.129438,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        0.211021,
+        -0.576747
+      ],
+      "parameters": {
+        "damp": 0.35598305386142076,
+        "omega": 1.4848842765678876
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 88,
+    "rectangles": [
+      [
+        -4.765455,
+        2.800705,
+        1.138967,
+        3.532533
+      ],
+      [
+        -4.765455,
+        -0.965748,
+        -4.033627,
+        1.491774
+      ],
+      [
+        -4.765455,
+        2.972279,
+        -4.033627,
+        3.532533
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.326476,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        -1.40739,
+        -1.084793
+      ],
+      "parameters": {
+        "a": 0.6361268384779012,
+        "b": 0.2755877943203198,
+        "shear": -0.5186067694116956
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 89,
+    "rectangles": [
+      [
+        -1.783249,
+        -2.306399,
+        4.279401,
+        -1.841453
+      ],
+      [
+        -1.783249,
+        2.807496,
+        4.279401,
+        3.272443
+      ],
+      [
+        -1.783249,
+        -2.306399,
+        -1.318303,
+        0.982982
+      ],
+      [
+        -1.783249,
+        2.072871,
+        -1.318303,
+        3.272443
+      ],
+      [
+        3.814455,
+        -2.306399,
+        4.279401,
+        3.272443
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.51593,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        -1.178652,
+        -0.88283
+      ],
+      "parameters": {
+        "a": 0.41158334850239264,
+        "b": 0.3689347525841616,
+        "shear": 0.6258910450339342
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 90,
+    "rectangles": [
+      [
+        -1.229425,
+        -4.763649,
+        2.319728,
+        -4.105954
+      ],
+      [
+        3.861535,
+        -4.763649,
+        4.670205,
+        -4.105954
+      ],
+      [
+        -1.229425,
+        0.854492,
+        4.670205,
+        1.512187
+      ],
+      [
+        4.01251,
+        -4.763649,
+        4.670205,
+        1.512187
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.543693,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.616622,
+        -0.490453
+      ],
+      "parameters": {
+        "damp": 0.38057980694218896,
+        "omega": 1.1859908810434676
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 91,
+    "rectangles": [
+      [
+        -4.700519,
+        -2.796837,
+        -4.3248,
+        -2.21702
+      ],
+      [
+        -3.066402,
+        -2.796837,
+        1.085456,
+        -2.21702
+      ],
+      [
+        -4.700519,
+        2.692922,
+        1.085456,
+        3.272738
+      ],
+      [
+        -4.700519,
+        -2.796837,
+        -4.120703,
+        3.272738
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.47496,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "sink",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "sink",
+      "linearization_point": [
+        0.867168,
+        -1.406255
+      ],
+      "parameters": {
+        "a": 0.5611734201298322,
+        "b": 0.30897970801643276,
+        "shear": -0.037269994276826424
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + shear*sin(y)",
+        "y_dot": "u_y - b*tanh(y) - 0.5*shear*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 92,
+    "rectangles": [
+      [
+        -4.648919,
+        -2.506197,
+        1.414431,
+        -1.919175
+      ],
+      [
+        -4.648919,
+        3.324672,
+        -2.231016,
+        3.911694
+      ],
+      [
+        -0.36953,
+        3.324672,
+        1.414431,
+        3.911694
+      ],
+      [
+        -4.648919,
+        -2.506197,
+        -4.061897,
+        3.911694
+      ],
+      [
+        0.827409,
+        -2.506197,
+        1.414431,
+        3.911694
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.67804,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.634996,
+        0.751555
+      ],
+      "parameters": {
+        "damp": 0.2769822552962663,
+        "omega": 1.1825840379290677
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 93,
+    "rectangles": [
+      [
+        -3.66141,
+        -2.493379,
+        0.540796,
+        -1.864515
+      ],
+      [
+        -3.66141,
+        2.847543,
+        -2.732388,
+        3.476407
+      ],
+      [
+        -1.024148,
+        2.847543,
+        0.540796,
+        3.476407
+      ],
+      [
+        -3.66141,
+        -2.493379,
+        -3.032547,
+        3.476407
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.398258,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        -0.648811,
+        -0.855857
+      ],
+      "parameters": {
+        "damp": 0.5997395747584386,
+        "omega": 1.34814716415383
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 94,
+    "rectangles": [
+      [
+        -3.047276,
+        -3.389864,
+        2.022876,
+        -2.971422
+      ],
+      [
+        -3.047276,
+        1.554037,
+        2.022876,
+        1.972479
+      ],
+      [
+        -3.047276,
+        -3.389864,
+        -2.628834,
+        1.972479
+      ],
+      [
+        1.604434,
+        -3.389864,
+        2.022876,
+        -0.158165
+      ],
+      [
+        1.604434,
+        1.726003,
+        2.022876,
+        1.972479
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.397119,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "weak_shear",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "weak_shear",
+      "linearization_point": [
+        1.285514,
+        1.175525
+      ],
+      "parameters": {
+        "a": 0.7598708353742591,
+        "b": 0.5821714974093946,
+        "shear": 0.26255283091450654
+      },
+      "equations": {
+        "x_dot": "u_x - a*tanh(x) + 2*shear*y",
+        "y_dot": "u_y - b*tanh(y) + 0.25*shear*x"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 95,
+    "rectangles": [
+      [
+        -2.800217,
+        -3.677906,
+        1.5881,
+        -3.063066
+      ],
+      [
+        -2.800217,
+        1.815019,
+        1.5881,
+        2.429859
+      ],
+      [
+        -2.800217,
+        -3.677906,
+        -2.185377,
+        2.429859
+      ],
+      [
+        0.97326,
+        -3.677906,
+        1.5881,
+        -1.609259
+      ],
+      [
+        0.97326,
+        0.058529,
+        1.5881,
+        2.429859
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 5.59407,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_cw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_cw",
+      "linearization_point": [
+        0.094634,
+        0.763427
+      ],
+      "parameters": {
+        "damp": 0.6264947079321328,
+        "omega": 1.5109298723732867
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) + omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) - omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 96,
+    "rectangles": [
+      [
+        -3.425123,
+        -3.989292,
+        1.328646,
+        -3.301827
+      ],
+      [
+        -3.425123,
+        1.081158,
+        1.328646,
+        1.768623
+      ],
+      [
+        -3.425123,
+        -3.989292,
+        -2.737658,
+        1.768623
+      ],
+      [
+        0.641181,
+        1.243369,
+        1.328646,
+        1.768623
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.542778,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        0.237509,
+        -1.121829
+      ],
+      "parameters": {
+        "damp": 0.4810089865427499,
+        "omega": 1.7736380753384546
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 97,
+    "rectangles": [
+      [
+        -4.208904,
+        3.230479,
+        2.278409,
+        3.843638
+      ],
+      [
+        -4.208904,
+        -0.567865,
+        -3.595744,
+        3.843638
+      ],
+      [
+        1.665249,
+        -0.567865,
+        2.278409,
+        2.216707
+      ],
+      [
+        1.665249,
+        3.392596,
+        2.278409,
+        3.843638
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.433333,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        0.308685,
+        -0.454104
+      ],
+      "parameters": {
+        "damp": 0.3681065266135151,
+        "omega": 1.8513725236669236
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 98,
+    "rectangles": [
+      [
+        -4.057948,
+        -3.099216,
+        0.912905,
+        -2.589608
+      ],
+      [
+        -4.057948,
+        -3.099216,
+        -3.548339,
+        0.985613
+      ],
+      [
+        0.403297,
+        -3.099216,
+        0.912905,
+        -1.911739
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 3.261,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        0.699878,
+        -0.195231
+      ],
+      "parameters": {
+        "damp": 0.3480954658585752,
+        "omega": 1.5017789490710403
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  },
+  {
+    "scenario_id": 99,
+    "rectangles": [
+      [
+        -1.573752,
+        3.536647,
+        3.501319,
+        4.186287
+      ],
+      [
+        -1.573752,
+        -1.248659,
+        -0.924112,
+        4.186287
+      ],
+      [
+        2.851679,
+        -1.248659,
+        3.501319,
+        1.356007
+      ],
+      [
+        2.851679,
+        2.735046,
+        3.501319,
+        4.186287
+      ]
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "cell_size": 0.5,
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "difficulty": "hard",
+    "difficulty_score": 4.47313,
+    "map_type": "bugtrap",
+    "benchmark_family": "bugtrap",
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "regime": "rotate_ccw",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -0.110162,
+        -1.074562
+      ],
+      "parameters": {
+        "damp": 0.551854389675857,
+        "omega": 1.245184706941764
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    },
+    "connected_checked": false,
+    "map_resample_tries": 1
+  }
+]

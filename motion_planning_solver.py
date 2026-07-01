@@ -4,9 +4,17 @@ import json
 import time
 import logging
 import traceback
+import sys
 from pathlib import Path
 import numpy as np
 import math
+from typing import Any, Dict, List, Optional
+
+# Make bundled packages importable when running from the repo root.
+ROOT = Path(__file__).resolve().parent
+SOFAI_PKG = ROOT / "sofai"
+if str(SOFAI_PKG) not in sys.path:
+    sys.path.insert(0, str(SOFAI_PKG))
 
 # SOFAI
 from sofai_tool.solvers import system1 as sofai1
@@ -15,18 +23,78 @@ from sofai_tool.metacognition import metacognition_module as meta
 
 from input.input_handler import load_scenarios
 from solvers.S2_cbf import solve_CBF
-from solvers.S2_mpc import solve_MPC
-from solvers.S1_memory_neural import solveMemoryNeural
-from solvers.S1_motion_primitives import solveMotionPrimitives
-from solvers.base.S2_mpc_maze import (
-    collision_free_rectangles,
-    goal_reached,
-)
+from solvers._s2_common import collision_free_rectangles, goal_reached
 
 PATH_TO_INPUT = "input/"
 
 S1_MODE = "primitives"
 S2_MODE = "mpc"
+ACTIVE_DICTIONARY_PATH: Optional[Path] = None
+
+
+def resolve_problem_dictionary(problem_id: str) -> Path:
+    stem = problem_id.split("_sc_")[0]
+    candidates = []
+    if ACTIVE_DICTIONARY_PATH is not None:
+        candidates.append(ACTIVE_DICTIONARY_PATH)
+    root = Path(__file__).resolve().parent
+    candidates.extend(
+        [
+            root / "input" / f"{stem}.json",
+            root / "input" / "nl" / f"{stem}.json",
+            root / f"{stem}.json",
+            Path(PATH_TO_INPUT) / f"{stem}.json",
+        ]
+    )
+    seen = set()
+    for candidate in candidates:
+        candidate = candidate.expanduser()
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        if candidate.is_file():
+            return candidate.resolve()
+    raise FileNotFoundError(f"Could not resolve dictionary for {problem_id}")
+
+
+def load_problem_scenario(problem_id: str):
+    problem_dictionary = resolve_problem_dictionary(problem_id)
+    scenario_id = int(problem_id.split("_sc_")[1])
+    scenarios = load_scenarios(str(problem_dictionary))
+    return problem_dictionary, scenario_id, scenarios[scenario_id]
+
+
+'''
+
+python motion_planning_solver.py \
+  --problem_dictionary benchmark_dualmp_dense_clutter.json \
+  --scenario_id 1 \
+  --s1 neural \
+  --s2 mpc \
+  --run_type s2
+
+
+
+cd /Users/apple/Desktop/sofai
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/private/tmp/mpl \
+python motion_planning_solver.py \
+  --problem_dictionary benchmark_dualmp_nl_dense_clutter.json \
+  --scenario_id 3 \
+  --s1 neural \
+  --s2 cbf \
+  --run_type s2
+
+
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/private/tmp/mpl \
+/Users/apple/miniconda3/envs/s12_env/bin/python3.10 motion_planning_solver.py \
+  --problem_dictionary benchmark_dualmp_nl_dense_clutter.json \
+  --scenario_id 3 \
+  --s1 neural \
+  --s2 mpc \
+  --run_type s2
+
+
+'''
 
 
 # ============================================================
@@ -43,16 +111,15 @@ class CustomSystem1Solver(sofai1.System1Solver):
         self.confidence = 0.0
 
         try:
-            problem_dictionary = PATH_TO_INPUT + problem_id.split("_sc_")[0] + ".json"
-            scenario_id = int(problem_id.split("_sc_")[1])
-
-            scenarios = json.loads(Path(problem_dictionary).read_text())
-            scenario = scenarios[scenario_id]
+            _, scenario_id, scenario = load_problem_scenario(problem_id)
 
             if S1_MODE == "neural":
-                scenario.setdefault("scenario_id", scenario_id)
+                from solvers.S1_memory_neural import solveMemoryNeural
+
                 states, confidence = solveMemoryNeural(scenario, return_info=False)
             else:
+                from solvers.S1_motion_primitives import solveMotionPrimitives
+
                 states, confidence = solveMotionPrimitives(scenario)
 
             self.solution_raw = states
@@ -73,11 +140,7 @@ class CustomSystem1Solver(sofai1.System1Solver):
             return
 
         try:
-            problem_dictionary = PATH_TO_INPUT + problem_id.split("_sc_")[0] + ".json"
-            scenario_id = int(problem_id.split("_sc_")[1])
-
-            problems = load_scenarios(problem_dictionary)
-            case = problems[scenario_id]
+            _, scenario_id, case = load_problem_scenario(problem_id)
 
             rects = case.rects
             goal = case.goal
@@ -124,13 +187,14 @@ class CustomSystem2Solver(sofai2.System2Solver):
         self.confidence = 0.0
 
         try:
-            problem_dictionary = PATH_TO_INPUT + problem_id.split("_sc_")[0] + ".json"
-            scenario_id = int(problem_id.split("_sc_")[1])
+            _, scenario_id, scenario = load_problem_scenario(problem_id)
 
-            problems = load_scenarios(problem_dictionary)
-            scenario = problems[scenario_id]
+            if S2_MODE == "cbf":
+                solve_fn = solve_CBF
+            else:
+                from solvers.S2_mpc import solve_MPC
 
-            solve_fn = solve_CBF if S2_MODE == "cbf" else solve_MPC
+                solve_fn = solve_MPC
 
             with ThreadPoolExecutor(max_workers=1) as executor: 
                 future = executor.submit(solve_fn, scenario) ## each executor get a different bck
@@ -159,11 +223,7 @@ class CustomSystem2Solver(sofai2.System2Solver):
         eps = 1e-6
 
         try:
-            problem_dictionary = PATH_TO_INPUT + problem_id.split("_sc_")[0] + ".json"
-            sceneario_id = int(problem_id.split("_sc_")[1])
-
-            problems = load_scenarios(problem_dictionary)
-            case = problems[sceneario_id]
+            _, scenario_id, case = load_problem_scenario(problem_id)
 
             rects = case.rects
             xmin, ymin, xmax, ymax = case.bounds
@@ -231,11 +291,7 @@ class CustomSystem2Solver(sofai2.System2Solver):
             return
 
         try:
-            problem_dictionary = PATH_TO_INPUT + problem_id.split("_sc_")[0] + ".json"
-            scenario_id = int(problem_id.split("_sc_")[1])
-
-            problems = load_scenarios(problem_dictionary)
-            case = problems[scenario_id]
+            _, scenario_id, case = load_problem_scenario(problem_id)
 
             rects = case.rects
             goal = case.goal
@@ -251,6 +307,185 @@ class CustomSystem2Solver(sofai2.System2Solver):
         except Exception:
             logging.error(traceback.format_exc())
             self.correctness = 0.0
+
+
+# ============================================================
+# BENCHMARK CASE HELPERS
+# ============================================================
+
+def _scenario_payload(scenario, scenario_id: int) -> Dict[str, Any]:
+    payload = {
+        "scenario_id": int(getattr(scenario, "scenario_id", scenario_id)),
+        "A_query": getattr(scenario, "A", None),
+        "B_query": getattr(scenario, "B", None),
+        "rectangles": [list(r) for r in getattr(scenario, "rects", [])],
+        "start": list(getattr(scenario, "start", (0.0, 0.0))),
+        "goal": list(getattr(scenario, "goal", (0.0, 0.0))),
+        "bounds": list(getattr(scenario, "bounds", (-10.0, -10.0, 10.0, 10.0))),
+        "u_max": float(getattr(scenario, "u_max", 3.0)),
+        "goal_tol": float(getattr(scenario, "goal_tol", 0.5)),
+    }
+    dynamics_type = getattr(scenario, "dynamics_type", None)
+    dynamics_model = getattr(scenario, "dynamics_model", None)
+    nonlinear_dynamics = getattr(scenario, "nonlinear_dynamics", None)
+    if dynamics_type is not None:
+        payload["dynamics_type"] = dynamics_type
+    if dynamics_model:
+        payload["dynamics_model"] = dynamics_model
+    if nonlinear_dynamics is not None:
+        payload["nonlinear_dynamics"] = nonlinear_dynamics
+    return payload
+
+
+def _augment_attempt(attempt: Dict[str, Any], scenario) -> Dict[str, Any]:
+    states_raw = attempt.get("states")
+    if states_raw is None:
+        attempt.update(
+            success=False,
+            collision_free=False,
+            goal_reached=False,
+            final_goal_error=None,
+            path_length=None,
+            num_states=0,
+            correctness=0.0,
+        )
+        return attempt
+
+    states = np.asarray(states_raw, dtype=float)
+    if states.ndim != 2 or states.shape[0] == 0:
+        attempt["states"] = None
+        return _augment_attempt(attempt, scenario)
+
+    xy = states[:, :2]
+    collision_free = bool(collision_free_rectangles(xy, scenario.rects))
+    reached = bool(goal_reached(xy, scenario.goal, getattr(scenario, "goal_tol", 0.5)))
+    path_length = float(np.linalg.norm(xy[1:] - xy[:-1], axis=1).sum()) if len(xy) > 1 else 0.0
+    final_error = float(np.linalg.norm(xy[-1] - np.asarray(scenario.goal, dtype=float)))
+    attempt.update(
+        success=bool(collision_free and reached),
+        collision_free=collision_free,
+        goal_reached=reached,
+        final_goal_error=final_error,
+        path_length=path_length,
+        num_states=int(states.shape[0]),
+        correctness=float(attempt.get("correctness", 1.0 if collision_free and reached else 0.0)),
+    )
+    return attempt
+
+
+def _attempt_record(name: str, system: str, mode: str, solver, scenario) -> Dict[str, Any]:
+    return _augment_attempt(
+        {
+            "name": name,
+            "system": system,
+            "mode": mode,
+            "states": None if solver.solution_raw is None else np.asarray(solver.solution_raw).tolist(),
+            "confidence": float(getattr(solver, "confidence", 0.0)),
+            "runtime_sec": float(getattr(solver, "running_time", 0.0)),
+            "correctness": float(getattr(solver, "correctness", 0.0)),
+        },
+        scenario,
+    )
+
+
+def solve_benchmark_case(
+    problem_dictionary: str | Path,
+    scenario_id: int,
+    *,
+    s1: str = "neural",
+    s2: str = "mpc",
+    run_type: str = "sofai",
+    run_all_attempts: bool = False,
+) -> Dict[str, Any]:
+    global S1_MODE, S2_MODE, ACTIVE_DICTIONARY_PATH
+
+    problem_dictionary = Path(problem_dictionary).expanduser()
+    if not problem_dictionary.is_file():
+        root = Path(__file__).resolve().parent
+        candidates = [
+            root / problem_dictionary,
+            root / "input" / problem_dictionary.name,
+            root / "input" / "nl" / problem_dictionary.name,
+        ]
+        for candidate in candidates:
+            if candidate.is_file():
+                problem_dictionary = candidate
+                break
+    problem_dictionary = problem_dictionary.resolve()
+    ACTIVE_DICTIONARY_PATH = problem_dictionary
+    S1_MODE = s1
+    S2_MODE = s2
+
+    scenarios = load_scenarios(str(problem_dictionary))
+    if scenario_id < 0 or scenario_id >= len(scenarios):
+        raise IndexError(f"scenario_id {scenario_id} outside 0..{len(scenarios) - 1}")
+
+    scenario = scenarios[scenario_id]
+    problem_name = f"{problem_dictionary.stem}_sc_{scenario_id}"
+    timer = time.time()
+    attempts: List[Dict[str, Any]] = []
+
+    s1_solver = CustomSystem1Solver()
+    s2_solver = CustomSystem2Solver()
+
+    if run_type in {"s1", "sofai"}:
+        s1_solver.solve(problem_name)
+        s1_solver.calculate_correctness(problem_name)
+        attempts.append(_attempt_record(f"s1_{s1}", "s1", s1, s1_solver, scenario))
+
+    if run_type == "s2":
+        s2_solver.solve(problem_name, 10**9)
+        s2_solver.calculate_correctness(problem_name)
+        attempts.append(_attempt_record(f"s2_{s2}", "s2", s2, s2_solver, scenario))
+    elif run_type == "sofai":
+        need_s2 = run_all_attempts or not attempts or not attempts[0].get("success", False)
+        if need_s2:
+            s2_solver.solve(problem_name, 10**9)
+            s2_solver.calculate_correctness(problem_name)
+            attempts.append(_attempt_record(f"s2_{s2}", "s2", s2, s2_solver, scenario))
+
+    selected = attempts[0] if run_type in {"s1", "s2"} else next((a for a in attempts if a.get("success")), attempts[-1] if attempts else None)
+    running_time = time.time() - timer
+    selected_states = None if selected is None else selected.get("states")
+
+    return {
+        "status": "ok",
+        "problem_name": problem_name,
+        "dictionary": problem_dictionary.name,
+        "dictionary_path": str(problem_dictionary),
+        "scenario_id": scenario_id,
+        "run_type": run_type,
+        "s1": s1,
+        "s2": s2,
+        "scenario": _scenario_payload(scenario, scenario_id),
+        "attempts": attempts,
+        "selected_attempt": None if selected is None else selected["name"],
+        "success": bool(selected and selected.get("success")),
+        "collision_free": bool(selected and selected.get("collision_free")),
+        "goal_reached": bool(selected and selected.get("goal_reached")),
+        "final_goal_error": None if selected is None else selected.get("final_goal_error"),
+        "path_length": None if selected is None else selected.get("path_length"),
+        "num_states": 0 if selected is None else int(selected.get("num_states", 0)),
+        "selected_runtime_sec": None if selected is None else selected.get("runtime_sec"),
+        "runtime_sec": running_time,
+        "running_time": running_time,
+        "timed_out": False,
+        "error_message": "",
+        "traceback": "",
+        "solution_raw": selected_states,
+        "solution": "noSolution" if selected_states is None else selected_states,
+        "confidence": 0.0 if selected is None else float(selected.get("confidence", 0.0)),
+        "correctness": 0.0 if selected is None else float(selected.get("correctness", 0.0)),
+        "meta": {
+            "problem_name": problem_name,
+            "scenario": _scenario_payload(scenario, scenario_id),
+            "solution_raw": selected_states,
+            "solution": "noSolution" if selected_states is None else selected_states,
+            "confidence": 0.0 if selected is None else float(selected.get("confidence", 0.0)),
+            "correctness": 0.0 if selected is None else float(selected.get("correctness", 0.0)),
+            "running_time": running_time,
+        },
+    }
 
 
 # ============================================================

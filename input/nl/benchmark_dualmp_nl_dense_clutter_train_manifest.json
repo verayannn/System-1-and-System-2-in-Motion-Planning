@@ -1,0 +1,40 @@
+{
+  "prefix": "benchmark_dualmp_nl_dense_clutter_train",
+  "seed": 7,
+  "root": "/Users/apple/Desktop/sofai",
+  "input_dir": "/Users/apple/Desktop/sofai/input/nl",
+  "n_per_family": 100,
+  "total_scenarios": 100,
+  "families": [
+    {
+      "family": "dense_clutter",
+      "difficulty": "medium_hard",
+      "count": 100,
+      "file": "/Users/apple/Desktop/sofai/input/nl/benchmark_dualmp_nl_dense_clutter_train_dense_clutter.json",
+      "scenario_ids": [
+        0,
+        99
+      ]
+    }
+  ],
+  "combined_file": null,
+  "schema": {
+    "solver": "motion_planning_solver.py",
+    "problem_dictionary_location": "input/",
+    "problem_name_format": "<json_stem>_sc_<scenario_id>",
+    "required_keys": [
+      "scenario_id",
+      "rectangles",
+      "bounds",
+      "start",
+      "goal",
+      "dynamics_type",
+      "nonlinear_dynamics"
+    ]
+  },
+  "notes": [
+    "Generated dictionaries keep the same maze geometry and metadata as the linear benchmark generator.",
+    "Nonlinear query dynamics are described explicitly through the nonlinear_dynamics block.",
+    "No linearized A_query/B_query surrogate is emitted in this schema."
+  ]
+}

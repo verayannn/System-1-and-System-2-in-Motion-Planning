@@ -22,28 +22,6 @@ PYTHONDONTWRITEBYTECODE=1 \
   --timeout_sec 60 \
   --out_dir output/benchmark_runs/check \
   --out_prefix dense_clutter_sc2_s1
-
-
-run the benchmark where S1 neural has better success rate than S1 primitives:
-cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
-
-
-PYTHONDONTWRITEBYTECODE=1 \
-MPLCONFIGDIR=/private/tmp/mpl \
-SOFAI_S1_DB_PATH=db/by_env/wall_gap/S1_database_maze.json \
-SOFAI_S1_TRAJ_PATH=db/by_env/wall_gap/s1_sfcbf_success_trajs.npz \
-SOFAI_NEW_S1_MODEL=db/by_env/wall_gap/s1_policy_control_cnn.pth \
-/Users/apple/miniconda3/envs/s12_env/bin/python3.10 run_motion_planning_benchmarks.py \
-  --root /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning \
-  --patterns benchmark_dualmp_wall_gap_interp_neural_advantage.json \
-  --scenario_ids 0-99 \
-  --s1 primitives \
-  --s2 mpc \
-  --run_type s1 \
-  --same_process \
-  --timeout_sec 300 \
-  --out_dir output/benchmark_runs/wall_gap_interp_neural_advantage \
-  --out_prefix wall_gap_interp_neural_advantage
 """
 
 from __future__ import annotations
@@ -76,8 +54,7 @@ CSV_FIELDS = [
     "dictionary", "scenario_id", "run_type", "s1", "s2", "status", "timed_out",
     "selected_attempt", "success", "collision_free", "goal_reached",
     "final_goal_error", "path_length", "num_states", "runtime_sec",
-    "selected_runtime_sec", "attempt_runtime_sec", "wall_runtime_sec",
-    "s1_gate_accepted", "s1_confidence_threshold",
+    "selected_runtime_sec", "wall_runtime_sec",
     "s1_attempted", "s1_success", "s1_collision_free", "s1_goal_reached",
     "s1_confidence", "s1_runtime_sec", "s1_final_goal_error",
     "s1_path_length", "s1_num_states",
@@ -87,25 +64,8 @@ CSV_FIELDS = [
 ]
 
 
-def default_mplconfigdir() -> str:
-    if sys.platform == "darwin":
-        return "/private/tmp/mpl"
-    return "/tmp/mpl"
-
-
-def normalize_mplconfigdir(path_str: str) -> str:
-    path = str(path_str).strip()
-    if sys.platform != "darwin" and path.startswith("/private/tmp/"):
-        return path.replace("/private/tmp/", "/tmp/", 1)
-    if sys.platform != "darwin" and path == "/private/tmp/mpl":
-        return "/tmp/mpl"
-    return path
-
-
 def configure_repo(root: Path, mplconfigdir: str) -> None:
-    mpldir = Path(normalize_mplconfigdir(mplconfigdir)).expanduser()
-    mpldir.mkdir(parents=True, exist_ok=True)
-    os.environ.setdefault("MPLCONFIGDIR", str(mpldir))
+    os.environ.setdefault("MPLCONFIGDIR", mplconfigdir)
     for path in (root, root / "sofai", root / "solvers"):
         value = str(path)
         if value not in sys.path:
@@ -161,8 +121,9 @@ def discover(input_dir: Path, patterns: Sequence[str]) -> List[Path]:
         if p.is_absolute():
             matches = sorted(p.parent.glob(p.name))
         else:
-            matches = sorted(input_dir.glob(pattern))
-            matches.extend(sorted((input_dir / "benchmarks").glob(pattern)))
+            matches = sorted(input_dir.rglob(pattern))
+            matches.extend(sorted((input_dir / "benchmarks").rglob(pattern)))
+            matches.extend(sorted((input_dir / "nl").rglob(pattern)))
         found.extend(m.resolve() for m in matches if not m.name.endswith(excluded))
     return list(dict.fromkeys(found))
 
@@ -174,147 +135,18 @@ def load_count(path: Path) -> int:
     return len(data)
 
 
-def scenario_json(scenario: Any, fallback_id: int) -> Dict[str, Any]:
-    return {
-        "scenario_id": int(getattr(scenario, "scenario_id", fallback_id)),
-        "A_query": jsonable(getattr(scenario, "A", None)),
-        "B_query": jsonable(getattr(scenario, "B", None)),
-        "rectangles": jsonable([list(r) for r in getattr(scenario, "rects", [])]),
-        "start": jsonable(getattr(scenario, "start", None)),
-        "goal": jsonable(getattr(scenario, "goal", None)),
-        "bounds": jsonable(getattr(scenario, "bounds", None)),
-        "u_max": jsonable(getattr(scenario, "u_max", None)),
-        "goal_tol": float(getattr(scenario, "goal_tol", 0.5)),
-    }
-
-
-def run_s1(scenario: Any, mode: str) -> Dict[str, Any]:
-    if mode == "neural":
-        from solvers.S1_memory_neural import _init as init_neural
-        from solvers.S1_memory_neural import solveMemoryNeural
-        init_neural()
-        t0 = time.perf_counter()
-        states, confidence = solveMemoryNeural(scenario, return_info=False)
-    else:
-        from solvers.S1_motion_primitives import _init as init_primitives
-        from solvers.S1_motion_primitives import solveMotionPrimitives
-        init_primitives()
-        t0 = time.perf_counter()
-        states, confidence = solveMotionPrimitives(scenario)
-    return {
-        "name": f"s1_{mode}",
-        "system": "s1",
-        "mode": mode,
-        "states": None if states is None else jsonable(states),
-        "confidence": float(confidence),
-        "runtime_sec": time.perf_counter() - t0,
-    }
-
-
-def run_s2(scenario: Any, mode: str) -> Dict[str, Any]:
-    if mode == "cbf":
-        from solvers.S2_cbf import solve_CBF_with_info
-        t0 = time.perf_counter()
-        out = solve_CBF_with_info(scenario)
-    else:
-        from solvers.S2_mpc import solve_MPC_with_info
-        t0 = time.perf_counter()
-        out = solve_MPC_with_info(scenario)
-    states = None if out is None else out.get("states")
-    return {
-        "name": f"s2_{mode}",
-        "system": "s2",
-        "mode": mode,
-        "states": None if states is None else jsonable(states),
-        "inputs": None if out is None or out.get("inputs") is None else jsonable(out.get("inputs")),
-        "confidence": 1.0 if states is not None else 0.0,
-        "runtime_sec": float(out.get("runtime_sec", time.perf_counter() - t0)) if out is not None else time.perf_counter() - t0,
-    }
-
-
-def add_metrics(attempt: Dict[str, Any], scenario: Any) -> Dict[str, Any]:
-    import numpy as np
-    from solvers.base.S2_mpc_maze import collision_free_rectangles, goal_reached
-
-    states_raw = attempt.get("states")
-    if states_raw is None:
-        attempt.update(success=False, collision_free=False, goal_reached=False,
-                       final_goal_error=None, path_length=None, num_states=0, correctness=0.0)
-        return attempt
-
-    states = np.asarray(states_raw, dtype=float)
-    if states.ndim != 2 or states.shape[0] == 0:
-        attempt["states"] = None
-        return add_metrics(attempt, scenario)
-
-    xy = states[:, :2]
-    collision_free = bool(collision_free_rectangles(xy, scenario.rects))
-    reached = bool(goal_reached(xy, scenario.goal, getattr(scenario, "goal_tol", 0.5)))
-    path_length = float(np.linalg.norm(xy[1:] - xy[:-1], axis=1).sum()) if len(xy) > 1 else 0.0
-    final_error = float(math.dist(xy[-1].tolist(), list(scenario.goal)))
-    success = bool(collision_free and reached)
-
-    attempt.update(
-        success=success,
-        collision_free=collision_free,
-        goal_reached=reached,
-        final_goal_error=final_error,
-        path_length=path_length,
-        num_states=int(states.shape[0]),
-        correctness=1.0 if success else 0.0,
-    )
-    return attempt
-
-
-def s1_confidence_gate_enabled(opts: Dict[str, Any]) -> bool:
-    return bool(opts.get("enable_s1_confidence_gate", False))
-
-
-def s1_confidence_threshold(opts: Dict[str, Any]) -> float:
-    return float(opts.get("s1_confidence_threshold", 0.75))
-
-
-def s1_attempt_accepted(s1_attempt: Optional[Dict[str, Any]], opts: Dict[str, Any], run_type: str) -> bool:
-    if s1_attempt is None:
-        return False
-    if run_type != "sofai":
-        return bool(s1_attempt.get("success", False))
-    if not bool(s1_attempt.get("success", False)):
-        return False
-    if not s1_confidence_gate_enabled(opts):
-        return True
-    return float(s1_attempt.get("confidence", 0.0) or 0.0) >= s1_confidence_threshold(opts)
-
-
-def attempt_runtime_sec(attempts: List[Dict[str, Any]]) -> float:
-    total = 0.0
-    for attempt in attempts:
-        try:
-            total += float(attempt.get("runtime_sec", 0.0) or 0.0)
-        except Exception:
-            continue
-    return total
-
-
-def select_attempt(attempts: List[Dict[str, Any]], run_type: str, *, s1_accepted: bool = True) -> Optional[Dict[str, Any]]:
-    if not attempts:
-        return None
-    if run_type in {"s1", "s2"}:
-        return attempts[0]
-    if attempts and attempts[0].get("system") == "s1" and not s1_accepted:
-        return next((a for a in attempts[1:] if a.get("success")), attempts[-1])
-    return next((a for a in attempts if a.get("success")), attempts[-1])
-
-
 def error_result(exc: BaseException, opts: Dict[str, Any], runtime: float = 0.0) -> Dict[str, Any]:
+    problem_name = f"{Path(opts['dictionary']).stem}_sc_{int(opts['scenario_id'])}"
     return {
         "status": "error",
+        "problem_name": problem_name,
         "dictionary": Path(opts["dictionary"]).name,
         "dictionary_path": str(opts["dictionary"]),
         "scenario_id": int(opts["scenario_id"]),
         "run_type": str(opts["run_type"]),
         "s1": str(opts["s1"]),
         "s2": str(opts["s2"]),
+        "scenario": None,
         "attempts": [],
         "selected_attempt": None,
         "success": False,
@@ -325,59 +157,38 @@ def error_result(exc: BaseException, opts: Dict[str, Any], runtime: float = 0.0)
         "num_states": 0,
         "selected_runtime_sec": None,
         "runtime_sec": runtime,
+        "running_time": runtime,
         "timed_out": False,
         "error_message": f"{type(exc).__name__}: {exc}",
         "traceback": traceback.format_exc(),
+        "solution_raw": None,
+        "solution": "noSolution",
+        "confidence": 0.0,
+        "correctness": 0.0,
+        "meta": {
+            "problem_name": problem_name,
+            "scenario": None,
+            "solution_raw": None,
+            "solution": "noSolution",
+            "confidence": 0.0,
+            "correctness": 0.0,
+            "running_time": runtime,
+        },
     }
 
-
+## load scenarios and run
 def run_case(opts: Dict[str, Any]) -> Dict[str, Any]:
     configure_repo(Path(opts["root"]), str(opts["mplconfigdir"]))
-    from input.input_handler import load_scenarios
+    from motion_planning_solver import solve_benchmark_case
 
-    dictionary = Path(opts["dictionary"])
-    scenario_id = int(opts["scenario_id"])
-    scenario = load_scenarios(str(dictionary))[scenario_id]
-    run_type = str(opts["run_type"])
-    attempts: List[Dict[str, Any]] = []
-    t0 = time.perf_counter()
-    s1_gate_accepted = ""
-
-    if run_type in {"s1", "sofai"}:
-        s1_attempt = add_metrics(run_s1(scenario, str(opts["s1"])), scenario)
-        s1_gate_accepted = s1_attempt_accepted(s1_attempt, opts, run_type)
-        s1_attempt["accepted_by_gate"] = bool(s1_gate_accepted)
-        attempts.append(s1_attempt)
-    if run_type == "s2" or (run_type == "sofai" and (opts["run_all_attempts"] or not bool(s1_gate_accepted))):
-        attempts.append(add_metrics(run_s2(scenario, str(opts["s2"])), scenario))
-
-    selected = select_attempt(attempts, run_type, s1_accepted=bool(s1_gate_accepted) if run_type == "sofai" else True)
-    return {
-        "status": "ok",
-        "dictionary": dictionary.name,
-        "dictionary_path": str(dictionary),
-        "scenario_id": scenario_id,
-        "run_type": run_type,
-        "s1": str(opts["s1"]),
-        "s2": str(opts["s2"]),
-        "scenario": scenario_json(scenario, scenario_id),
-        "attempts": attempts,
-        "selected_attempt": None if selected is None else selected["name"],
-        "success": bool(selected and selected.get("success")),
-        "collision_free": bool(selected and selected.get("collision_free")),
-        "goal_reached": bool(selected and selected.get("goal_reached")),
-        "final_goal_error": None if selected is None else selected.get("final_goal_error"),
-        "path_length": None if selected is None else selected.get("path_length"),
-        "num_states": 0 if selected is None else int(selected.get("num_states", 0)),
-        "selected_runtime_sec": None if selected is None else selected.get("runtime_sec"),
-        "attempt_runtime_sec": attempt_runtime_sec(attempts),
-        "runtime_sec": time.perf_counter() - t0,
-        "timed_out": False,
-        "s1_gate_accepted": "" if run_type == "s2" else bool(s1_gate_accepted),
-        "s1_confidence_threshold": "" if run_type != "sofai" or not s1_confidence_gate_enabled(opts) else s1_confidence_threshold(opts),
-        "error_message": "",
-        "traceback": "",
-    }
+    return solve_benchmark_case(
+        opts["dictionary"],
+        int(opts["scenario_id"]),
+        s1=str(opts["s1"]),
+        s2=str(opts["s2"]),
+        run_type=str(opts["run_type"]),
+        run_all_attempts=bool(opts["run_all_attempts"]),
+    )
 
 
 def worker(opts: Dict[str, Any], queue: Any) -> None:
@@ -407,14 +218,17 @@ def run_case_timed(opts: Dict[str, Any], timeout_sec: float, same_process: bool)
     if proc.is_alive():
         proc.terminate()
         proc.join(timeout=5)
+        problem_name = f"{Path(opts['dictionary']).stem}_sc_{int(opts['scenario_id'])}"
         return {
             "status": "timeout",
+            "problem_name": problem_name,
             "dictionary": Path(opts["dictionary"]).name,
             "dictionary_path": str(opts["dictionary"]),
             "scenario_id": int(opts["scenario_id"]),
             "run_type": str(opts["run_type"]),
             "s1": str(opts["s1"]),
             "s2": str(opts["s2"]),
+            "scenario": None,
             "attempts": [],
             "selected_attempt": None,
             "success": False,
@@ -425,10 +239,24 @@ def run_case_timed(opts: Dict[str, Any], timeout_sec: float, same_process: bool)
             "num_states": 0,
             "selected_runtime_sec": None,
             "runtime_sec": wall,
+            "running_time": wall,
             "wall_runtime_sec": wall,
             "timed_out": True,
             "error_message": f"Timed out after {timeout_sec:.1f}s",
             "traceback": "",
+            "solution_raw": None,
+            "solution": "noSolution",
+            "confidence": 0.0,
+            "correctness": 0.0,
+            "meta": {
+                "problem_name": problem_name,
+                "scenario": None,
+                "solution_raw": None,
+                "solution": "noSolution",
+                "confidence": 0.0,
+                "correctness": 0.0,
+                "running_time": wall,
+            },
         }
 
     try:
@@ -470,10 +298,7 @@ def flat(result: Dict[str, Any]) -> Dict[str, Any]:
         "num_states": result.get("num_states", 0),
         "runtime_sec": result.get("runtime_sec", ""),
         "selected_runtime_sec": "" if result.get("selected_runtime_sec") is None else result.get("selected_runtime_sec"),
-        "attempt_runtime_sec": result.get("attempt_runtime_sec", ""),
         "wall_runtime_sec": result.get("wall_runtime_sec", result.get("runtime_sec", "")),
-        "s1_gate_accepted": result.get("s1_gate_accepted", ""),
-        "s1_confidence_threshold": result.get("s1_confidence_threshold", ""),
         "s1_attempted": s1 is not None,
         "s1_success": get(s1, "success"),
         "s1_collision_free": get(s1, "collision_free"),
@@ -496,29 +321,21 @@ def flat(result: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def init_output_files(out_dir: Path, prefix: str) -> Tuple[Path, Path]:
+def write_outputs(out_dir: Path, prefix: str, results: List[Dict[str, Any]]) -> Tuple[Path, Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     jsonl_path = out_dir / f"{prefix}_runs.jsonl"
     csv_path = out_dir / f"{prefix}_summary.csv"
-    jsonl_path.write_text("")
+
+    with jsonl_path.open("w") as f:
+        for result in results:
+            f.write(json.dumps(jsonable(result)) + "\n")
+
     with csv_path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
         writer.writeheader()
-    return jsonl_path, csv_path
+        for result in results:
+            writer.writerow(flat(result))
 
-
-def append_output_row(jsonl_path: Path, csv_path: Path, result: Dict[str, Any]) -> None:
-    with jsonl_path.open("a") as f:
-        f.write(json.dumps(jsonable(result)) + "\n")
-    with csv_path.open("a", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
-        writer.writerow(flat(result))
-
-
-def write_outputs(out_dir: Path, prefix: str, results: List[Dict[str, Any]]) -> Tuple[Path, Path]:
-    jsonl_path, csv_path = init_output_files(out_dir, prefix)
-    for result in results:
-        append_output_row(jsonl_path, csv_path, result)
     return jsonl_path, csv_path
 
 
@@ -556,19 +373,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--timeout_sec", type=float, default=300.0)
     p.add_argument("--same_process", action="store_true")
     p.add_argument("--workers", type=int, default=1, help="Number of benchmark cases to run concurrently.")
-    p.add_argument("--mplconfigdir", default=default_mplconfigdir())
-    p.add_argument("--enable_s1_confidence_gate", action="store_true",
-                   help="In sofai mode, only accept a successful S1 attempt if its confidence exceeds --s1_confidence_threshold.")
-    p.add_argument("--disable_s1_confidence_gate", dest="enable_s1_confidence_gate", action="store_false")
-    p.add_argument("--s1_confidence_threshold", type=float, default=0.75)
-    p.add_argument("--enable_neural_internal_gate", dest="neural_internal_gate", action="store_true",
-                   help="Enable the neural S1 rollout's internal low-confidence early-stop rule.")
-    p.add_argument("--disable_neural_internal_gate", dest="neural_internal_gate", action="store_false",
-                   help="Disable the neural S1 rollout's internal low-confidence early-stop rule.")
-    p.set_defaults(neural_internal_gate=None)
-    p.add_argument("--neural_confidence_threshold", type=float, default=None)
-    p.add_argument("--neural_confidence_patience", type=int, default=None)
-    p.add_argument("--neural_confidence_min_steps", type=int, default=None)
+    p.add_argument("--mplconfigdir", default="/private/tmp/mpl")
     p.add_argument("--out_dir", default="output/benchmark_runs")
     p.add_argument("--out_prefix", default="benchmark_dualmp")
     p.add_argument("--dry_run", action="store_true")
@@ -584,15 +389,6 @@ def main() -> None:
     out_dir = Path(args.out_dir).expanduser()
     input_dir = input_dir if input_dir.is_absolute() else root / input_dir
     out_dir = out_dir if out_dir.is_absolute() else root / out_dir
-
-    if args.neural_internal_gate is not None:
-        os.environ["SOFAI_NEW_S1_ENABLE_CONFIDENCE_SWITCH"] = "1" if args.neural_internal_gate else "0"
-    if args.neural_confidence_threshold is not None:
-        os.environ["SOFAI_NEW_S1_CONFIDENCE_THRESHOLD"] = str(args.neural_confidence_threshold)
-    if args.neural_confidence_patience is not None:
-        os.environ["SOFAI_NEW_S1_CONFIDENCE_PATIENCE"] = str(args.neural_confidence_patience)
-    if args.neural_confidence_min_steps is not None:
-        os.environ["SOFAI_NEW_S1_CONFIDENCE_MIN_STEPS"] = str(args.neural_confidence_min_steps)
 
     configure_repo(root, args.mplconfigdir)
 
@@ -622,8 +418,6 @@ def main() -> None:
             "s2": args.s2,
             "run_type": args.run_type,
             "run_all_attempts": bool(args.run_all_attempts),
-            "enable_s1_confidence_gate": bool(args.enable_s1_confidence_gate),
-            "s1_confidence_threshold": float(args.s1_confidence_threshold),
             "mplconfigdir": args.mplconfigdir,
         }
 
@@ -638,13 +432,11 @@ def main() -> None:
             print(f"[message] {result['error_message']}")
 
     results: List[Dict[str, Any]] = []
-    jsonl_path, csv_path = init_output_files(out_dir, args.out_prefix)
     if int(args.workers) <= 1:
         for i, (dictionary, sid) in enumerate(planned, start=1):
             print(f"[run {i}/{len(planned)}] {dictionary.name} scenario={sid}")
             result = run_case_timed(make_opts(dictionary, sid), args.timeout_sec, args.same_process)
             results.append(result)
-            append_output_row(jsonl_path, csv_path, result)
             print_result(result, i)
     else:
         print(f"[parallel] workers={args.workers} cases={len(planned)}")
@@ -656,9 +448,9 @@ def main() -> None:
             for i, fut in enumerate(as_completed(futures), start=1):
                 result = fut.result()
                 results.append(result)
-                append_output_row(jsonl_path, csv_path, result)
                 print_result(result, i)
 
+    jsonl_path, csv_path = write_outputs(out_dir, args.out_prefix, results)
     print_aggregate(results)
     print(f"[write] {jsonl_path}")
     print(f"[write] {csv_path}")

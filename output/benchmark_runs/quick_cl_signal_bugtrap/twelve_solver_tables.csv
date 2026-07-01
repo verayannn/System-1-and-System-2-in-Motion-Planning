@@ -1,0 +1,3 @@
+environment,solver,success_rate,average_runtime,mean_runtime,p90_runtime,s1_solved,s2_solved
+bugtrap,sofai_mpc_neural_cl,0.7,4.971914379198279,4.971914379198279,6.364588966898735,3,4
+average,sofai_mpc_neural_cl,0.7,4.971914379198279,4.971914379198279,6.364588966898735,3.0,4.0

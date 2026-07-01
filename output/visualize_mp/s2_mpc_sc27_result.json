@@ -1,0 +1,105 @@
+{
+  "dictionary": "benchmark_dualmp_nl_bugtrap_eval_bugtrap.json",
+  "dictionary_path": "/Users/apple/Desktop/sofai/input/nl/benchmark_dualmp_nl_bugtrap_eval_bugtrap.json",
+  "scenario_id": 27,
+  "run_type": "s2",
+  "s1": "neural",
+  "s2": "mpc",
+  "scenario": {
+    "scenario_id": 27,
+    "A_query": null,
+    "B_query": null,
+    "rectangles": [
+      [
+        -2.496444,
+        -4.027745,
+        3.74877,
+        -3.62342
+      ],
+      [
+        -2.496444,
+        -4.027745,
+        -2.09212,
+        -2.845409
+      ],
+      [
+        -2.496444,
+        -0.971775,
+        -2.09212,
+        1.069224
+      ],
+      [
+        3.344446,
+        -4.027745,
+        3.74877,
+        1.069224
+      ]
+    ],
+    "start": [
+      5.0,
+      5.0
+    ],
+    "goal": [
+      0.0,
+      0.0
+    ],
+    "bounds": [
+      -10.0,
+      -10.0,
+      10.0,
+      10.0
+    ],
+    "u_max": 3.0,
+    "goal_tol": 0.5,
+    "dynamics_type": "nonlinear",
+    "dynamics_model": "control_affine_tanh_trig_2d",
+    "nonlinear_dynamics": {
+      "model": "control_affine_tanh_trig_2d",
+      "state_dim": 2,
+      "control_dim": 2,
+      "state_names": [
+        "x",
+        "y"
+      ],
+      "control_names": [
+        "u_x",
+        "u_y"
+      ],
+      "regime": "rotate_ccw",
+      "linearization_point": [
+        -0.137104,
+        -0.610625
+      ],
+      "parameters": {
+        "damp": 0.4515421050044979,
+        "omega": 1.346931286095407
+      },
+      "equations": {
+        "x_dot": "u_x - damp*tanh(x) - omega*sin(y)",
+        "y_dot": "u_y - damp*tanh(y) + omega*sin(x)"
+      },
+      "control_map": "identity",
+      "nonlinear": true
+    }
+  },
+  "attempts": [
+    {
+      "name": "s2_mpc",
+      "system": "s2",
+      "mode": "mpc",
+      "states": null,
+      "confidence": 0.0,
+      "runtime_sec": 39.137190958019346,
+      "success": false,
+      "collision_free": false,
+      "goal_reached": false,
+      "final_goal_error": null,
+      "path_length": null,
+      "num_states": 0,
+      "correctness": 0.0
+    }
+  ],
+  "selected_attempt": "s2_mpc",
+  "success": false,
+  "runtime_sec": 39.13725312502356
+}

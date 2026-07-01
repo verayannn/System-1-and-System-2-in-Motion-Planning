@@ -1,0 +1,2 @@
+label,display_name,run_type,s1,s2,total_cases,ok_cases,timeout_cases,error_cases,success_rate,success_rate_ok_only,collision_free_rate_ok_only,goal_reached_rate_ok_only,avg_runtime_sec,median_runtime_sec,p90_runtime_sec,avg_selected_runtime_sec,avg_wall_runtime_sec,s1_attempted_cases,s1_success_cases,s1_success_rate_when_attempted,s2_attempted_cases,s2_success_cases,s2_success_rate_when_attempted
+s2_cbf,S2 only: CBF,s2,primitives,cbf,100,100,0,0,0.0,0.0,0.84,0.0,1.9859290887495444,1.9036819789980655,2.09507587499902,0.8904814250403433,2.35162086247954,0,0,,100,0,0.0
