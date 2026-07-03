@@ -14,12 +14,11 @@ The core idea is to combine:
 - **Continual-learning variants**: successful System 2 trajectories can be written back into memory and used to improve later runs
 
 
-
 ## Installation
 
 Follow the steps below to install the project locally.
 
-### 0. Install acados first
+### 0. Install `acados` first
 
 System 2 MPC uses a native `acados` backend. Install `acados` separately, then point the Python environment to it.
 
@@ -27,7 +26,6 @@ System 2 MPC uses a native `acados` backend. Install `acados` separately, then p
 export ACADOS_SOURCE_DIR=/path/to/acados
 python -m pip install -e /path/to/acados/interfaces/acados_template
 ```
-
 
 ### Option A: `uv` (recommended)
 
@@ -54,12 +52,13 @@ uv pip install -r requirements.txt
 4. Verify that the vendored SOFAI package is importable:
 
 ```bash
-python -c "import sofai_tool, safe_control; print('SOFAI installation verified.')"
+python -c "import sofai_tool, safe_control; print('installation verified.')"
 ```
 
 The root `requirements.txt` installs:
 
-- the vendored upstream `sofai` package in editable mode
+- the local `sofai` package in editable mode
+- the local `safe_control` package in editable mode
 - the MPC dependencies
 - the CBF dependencies
 - the neural-policy dependencies
@@ -89,7 +88,7 @@ pip install -r requirements.txt
 4. Verify the installation:
 
 ```bash
-python -c "import sofai_tool, safe_control; print('SOFAI installation verified.')"
+python -c "import sofai_tool, safe_control; print('installation verified.')"
 ```
 
 ### Option C: standard `venv`
@@ -118,7 +117,7 @@ python -m pip install -r requirements.txt
 4. Verify the installation:
 
 ```bash
-python -c "import sofai_tool, safe_control; print('SOFAI installation verified.')"
+python -c "import sofai_tool, safe_control; print('installation verified.')"
 ```
 
 ### Development-mode install
