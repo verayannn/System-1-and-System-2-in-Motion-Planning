@@ -1,2 +1,3 @@
-"""Local shim for the deprecated package used by acados_template."""
+from .sphinx import deprecated
 
+__all__ = ["deprecated"]

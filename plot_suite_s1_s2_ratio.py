@@ -3,11 +3,11 @@
 
 Plot per-block S1 success versus S2-only success for SOFAI CL runs.
 
-PYTHONDONTWRITEBYTECODE=1 /Users/apple/miniconda3/envs/s12_env/bin/python3.10 \
-  /Users/apple/Desktop/sofai/plot_suite_s1_s2_ratio.py \
-  --suite_dir /Users/apple/Desktop/sofai/output/benchmark_runs/nl_dense_clutter_suite \
-  --config sofai_cbf_cl \
-  --out /Users/apple/Desktop/sofai/output/benchmark_runs/nl_dense_clutter_suite/s1_s2_ratio_by_block.png
+  
+python plot_suite_s1_s2_ratio.py \
+  --suite_dir output/benchmark_runs/nl_bugtrap_suite \
+  --config sofai_mpc_cl \
+  --out output/benchmark_runs/nl_bugtrap_suite/s1_s2_ratio_by_block.png
 
 """
 

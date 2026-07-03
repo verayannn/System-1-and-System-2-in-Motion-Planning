@@ -14,12 +14,19 @@ python script/prepare_environment_assets.py \
   --s2_solver cbf
   
 
+PYTHONDONTWRITEBYTECODE=1 \
+python script/prepare_environment_assets.py \
+  --family dense_clutter \
+  --s2_solver cbf
+
+
+
 all the families:
 
 cd /Users/apple/Desktop/sofai
 PYTHONDONTWRITEBYTECODE=1 \
 python script/prepare_environment_assets.py \
-  --families small_open large_sparse wall_gap serial_walls maze_branching bugtrap \
+  --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap \
   --s2_solver cbf
 
 """

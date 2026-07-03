@@ -89,19 +89,14 @@ def _init():
     if _CACHE is not None:
         return _CACHE
 
-    requested_device = os.environ.get("SOFAI_NEW_S1_DEVICE", "").strip()
-    if requested_device:
-        device = np.array([requested_device])  # placeholder until torch import
-    else:
-        device = None
-
     import torch
 
-    if isinstance(device, np.ndarray):
-        device = torch.device(str(device[0]))
-    elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-        device = torch.device("mps")
+    requested_device = os.environ.get("SOFAI_NEW_S1_DEVICE", "").strip().lower()
+    if requested_device:
+        device = torch.device(requested_device)
     else:
+        # S1 is a tiny policy network; on Apple Silicon the CPU path is usually
+        # faster than paying MPS transfer overhead for these small tensors.
         device = torch.device("cpu")
 
     model_path = _default_model_path()

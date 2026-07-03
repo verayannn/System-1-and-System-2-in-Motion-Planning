@@ -11,6 +11,9 @@ Modes:
 The continual-learning modes advance through 200-scenario blocks, run SOFAI
 with all attempts recorded, and retrain the neural System 1 on every
 successful trajectory in each block.
+
+python script/run_suite.py --workers 3
+
 """
 
 from __future__ import annotations
@@ -23,12 +26,9 @@ import sys
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
 
-## python script/run_suite.py --workers 3
-
+MODES = ("s1_neural", "s2_cbf", "s2_mpc")
 
 ## MODES = ("s1_neural",)
-
-MODES = ("s2_mpc",)
 
 ## MODES = ("s1_neural", "s2_cbf", "s2_mpc", "sofai_cbf_cl", "sofai_mpc_cl")
 
@@ -37,13 +37,13 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", default=Path(__file__).resolve().parents[1])
     p.add_argument("--python", default=sys.executable)
-    p.add_argument("--dictionary", default="input/nl/benchmark_dualmp_nl_bugtrap_eval_bugtrap.json")
-    p.add_argument("--bootstrap_results_dir", default="output/bootstrap_bugtrap_nl")
+    p.add_argument("--dictionary", default="input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json")
+    p.add_argument("--bootstrap_results_dir", default="output/bootstrap_dense_clutter_nl")
     p.add_argument("--scenario_ids", default="0-499")
     p.add_argument("--block_size", type=int, default=100) ## block size for continual learning: continual learning happens after a block finishes
     p.add_argument("--configs", nargs="+", default=list(MODES))
-    p.add_argument("--assets_dir", default="db/by_env/bugtrap_nl")
-    p.add_argument("--out_dir", default="output/benchmark_runs/nl_bugtrap_suite")
+    p.add_argument("--assets_dir", default="db/by_env/dense_clutter_nl")
+    p.add_argument("--out_dir", default="output/benchmark_runs/nl_dense_clutter_suite")
     p.add_argument("--timeout_sec", type=float, default=60.0)
     p.add_argument("--workers", type=int, default=1)
     p.add_argument("--s1_model", default="")
@@ -102,7 +102,7 @@ def base_env(root: Path, model_path: Path, mplconfigdir: str) -> Dict[str, str]:
     env["PYTHONDONTWRITEBYTECODE"] = "1"
     env["MPLCONFIGDIR"] = mplconfigdir
     env["SOFAI_NEW_S1_MODEL"] = str(model_path)
-    env["SOFAI_NEW_S1_DEVICE"] = env.get("SOFAI_NEW_S1_DEVICE", "")
+    env.setdefault("SOFAI_NEW_S1_DEVICE", "cpu")
     return env
 
 

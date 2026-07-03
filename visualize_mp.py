@@ -10,29 +10,22 @@ single-case visualization tool:
 - save a 2D trajectory plot over the obstacle map
 
 Example:
-    cd /Users/apple/Desktop/sofai
 
-    PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/private/tmp/mpl \
-    /Users/apple/miniconda3/envs/s12_env/bin/python3.10 visualize_mp.py \
-      --problem_dictionary benchmark_dualmp_nl_dense_clutter.json \
-      --scenario_ids 3 \
-      --s1 neural \
-      --s2 cbf \
-      --run_type s2 \
-      --out_dir output/visualize_mp
+cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
 
-
-cd /Users/apple/Desktop/sofai
 PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/private/tmp/mpl \
-SOFAI_NEW_S1_MODEL=/Users/apple/Desktop/sofai/db/by_env/bugtrap_nl/s1_policy_nonlinear.pth \
-/Users/apple/miniconda3/envs/s12_env/bin/python3.10 visualize_mp.py \
-  --problem_dictionary nl/benchmark_dualmp_nl_bugtrap_eval_bugtrap.json \
-  --scenario_ids 27 \
+python visualize_mp.py \
+  --problem_dictionary nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
+  --scenario_ids 10 \
   --s1 neural \
-  --s2 mpc \
+  --s2 cbf \
   --run_type s2 \
   --out_dir output/visualize_mp \
-  --out_prefix s2_mpc_sc27
+  --out_prefix s2_cbf_sc10
+
+
+
+
 """
 
 from __future__ import annotations
@@ -57,6 +50,13 @@ def configure_imports(root: Path, mplconfigdir: str) -> None:
         value = str(path)
         if value not in sys.path:
             sys.path.insert(0, value)
+
+    try:
+        from solvers._s2_common import bootstrap_acados_backend
+
+        bootstrap_acados_backend()
+    except Exception:
+        pass
 
 
 def parse_single_scenario_id(raw: str) -> int:
@@ -203,12 +203,27 @@ def choose_selected(attempts: List[Dict[str, Any]], run_type: str) -> Optional[D
     return attempts[-1]
 
 
+def _resolve_dictionary_path(root: Path, problem_dictionary: str | Path) -> Path:
+    path = Path(problem_dictionary).expanduser()
+    candidates = [path]
+    if not path.is_absolute():
+        candidates.extend(
+            [
+                root / path,
+                root / "input" / path,
+                root / "input" / "nl" / path,
+            ]
+        )
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate.resolve()
+    raise FileNotFoundError(f"Could not resolve benchmark dictionary: {problem_dictionary}")
+
+
 def run_case(args: argparse.Namespace) -> Dict[str, Any]:
     from input.input_handler import load_scenarios
 
-    dictionary_path = Path(args.problem_dictionary).expanduser()
-    if not dictionary_path.is_absolute():
-        dictionary_path = Path(args.root).expanduser().resolve() / "input" / dictionary_path
+    dictionary_path = _resolve_dictionary_path(Path(args.root), args.problem_dictionary)
 
     scenarios = load_scenarios(str(dictionary_path))
     scenario_id = parse_single_scenario_id(args.scenario_ids)
@@ -335,7 +350,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    root = Path(args.root).expanduser().resolve()
+    repo_root = Path(__file__).resolve().parent
+    root = Path(args.root).expanduser().resolve() if args.root else repo_root
     args.root = root
     configure_imports(root, args.mplconfigdir)
 

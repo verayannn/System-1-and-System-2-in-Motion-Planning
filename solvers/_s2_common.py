@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+import ctypes
 from pathlib import Path
 from typing import Iterable, Sequence, Tuple
 
@@ -111,18 +112,52 @@ def acados_root_candidates() -> list[Path]:
 
 def detect_acados_root() -> Path | None:
     for root in acados_root_candidates():
-        if (root / "lib" / "link_libs.json").is_file() and (root / "lib" / "libacados.dylib").is_file():
+        if (root / "lib" / "libacados.dylib").is_file():
             return root
     return None
 
 
+def bootstrap_acados_backend() -> Path | None:
+    root = detect_acados_root()
+    if root is None:
+        return None
+
+    source_root = Path(__file__).resolve().parents[1] / "safe_control" / "acados"
+    os.environ.setdefault("ACADOS_SOURCE_DIR", str(root))
+    if source_root.exists():
+        os.environ.setdefault("ACADOS_PYTHON_INTERFACE_PATH", str(source_root / "interfaces" / "acados_template" / "acados_template"))
+    tera_path = root / "bin" / "t_renderer"
+    if tera_path.is_file():
+        os.environ.setdefault("TERA_PATH", str(tera_path))
+
+    lib_dir = root / "lib"
+    if lib_dir.is_dir():
+        current = os.environ.get("DYLD_LIBRARY_PATH", "")
+        parts = [str(lib_dir)]
+        if current:
+            parts.append(current)
+        os.environ["DYLD_LIBRARY_PATH"] = ":".join(parts)
+
+        current_fb = os.environ.get("DYLD_FALLBACK_LIBRARY_PATH", "")
+        fb_parts = [str(lib_dir)]
+        if current_fb:
+            fb_parts.append(current_fb)
+        os.environ["DYLD_FALLBACK_LIBRARY_PATH"] = ":".join(fb_parts)
+
+        for lib_name in ("libacados.dylib", "libblasfeo.dylib", "libhpipm.dylib"):
+            lib_path = lib_dir / lib_name
+            if lib_path.is_file():
+                try:
+                    ctypes.CDLL(str(lib_path), mode=getattr(ctypes, "RTLD_GLOBAL", 0))
+                except Exception:
+                    pass
+    return root
+
+
 def ensure_acados_template_path() -> Path:
     source_root = Path(__file__).resolve().parents[1] / "safe_control" / "acados"
-    backend_root = detect_acados_root() or source_root
+    backend_root = bootstrap_acados_backend() or source_root
     template_path = source_root / "interfaces" / "acados_template"
-
-    if "ACADOS_SOURCE_DIR" not in os.environ and backend_root.exists():
-        os.environ["ACADOS_SOURCE_DIR"] = str(backend_root)
 
     if template_path.exists():
         template_path_str = str(template_path)
