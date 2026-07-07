@@ -433,16 +433,24 @@ def solve_benchmark_case(
         s1_solver.calculate_correctness(problem_name)
         attempts.append(_attempt_record(f"s1_{s1}", "s1", s1, s1_solver, scenario))
 
+    s1_attempted = run_type in {"s1", "sofai"}
+    s2_attempted = False
+    s2_skipped = False
+
     if run_type == "s2":
         s2_solver.solve(problem_name, 10**9)
         s2_solver.calculate_correctness(problem_name)
         attempts.append(_attempt_record(f"s2_{s2}", "s2", s2, s2_solver, scenario))
+        s2_attempted = True
     elif run_type == "sofai":
         need_s2 = run_all_attempts or not attempts or not attempts[0].get("success", False)
         if need_s2:
             s2_solver.solve(problem_name, 10**9)
             s2_solver.calculate_correctness(problem_name)
             attempts.append(_attempt_record(f"s2_{s2}", "s2", s2, s2_solver, scenario))
+            s2_attempted = True
+        else:
+            s2_skipped = True
 
     selected = attempts[0] if run_type in {"s1", "s2"} else next((a for a in attempts if a.get("success")), attempts[-1] if attempts else None)
     running_time = time.time() - timer
@@ -459,6 +467,9 @@ def solve_benchmark_case(
         "s2": s2,
         "scenario": _scenario_payload(scenario, scenario_id),
         "attempts": attempts,
+        "s1_attempted": s1_attempted,
+        "s2_attempted": s2_attempted,
+        "s2_skipped": s2_skipped,
         "selected_attempt": None if selected is None else selected["name"],
         "success": bool(selected and selected.get("success")),
         "collision_free": bool(selected and selected.get("collision_free")),

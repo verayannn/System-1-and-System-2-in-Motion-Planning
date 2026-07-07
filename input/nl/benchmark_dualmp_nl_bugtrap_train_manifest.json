@@ -1,8 +1,8 @@
 {
   "prefix": "benchmark_dualmp_nl_bugtrap_train",
   "seed": 7,
-  "root": "/Users/apple/Desktop/sofai",
-  "input_dir": "/Users/apple/Desktop/sofai/input/nl",
+  "root": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning",
+  "input_dir": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning/input/nl",
   "n_per_family": 100,
   "total_scenarios": 100,
   "families": [
@@ -10,7 +10,7 @@
       "family": "bugtrap",
       "difficulty": "hard",
       "count": 100,
-      "file": "/Users/apple/Desktop/sofai/input/nl/benchmark_dualmp_nl_bugtrap_train_bugtrap.json",
+      "file": "/Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning/input/nl/benchmark_dualmp_nl_bugtrap_train_bugtrap.json",
       "scenario_ids": [
         0,
         99

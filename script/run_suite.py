@@ -14,6 +14,17 @@ successful trajectory in each block.
 
 python script/run_suite.py --workers 3
 
+
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/private/tmp/mpl \
+python script/run_suite.py \
+  --dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
+  --bootstrap_results_dir output/bootstrap_dense_clutter_nl \
+  --assets_dir db/by_env/dense_clutter_nl \
+  --out_dir output/benchmark_runs/nl_dense_clutter_suite \
+  --scenario_ids 0-499 \
+  --workers 3 \
+  --configs sofai_mpc_cl
+
 """
 
 from __future__ import annotations
@@ -26,24 +37,25 @@ import sys
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
 
-MODES = ("s1_neural", "s2_cbf", "s2_mpc")
+## MODES = ("s1_neural", "s2_cbf", "s2_mpc")
 
 ## MODES = ("s1_neural",)
 
-## MODES = ("s1_neural", "s2_cbf", "s2_mpc", "sofai_cbf_cl", "sofai_mpc_cl")
+MODES = ("s1_neural", "s2_mpc", "s2_cbf", "sofai_cbf_cl", "sofai_mpc_cl")
+
 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", default=Path(__file__).resolve().parents[1])
     p.add_argument("--python", default=sys.executable)
-    p.add_argument("--dictionary", default="input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json")
-    p.add_argument("--bootstrap_results_dir", default="output/bootstrap_dense_clutter_nl")
+    p.add_argument("--dictionary", default="input/nl/benchmark_dualmp_nl_bugtrap_eval_bugtrap.json")
+    p.add_argument("--bootstrap_results_dir", default="output/bootstrap_bugtrap_nl")
     p.add_argument("--scenario_ids", default="0-499")
     p.add_argument("--block_size", type=int, default=100) ## block size for continual learning: continual learning happens after a block finishes
     p.add_argument("--configs", nargs="+", default=list(MODES))
-    p.add_argument("--assets_dir", default="db/by_env/dense_clutter_nl")
-    p.add_argument("--out_dir", default="output/benchmark_runs/nl_dense_clutter_suite")
+    p.add_argument("--assets_dir", default="db/by_env/bugtrap_nl")
+    p.add_argument("--out_dir", default="output/benchmark_runs/nl_bugtrap_suite")
     p.add_argument("--timeout_sec", type=float, default=60.0)
     p.add_argument("--workers", type=int, default=1)
     p.add_argument("--s1_model", default="")
@@ -348,7 +360,6 @@ def main() -> None:
                     env={**env, "SOFAI_NEW_S1_MODEL": str(current_model)},
                     timeout_sec=args.timeout_sec,
                     workers=workers,
-                    run_all_attempts=True,
                     dry_run=args.dry_run,
                 )
                 cumulative_jsonls.append(block_jsonl)

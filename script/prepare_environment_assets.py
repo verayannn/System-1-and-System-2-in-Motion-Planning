@@ -16,7 +16,7 @@ python script/prepare_environment_assets.py \
 
 PYTHONDONTWRITEBYTECODE=1 \
 python script/prepare_environment_assets.py \
-  --family dense_clutter \
+  --families dense_clutter bugtrap \
   --s2_solver cbf
 
 

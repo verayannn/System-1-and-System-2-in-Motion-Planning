@@ -423,10 +423,22 @@ def main() -> None:
 
     def print_result(result: Dict[str, Any], i: int) -> None:
         wall = float(result.get("wall_runtime_sec", result.get("runtime_sec", 0.0)))
+        run_type = str(result.get("run_type", ""))
+        if run_type == "sofai":
+            if result.get("s2_skipped", False):
+                s2_state = "skipped"
+            elif result.get("s2_attempted", False):
+                s2_state = "used"
+            else:
+                s2_state = "not_run"
+        elif run_type == "s2":
+            s2_state = "selected"
+        else:
+            s2_state = "n/a"
         print(
             f"[done {i}/{len(planned)}] {result.get('dictionary')} scenario={result.get('scenario_id')} "
             f"status={result.get('status')} selected={result.get('selected_attempt') or 'none'} "
-            f"success={result.get('success', False)} wall_runtime={wall:.2f}s"
+            f"s2={s2_state} success={result.get('success', False)} wall_runtime={wall:.2f}s"
         )
         if result.get("status") != "ok" and result.get("error_message"):
             print(f"[message] {result['error_message']}")

@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import sys
 import ctypes
+import shutil
 from pathlib import Path
 from typing import Iterable, Sequence, Tuple
 
@@ -126,11 +127,28 @@ def bootstrap_acados_backend() -> Path | None:
     os.environ.setdefault("ACADOS_SOURCE_DIR", str(root))
     if source_root.exists():
         os.environ.setdefault("ACADOS_PYTHON_INTERFACE_PATH", str(source_root / "interfaces" / "acados_template" / "acados_template"))
+    lib_dir = root / "lib"
+    src_lib_dir = source_root / "lib"
+    if src_lib_dir.is_dir():
+        lib_dir.mkdir(parents=True, exist_ok=True)
+        src_link_libs = src_lib_dir / "link_libs.json"
+        dst_link_libs = lib_dir / "link_libs.json"
+        if src_link_libs.is_file() and not dst_link_libs.is_file():
+            shutil.copy2(src_link_libs, dst_link_libs)
+
     tera_path = root / "bin" / "t_renderer"
+    if not tera_path.is_file():
+        src_tera = source_root / "bin" / "t_renderer"
+        if src_tera.is_file():
+            tera_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src_tera, tera_path)
+            try:
+                tera_path.chmod(0o755)
+            except Exception:
+                pass
     if tera_path.is_file():
         os.environ.setdefault("TERA_PATH", str(tera_path))
 
-    lib_dir = root / "lib"
     if lib_dir.is_dir():
         current = os.environ.get("DYLD_LIBRARY_PATH", "")
         parts = [str(lib_dir)]

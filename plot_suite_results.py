@@ -6,13 +6,13 @@ Plot block-wise success rates and runtimes for suite results.
 
 python plot_suite_results.py\
   --suite_dir output/benchmark_runs/nl_bugtrap_suite \
-  --configs s1_neural s2_cbf s2_mpc\
+  --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl\
   --out output/benchmark_runs/nl_bugtrap_suite/results_by_block.png
 
   
 python plot_suite_results.py\
   --suite_dir output/benchmark_runs/nl_dense_clutter_suite \
-  --configs s1_neural s2_cbf s2_mpc\
+  --configs sofai_mpc_cl\
   --out output/benchmark_runs/nl_dense_clutter_suite/results_by_block.png
 
   
