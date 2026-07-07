@@ -1,0 +1,667 @@
+%
+% Copyright (c) The acados authors.
+%
+% This file is part of acados.
+%
+% The 2-Clause BSD License
+%
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions are met:
+%
+% 1. Redistributions of source code must retain the above copyright notice,
+% this list of conditions and the following disclaimer.
+%
+% 2. Redistributions in binary form must reproduce the above copyright notice,
+% this list of conditions and the following disclaimer in the documentation
+% and/or other materials provided with the distribution.
+%
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+% ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+% LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+% CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+% SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+% INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+% CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+% ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+% POSSIBILITY OF SUCH DAMAGE.;
+
+%
+
+classdef AcadosMultiphaseOcp < handle
+    properties
+        N_list
+        n_phases
+        N_horizon
+
+        phases_dims
+        cost
+        constraints
+        solver_options
+        mocp_opts
+        dummy_ocp_list
+
+        model
+        parameter_values % initial value of the parameter
+        p_global_values % initial value of global parameters
+        problem_class
+        simulink_opts
+        name
+
+        % detected fields
+        start_idx
+        end_idx
+        cost_start_idx
+
+        external_function_files_ocp
+        external_function_files_model
+
+        code_gen_opts
+        % moved to code_gen_opts, kept for backward compatibility, remove in future
+        code_export_directory
+        json_file
+        % meta
+        json_loaded
+    end
+    methods
+        function obj = AcadosMultiphaseOcp(N_list)
+            if any(N_list < 1)
+                error('N_list must be a list of positive integers');
+            end
+            n_phases = length(N_list);
+            obj.n_phases = n_phases;
+            obj.N_list = N_list;
+            obj.N_horizon = sum(N_list);
+
+            obj.phases_dims = cell(n_phases, 1);
+            obj.cost = cell(n_phases, 1);
+            obj.constraints = cell(n_phases, 1);
+            obj.model = cell(n_phases, 1);
+
+            for i=1:n_phases
+                obj.phases_dims{i} = AcadosOcpDims();
+                obj.cost{i} = AcadosOcpCost();
+                obj.constraints{i} = AcadosOcpConstraints();
+                obj.model{i} = AcadosModel();
+            end
+
+            obj.dummy_ocp_list = cell(n_phases, 1);
+
+            obj.solver_options = AcadosOcpOptions();
+            obj.solver_options.N_horizon = obj.N_horizon; % NOTE: to not change options when making ocp consistent
+
+            obj.mocp_opts = AcadosMultiphaseOptions();
+            obj.code_gen_opts = AcadosCodeGenOpts();
+
+            obj.parameter_values = cell(n_phases, 1);
+            obj.p_global_values = [];
+            obj.problem_class = 'MOCP';
+            obj.simulink_opts = [];
+            obj.name = 'ocp';
+
+            % kept for backward compatibility
+            obj.json_file = '';
+            obj.code_export_directory = '';
+            obj.json_loaded = false;
+        end
+
+
+        function set_phase(self, ocp, phase_idx)
+            % Note: phase_idx is 1-indexed in contrast to Python!
+            if phase_idx > self.n_phases
+                error('phase_idx must be less than or equal to the number of phases');
+            end
+
+            % Check solver options
+            non_default_opts = find_non_default_fields_of_obj(ocp.solver_options);
+
+            if ~isempty(non_default_opts)
+                fprintf('WARNING: set_phase: Phase %d contains non-default solver options: %s, which will be ignored.\n', ...
+                        phase_idx, strjoin(non_default_opts, ', '));
+                fprintf('Solver options need to be set via AcadosMultiphaseOcp.solver_options and via AcadosMultiphaseOcp.mocp_opts for options that can only vary in MOCP.\n');
+            end
+
+            % set phase
+            self.model{phase_idx} = ocp.model;
+            self.cost{phase_idx} = ocp.cost;
+            self.constraints{phase_idx} = ocp.constraints;
+            self.parameter_values{phase_idx} = ocp.parameter_values;
+
+            if ~isempty(self.p_global_values)
+                fprintf('WARNING: set_phase: Phase %d contains p_global values which will be ignored.\n', phase_idx);
+            end
+        end
+
+        function make_consistent(self)
+            % migrate deprecated top-level fields into code_gen_opts (backward compatibility)
+            deprecated_fields = {'json_file', 'code_export_directory'};
+
+            for i = 1:length(deprecated_fields)
+                fld = deprecated_fields{i};
+
+                old_val = self.(fld);
+                new_val = self.code_gen_opts.(fld);
+
+                if ~isempty(old_val)
+                    warning(['AcadosMultiphaseOcp.', fld, ' is deprecated, please use AcadosMultiphaseOcp.code_gen_opts.', fld, '.']);
+                    if ~isempty(new_val)
+                        warning(['Both AcadosMultiphaseOcp.', fld, ' and AcadosMultiphaseOcp.code_gen_opts.', fld, ' are set, using AcadosMultiphaseOcp.code_gen_opts.', fld, '.']);
+                    else
+                        self.code_gen_opts.(fld) = old_val;
+                    end
+                end
+            end
+
+            % set default json file name if not set
+            if isempty(self.code_gen_opts.json_file)
+                self.code_gen_opts.json_file = [self.name, '_mocp.json'];
+            end
+
+            self.code_gen_opts.make_consistent();
+
+            % check options
+            self.mocp_opts.make_consistent(self.solver_options, self.n_phases);
+
+            % check phases formulation objects are distinct
+            if ~is_octave() % octave does not support object comparison
+                for i=1:self.n_phases
+                    for j=i+1:self.n_phases
+                        if self.model{i} == self.model{j}
+                            error('model objects must be distinct for each phase');
+                        end
+                        if self.cost{i} == self.cost{j}
+                            error('cost objects must be distinct for each phase');
+                        end
+                        if self.constraints{i} == self.constraints{j}
+                            error('constraints objects must be distinct for each phase');
+                        end
+                    end
+                end
+            end
+
+            % check N_horizon
+            if self.N_horizon ~= sum(self.N_list)
+                error('N_horizon must be equal to the sum of N_list, N_horizon is detected automatically for AcadosMultiphaseOcp and should not be set manually.');
+            end
+
+            % compute phase indices
+            phase_idx = cumsum([0, self.N_list]);
+            self.start_idx = phase_idx(1:end-1);
+            self.end_idx = phase_idx(2:end);
+
+            self.cost_start_idx = phase_idx;
+            self.cost_start_idx(1) = self.cost_start_idx(1) + 1;
+
+            % make model names unique if necessary
+            model_name_list = cell(self.n_phases, 1);
+            for i=1:self.n_phases
+                model_name_list{i} = self.model{i}.name;
+            end
+            n_names = length(unique(model_name_list));
+            if n_names ~= self.n_phases
+                disp('model names are not unique: got');
+                disp(model_name_list);
+                disp('adding _i to model names');
+                for i=1:self.n_phases
+                    self.model{i}.name = [self.model{i}.name, '_', num2str(i)];
+                end
+                model_name_list = cell(self.n_phases, 1);
+                for i=1:self.n_phases
+                    model_name_list{i} = self.model{i}.name;
+                end
+                disp('new model names are');
+                disp(model_name_list);
+            end
+
+            % make phase OCPs consistent, warn about unused fields
+            for i=1:self.n_phases
+                ocp = AcadosOcp();
+                ocp.dims = self.phases_dims{i};
+                ocp.model = self.model{i};
+                ocp.constraints = self.constraints{i};
+                ocp.cost = self.cost{i};
+                ocp.parameter_values = self.parameter_values{i};
+                ocp.p_global_values = self.p_global_values;
+                ocp.solver_options = self.solver_options;
+
+                % set phase dependent options
+                ocp.solver_options.integrator_type = self.mocp_opts.integrator_type{i};
+                ocp.solver_options.collocation_type = self.mocp_opts.collocation_type{i};
+                ocp.solver_options.cost_discretization = self.mocp_opts.cost_discretization{i};
+
+                % check for non-default fields in terminal/initial phase that are not used
+                if i ~= self.n_phases % not terminal phase
+                    nondefault_fields = {};
+
+                    nondefault_fields = [nondefault_fields, find_non_default_fields_of_obj(ocp.cost, 'terminal')];
+                    nondefault_fields = [nondefault_fields, find_non_default_fields_of_obj(ocp.constraints, 'terminal')];
+                    nondefault_fields = [nondefault_fields, find_non_default_fields_of_obj(ocp.model, 'terminal')];
+
+                    if ~isempty(nondefault_fields)
+                        disp(['Phase ', num2str(i), ' contains non-default terminal fields: ', strjoin(nondefault_fields, ', '), ', which will be ignored.']);
+                    end
+                elseif i ~= 1 % not initial phase
+                    nondefault_fields = {};
+
+                    nondefault_fields = [nondefault_fields, find_non_default_fields_of_obj(ocp.cost, 'initial')];
+                    nondefault_fields = [nondefault_fields, find_non_default_fields_of_obj(ocp.constraints, 'initial')];
+                    nondefault_fields = [nondefault_fields, find_non_default_fields_of_obj(ocp.model, 'initial')];
+
+                    if ~isempty(nondefault_fields)
+                        disp(['Phase ', num2str(i), ' contains non-default initial fields: ', strjoin(nondefault_fields, ', '), ', which will be ignored.']);
+                    end
+                end
+
+                disp(['Calling make_consistent for phase ', num2str(i), '.']);
+                ocp.make_consistent(struct('phase_idx', i-1, 'n_phases', self.n_phases, 'N_list', self.N_list)); % pass 0-based index
+                % use the updated objects that are not handles
+                self.parameter_values{i} = ocp.parameter_values;
+
+                self.dummy_ocp_list{i} = ocp;
+            end
+
+
+            % check for transition consistency
+            nx_list = zeros(self.n_phases, 1);
+            for i=1:self.n_phases
+                nx_list(i) = self.phases_dims{i}.nx;
+            end
+            for i=2:self.n_phases
+                if nx_list(i) ~= nx_list(i-1)
+                    if self.phases_dims{i-1}.nx_next ~= self.phases_dims{i}.nx
+                        error(['detected stage transition with different nx from phase ', num2str(i-1), ' to ', num2str(i), ', which is only supported for nx_next = nx, got nx_next = ', num2str(self.phases_dims{i-1}.nx_next), ' and nx = ', num2str(self.phases_dims{i}.nx), '.']);
+                    end
+                    if self.N_list(i-1) ~= 1 || ~strcmp(self.mocp_opts.integrator_type{i-1}, 'DISCRETE')
+                        error(['detected stage transition with different nx from phase ', num2str(i-1), ' to ', num2, ', which is only supported for integrator_type=''DISCRETE'' and N_list[i] == 1.']);
+                    end
+                end
+            end
+        end
+
+        function template_list = get_template_list(self)
+            % returns a cell of cells in the form:
+            % (input_filename, output_filname)
+            % or
+            % (input_filename, output_filname, output_directory)
+
+            template_list = {};
+            template_list{end+1} = {'main_multi.in.c', ['main_', self.name, '.c']};
+            template_list{end+1} = {'acados_multi_solver.in.h', ['acados_solver_', self.name, '.h']};
+            template_list{end+1} = {'acados_multi_solver.in.c', ['acados_solver_', self.name, '.c']};
+            template_list{end+1} = {'multi_CMakeLists.in.txt', 'CMakeLists.txt'};
+            template_list{end+1} = {'multi_Makefile.in', 'Makefile'};
+
+            % MEX files
+            matlab_template_path = 'matlab_templates';
+            template_list{end+1} = {fullfile(matlab_template_path, 'mex_solver.in.m'), [self.name, '_mex_solver.m']};
+            template_list{end+1} = {fullfile(matlab_template_path, 'make_mex.in.m'), ['make_mex_', self.name, '.m']};
+            template_list{end+1} = {fullfile(matlab_template_path, 'acados_mex_create.in.c'), ['acados_mex_create_', self.name, '.c']};
+            template_list{end+1} = {fullfile(matlab_template_path, 'acados_mex_free.in.c'), ['acados_mex_free_', self.name, '.c']};
+            template_list{end+1} = {fullfile(matlab_template_path, 'acados_mex_solve.in.c'), ['acados_mex_solve_', self.name, '.c']};
+            template_list{end+1} = {fullfile(matlab_template_path, 'acados_mex_set.in.c'), ['acados_mex_set_', self.name, '.c']};
+            if self.phases_dims{1}.n_global_data > 0
+                template_list{end+1} = {'p_global_precompute_fun.in.h',  [self.name, '_p_global_precompute_fun.h']};
+            end
+            % Simulink
+            if ~isempty(self.simulink_opts)
+                template_list{end+1} = {fullfile(matlab_template_path, 'acados_solver_sfun.in.c'), ['acados_solver_sfunction_', self.name, '.c']};
+                template_list{end+1} = {fullfile(matlab_template_path, 'make_sfun.in.m'), ['make_sfun.m']};
+                % TODO: do we want to generate simulink sfun for sim solver?
+                % if ~strcmp(self.solver_options.integrator_type, 'DISCRETE')
+                %     template_list{end+1} = {fullfile(matlab_template_path, 'acados_sim_solver_sfun.in.c'), ['acados_sim_solver_sfunction_', self.name, '.c']};
+                %     template_list{end+1} = {fullfile(matlab_template_path, 'make_sfun_sim.in.m'), ['make_sfun_sim.m']};
+                % end
+                if self.simulink_opts.inputs.rti_phase && self.solver_options.nlp_solver_type ~= 'SQP_RTI'
+                    error('rti_phase is only supported for SQP_RTI');
+                end
+                inputs = self.simulink_opts.inputs;
+                nonsupported_mocp_inputs = {'y_ref', 'lg', 'ug', 'cost_W_0', 'cost_W', 'cost_W_e'};
+                for i=1:length(nonsupported_mocp_inputs)
+                    if inputs.(nonsupported_mocp_inputs{i})
+                        error(['Simulink inputs ', nonsupported_mocp_inputs{i}, ' are not supported for MOCP.']);
+                    end
+                end
+            else
+                disp("not rendering Simulink related templates, as simulink_opts are not specified.")
+            end
+        end
+
+        function context = generate_external_functions(self)
+
+            % make sure p_global is the same for all models
+            % NOTE: this is only done here to ensure persistent hash and `check_reuse_possible` works correctly
+            if self.n_phases > 1 && self.json_loaded
+                try
+                    pglob0 = self.model{1}.p_global;
+                    for i = 2:self.n_phases
+                        m = self.model{i};
+                        % try to substitute symbols in the model if supported
+                        if ismethod(m, 'substitute')
+                            m.substitute(m.p_global, pglob0);
+                        end
+                        % set p_global to the reference
+                        m.p_global = pglob0;
+                        self.model{i} = m;
+                    end
+                catch e
+                    error(['Failed to set p_global consistently for all models, maybe the loaded AcadosMultiphaseOcp is inconsistent:\n', getReport(e, 'basic')]);
+                end
+            end
+
+            % generate external functions
+            casadi_code_gen_opts = struct();
+            casadi_code_gen_opts.generate_hess = strcmp(self.solver_options.hessian_approx, 'EXACT');
+            casadi_code_gen_opts.with_solution_sens_wrt_params = self.solver_options.with_solution_sens_wrt_params;
+            casadi_code_gen_opts.with_value_sens_wrt_params = self.solver_options.with_value_sens_wrt_params;
+            casadi_code_gen_opts.code_export_directory = self.code_gen_opts.code_export_directory;
+            casadi_code_gen_opts.sens_forw_p = self.solver_options.sens_forw_p;
+
+            casadi_code_gen_opts.ext_fun_expand_dyn = self.solver_options.ext_fun_expand_dyn;
+            casadi_code_gen_opts.ext_fun_expand_cost = self.solver_options.ext_fun_expand_cost;
+            casadi_code_gen_opts.ext_fun_expand_constr = self.solver_options.ext_fun_expand_constr;
+            casadi_code_gen_opts.ext_fun_expand_precompute = self.solver_options.ext_fun_expand_precompute;
+            context = GenerateContext(self.model{1}.p_global, self.name, casadi_code_gen_opts);
+
+            for i=1:self.n_phases
+                disp(['generating external functions for phase ', num2str(i)]);
+                if i ~= self.n_phases
+                    ignore_terminal = true;
+                else
+                    ignore_terminal = false;
+                end
+
+                if i ~= 1
+                    ignore_initial = true;
+                else
+                    ignore_initial = false;
+                end
+
+                % this is the only option that can vary and influence external functions to be generated
+                self.dummy_ocp_list{i}.solver_options.integrator_type = self.mocp_opts.integrator_type{i};
+                self.dummy_ocp_list{i}.code_gen_opts.code_export_directory = self.code_gen_opts.code_export_directory;
+                context = self.dummy_ocp_list{i}.setup_code_generation_context(context, ignore_initial, ignore_terminal);
+            end
+
+            context.finalize();
+            self.external_function_files_model = context.get_external_function_file_list(false);
+            self.external_function_files_ocp = context.get_external_function_file_list(true);
+
+            for i=1:self.n_phases
+                self.phases_dims{i}.n_global_data = context.get_n_global_data();
+            end
+        end
+
+        function s = to_struct(self)
+            if exist('properties')
+                publicProperties = eval('properties(self)');
+            else
+                publicProperties = fieldnames(self);
+            end
+            s = struct();
+            for fi = 1:numel(publicProperties)
+                s.(publicProperties{fi}) = self.(publicProperties{fi});
+            end
+            % delete keys that should not be used
+            s = rmfield(s, 'dummy_ocp_list');
+            s.solver_options = self.solver_options.to_struct();
+            s.solver_options = rmfield(s.solver_options, 'integrator_type');
+            s.solver_options = rmfield(s.solver_options, 'collocation_type');
+            s.solver_options = rmfield(s.solver_options, 'cost_discretization');
+
+            % prepare struct for json dump
+            s.p_global_values = reshape(num2cell(self.p_global_values), [1, self.phases_dims{1}.np_global]);
+            for i=1:self.n_phases
+                s.parameter_values{i} = reshape(num2cell(self.parameter_values{i}), [1, self.phases_dims{i}.np]);
+                s.model{i} = self.model{i}.to_struct();
+                s.phases_dims{i} = orderfields(self.phases_dims{i}.to_struct());
+                s.cost{i} = orderfields(self.cost{i}.convert_to_struct_for_json_dump());
+                s.constraints{i} = orderfields(self.constraints{i}.convert_to_struct_for_json_dump());
+            end
+            s.solver_options = orderfields(self.solver_options.convert_to_struct_for_json_dump());
+            s.mocp_opts = orderfields(self.mocp_opts.to_struct());
+            s.code_gen_opts = orderfields(self.code_gen_opts.to_struct());
+
+            vector_fields = {'model', 'phases_dims', 'cost', 'constraints', 'parameter_values', 'p_global_values'};
+            s = prepare_struct_for_json_dump(s, vector_fields, {});
+            s = orderfields(s);
+        end
+
+        function dump_to_json(self)
+            s = self.to_struct();
+
+            % add hash
+            s.hash = hash_struct(s);
+
+            % actual json dump
+            json_file = self.code_gen_opts.json_file;
+            json_string = savejson('', s, 'ForceRootName', 0);
+            fid = fopen(json_file, 'w');
+            if fid == -1, error('Cannot create JSON file'); end
+            fwrite(fid, json_string, 'char');
+            fclose(fid);
+        end
+
+        function render_templates(self)
+
+            main_dir = pwd;
+            chdir(self.code_gen_opts.code_export_directory);
+
+            % model templates
+            for i=1:self.n_phases
+                % this is the only option that can vary and influence external functions to be generated
+                self.dummy_ocp_list{i}.solver_options.integrator_type = self.mocp_opts.integrator_type{i};
+
+                template_list = self.dummy_ocp_list{i}.get_external_function_header_templates();
+                % dump dummy_ocp
+                tmp_json_file = 'tmp_ocp.json';
+                self.dummy_ocp_list{i}.dump_to_json(tmp_json_file);
+                tmp_json_path = fullfile(pwd, tmp_json_file);
+
+                for j = 1:length(template_list)
+                    in_file = template_list{j}{1};
+                    out_file = template_list{j}{2};
+                    if length(template_list{j}) == 3
+                        out_dir = template_list{j}{3};
+                        if ~(exist(out_dir, 'dir'))
+                            mkdir(out_dir);
+                        end
+                        out_file = fullfile(out_dir, out_file);
+                    end
+                    render_file( in_file, out_file, tmp_json_path );
+                end
+            end
+            disp('rendered model templates successfully');
+
+            % check json file
+            if ~(exist(self.code_gen_opts.json_file, 'file'))
+                error(['Path "', self.code_gen_opts.json_file, '" not found!']);
+            end
+
+            % solver templates
+            template_list = self.get_template_list();
+
+            % Render templates
+            for i = 1:length(template_list)
+                in_file = template_list{i}{1};
+                out_file = template_list{i}{2};
+                if length(template_list{i}) == 3
+                    out_dir = template_list{i}{3};
+                    if ~(exist(out_dir, 'dir'))
+                        mkdir(out_dir);
+                    end
+                    out_file = fullfile(out_dir, out_file);
+                end
+                render_file( in_file, out_file, self.code_gen_opts.json_file );
+            end
+
+            disp('rendered solver templates successfully!');
+            cd(main_dir);
+        end
+    end % methods
+
+    methods (Static)
+        function obj = from_struct(s)
+            % Create AcadosMultiphaseOcp from a struct (e.g. decoded from JSON).
+            if ~isstruct(s)
+                error('from_struct input must be a struct.');
+            end
+
+            % N_list is required by the constructor
+            if ~isfield(s, 'N_list') || isempty(s.N_list)
+                error('Failed to load MOCP from struct: missing N_list field.');
+            end
+
+            obj = AcadosMultiphaseOcp(s.N_list);
+
+            % Handle postprocessing for arrays that were preprocessed for JSON
+            % But exclude the nested object fields from vector processing
+            vector_fields = {};
+            % matrix_fields = {'p_global_values'};
+            matrix_fields = {};
+            s = postprocess_struct_from_json_dump(s, vector_fields, matrix_fields);
+
+            fields = fieldnames(s);
+            for fi = 1:numel(fields)
+                f = fields{fi};
+
+                % Handle cell arrays of nested objects
+                if ismember(f, {'model', 'cost', 'constraints', 'phases_dims'})
+                    field_list = s.(f);
+                    if isempty(field_list)
+                        error('Failed to load MOCP from struct. Field %s is not provided.', f);
+                    end
+
+                    % Ensure field_list is a cell array
+                    if ~iscell(field_list)
+                        % If it's a struct array, convert to cell array
+                        if isstruct(field_list)
+                            temp_cell = cell(length(field_list), 1);
+                            for j = 1:length(field_list)
+                                temp_cell{j} = field_list(j);
+                            end
+                            field_list = temp_cell;
+                        else
+                            error('Expected cell array or struct array for field %s', f);
+                        end
+                    end
+
+                    new_list = cell(length(field_list), 1);
+                    for i = 1:length(field_list)
+                        item = field_list{i};
+                        % Get the target class type from the object we created
+                        target_list = obj.(f);
+                        target_class = class(target_list{i});
+                        % Call the from_struct method of the corresponding class
+                        fh = str2func([target_class '.from_struct']);
+                        new_list{i} = fh(item);
+                    end
+                    obj.(f) = new_list;
+
+                % Handle single nested objects that have from_struct
+                elseif ismember(f, {'solver_options', 'mocp_opts', 'code_gen_opts'})
+                    field_struct = s.(f);
+                    if isempty(field_struct)
+                        error('Failed to load MOCP from struct. Field %s is not provided.', f);
+                    end
+                    target_obj = obj.(f);
+                    target_class = class(target_obj);
+                    fh = str2func([target_class '.from_struct']);
+                    obj.(f) = fh(field_struct);
+
+                % Handle parameter arrays (list of arrays) - special case
+                elseif strcmp(f, 'parameter_values')
+                    pv = s.(f);
+                    if isempty(pv)
+                        % Set to empty cell array if not provided
+                        obj.(f) = cell(obj.n_phases, 1);
+                    else
+                        % postprocess_struct_from_json_dump converts this to a matrix,
+                        % but we need a cell array of arrays for each phase
+                        if ~iscell(pv)
+                            % Convert back to cell array structure
+                            pv_cell = cell(obj.n_phases, 1);
+                            % Assume each phase has the same number of parameters
+                            if ~isempty(pv)
+                                n_params_per_phase = length(pv) / obj.n_phases;
+                                for i = 1:obj.n_phases
+                                    start_idx = (i-1) * n_params_per_phase + 1;
+                                    end_idx = i * n_params_per_phase;
+                                    pv_cell{i} = pv(start_idx:end_idx);
+                                end
+                            end
+                            obj.(f) = pv_cell;
+                        else
+                            % Already a cell array, process each element
+                            new_pv = cell(length(pv), 1);
+                            for i = 1:length(pv)
+                                if iscell(pv{i})
+                                    new_pv{i} = cell2mat(pv{i});
+                                else
+                                    new_pv{i} = pv{i};
+                                end
+                                if ~isempty(new_pv{i})
+                                    new_pv{i} = reshape(new_pv{i}, [length(new_pv{i}), 1]);
+                                end
+                            end
+                            obj.(f) = new_pv;
+                        end
+                    end
+
+                elseif strcmp(f, 'p_global_values')
+                    % This should be handled by postprocess_struct_from_json_dump
+                    % but let's be safe
+                    pg = s.(f);
+                    if iscell(pg)
+                        pg = cell2mat(pg);
+                    end
+                    if ~isempty(pg)
+                        obj.(f) = reshape(pg, [length(pg), 1]);
+                    else
+                        obj.(f) = [];
+                    end
+
+                elseif strcmp(f, 'hash')
+                    % skip hash field
+                    if ischar(s.hash)
+                        hash_str = s.hash;
+                    else
+                        hash_str = num2str(s.hash);
+                    end
+                    % disp(['Skipping hash field in AcadosMultiphaseOcp.from_struct, got ', hash_str]);
+                    continue
+
+                else
+                    % Direct assignment for simple fields
+                    try
+                        obj.(f) = s.(f);
+                    catch
+                        % ignore unknown fields
+                        warning(['Could not assign field ' f ' in AcadosMultiphaseOcp.from_struct']);
+                    end
+                end
+            end
+        end
+
+        function obj = from_json(json_file)
+            % Create AcadosMultiphaseOcp from a json file.
+
+            % jsonlab
+            acados_folder = getenv('ACADOS_INSTALL_DIR');
+            addpath(fullfile(acados_folder, 'external', 'jsonlab'))
+
+            if ~exist(json_file, 'file')
+                error('json file "%s" not found.', json_file);
+            end
+
+            % decode json (expects loadjson available in repo)
+            data = loadjson(fileread(json_file), 'SimplifyCell', 0);
+
+            % set absolute-ish json_file path for consistency
+            % data.json_file = json_file;
+
+            obj = AcadosMultiphaseOcp.from_struct(data);
+            obj.json_loaded = true;
+        end
+    end % static methods
+end

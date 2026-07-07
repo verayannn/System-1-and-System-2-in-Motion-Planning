@@ -1,0 +1,404 @@
+#
+# Copyright (c) The acados authors.
+#
+# This file is part of acados.
+#
+# The 2-Clause BSD License
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.;
+#
+
+
+import sys
+sys.path.insert(0, '../common')
+
+from acados_template import AcadosOcp, AcadosOcpSolver, AcadosSim, AcadosSimSolver, plot_trajectories
+from pendulum_model import export_pendulum_ode_model
+from utils import plot_pendulum
+import numpy as np
+import scipy.linalg
+from casadi import vertcat
+
+
+REAL_TIME_ALGORITHMS = ["RTI", "AS-RTI-A", "AS-RTI-B", "AS-RTI-C", "AS-RTI-D"]
+ALGORITHMS = ["SQP"] + REAL_TIME_ALGORITHMS
+
+def setup(x0, Fmax, N_horizon, Tf, algorithm, as_rti_iter=1):
+    print(f'running with algorithm: {algorithm}, as_rti_iter: {as_rti_iter}')
+    # create ocp object to formulate the OCP
+    ocp = AcadosOcp()
+
+    # set model
+    model = export_pendulum_ode_model()
+    ocp.model = model
+
+    nx = model.x.rows()
+    nu = model.u.rows()
+    ny = nx + nu
+    ny_e = nx
+
+    ocp.solver_options.N_horizon = N_horizon
+
+    # set cost module
+    ocp.cost.cost_type = 'NONLINEAR_LS'
+    ocp.cost.cost_type_e = 'NONLINEAR_LS'
+
+    Q_mat = 2*np.diag([1e3, 1e3, 1e-2, 1e-2])
+    R_mat = 2*np.diag([1e-2])
+
+    ocp.cost.W = scipy.linalg.block_diag(Q_mat, R_mat)
+    ocp.cost.W_e = Q_mat
+
+    ocp.model.cost_y_expr = vertcat(model.x, model.u)
+    ocp.model.cost_y_expr_e = model.x
+    ocp.cost.yref  = np.zeros((ny, ))
+    ocp.cost.yref_e = np.zeros((ny_e, ))
+
+    # set constraints
+    ocp.constraints.lbu = np.array([-Fmax])
+    ocp.constraints.ubu = np.array([+Fmax])
+
+    ocp.constraints.x0 = x0
+    ocp.constraints.idxbu = np.array([0])
+
+    ocp.solver_options.qp_solver = 'PARTIAL_CONDENSING_HPIPM' # FULL_CONDENSING_QPOASES
+    ocp.solver_options.hessian_approx = 'GAUSS_NEWTON'
+    ocp.solver_options.integrator_type = 'IRK'
+    ocp.solver_options.sim_method_newton_iter = 10
+
+    ocp.translate_nls_cost_to_conl()
+
+    if algorithm in REAL_TIME_ALGORITHMS:
+        ocp.solver_options.nlp_solver_type = 'SQP_RTI'
+    else:
+        ocp.solver_options.nlp_solver_type = 'SQP'
+
+    if algorithm == "AS-RTI-A":
+        ocp.solver_options.as_rti_iter = as_rti_iter
+        ocp.solver_options.as_rti_level = 0
+    elif algorithm == "AS-RTI-B":
+        ocp.solver_options.as_rti_iter = as_rti_iter
+        ocp.solver_options.as_rti_level = 1
+    elif algorithm == "AS-RTI-C":
+        ocp.solver_options.as_rti_iter = as_rti_iter
+        ocp.solver_options.as_rti_level = 2
+    elif algorithm == "AS-RTI-D":
+        ocp.solver_options.as_rti_iter = as_rti_iter
+        ocp.solver_options.as_rti_level = 3
+
+    ocp.solver_options.qp_solver_cond_N = N_horizon
+
+    # set prediction horizon
+    ocp.solver_options.tf = Tf
+
+    solver_json = 'acados_ocp_' + model.name + '.json'
+    acados_ocp_solver = AcadosOcpSolver(ocp, json_file = solver_json, verbose=False)
+
+    # create an integrator with the same settings as used in the OCP solver.
+    acados_integrator = AcadosSimSolver(ocp, json_file = solver_json)
+
+    return acados_ocp_solver, acados_integrator
+
+
+def main(algorithm='RTI', as_rti_iter=1):
+
+    x0 = np.array([0.0, np.pi, 0.0, 0.0])
+    Fmax = 80
+
+    Tf = .8
+    N_horizon = 40
+
+    ocp_solver, integrator = setup(x0, Fmax, N_horizon, Tf, algorithm, as_rti_iter)
+
+    nx = ocp_solver.ocp.dims.nx
+    nu = ocp_solver.ocp.dims.nu
+
+    Nsim = 100
+    simX = np.zeros((Nsim+1, nx))
+    simU = np.zeros((Nsim, nu))
+
+    simX[0,:] = x0
+
+    if algorithm != "SQP":
+        t_preparation = np.zeros((Nsim))
+        t_feedback = np.zeros((Nsim))
+
+    else:
+        t = np.zeros((Nsim))
+
+    # closed loop
+    for i in range(Nsim):
+
+        if algorithm != "SQP":
+            # preparation phase
+            ocp_solver.options_set('rti_phase', 1)
+            status = ocp_solver.solve()
+            t_preparation[i] = ocp_solver.get_stats('time_tot')
+
+            if status not in [0, 2, 5]:
+                raise Exception(f'acados returned status {status}. Exiting.')
+
+            # set initial state
+            ocp_solver.set(0, "lbx", simX[i, :])
+            ocp_solver.set(0, "ubx", simX[i, :])
+
+            # feedback phase
+            ocp_solver.options_set('rti_phase', 2)
+            status = ocp_solver.solve()
+            t_feedback[i] = ocp_solver.get_stats('time_tot')
+
+            simU[i, :] = ocp_solver.get(0, "u")
+
+        else:
+            # solve ocp and get next control input
+            simU[i,:] = ocp_solver.solve_for_x0(x0_bar = simX[i, :])
+            status = ocp_solver.status
+
+            t[i] = ocp_solver.get_stats('time_tot')
+
+        # test getting residuals
+        _ = ocp_solver.get_residuals()
+
+        if status not in [0, 2, 5]:
+            raise Exception(f'acados returned status {status}. Exiting.')
+        # simulate system
+        simX[i+1, :] = integrator.simulate(x=simX[i, :], u=simU[i,:])
+
+    # evaluate timings
+    if algorithm != "SQP":
+        # scale to milliseconds
+        t_preparation *= 1000
+        t_feedback *= 1000
+        print(f'Computation time in preparation phase in ms: \
+                min {np.min(t_preparation):.3f} median {np.median(t_preparation):.3f} max {np.max(t_preparation):.3f}')
+        print(f'Computation time in feedback phase in ms:    \
+                min {np.min(t_feedback):.3f} median {np.median(t_feedback):.3f} max {np.max(t_feedback):.3f}')
+    else:
+        # scale to milliseconds
+        t *= 1000
+        print(f'Computation time in ms: min {np.min(t):.3f} median {np.median(t):.3f} max {np.max(t):.3f}')
+
+    # plot results
+    plot_pendulum(np.linspace(0, (Tf/N_horizon)*Nsim, Nsim+1), Fmax, simU, simX, title=algorithm)
+
+    # check terminal state
+    if algorithm == "RTI":
+        x_terminal_ref = np.array([-0.01402487, -0.02343146,  0.00874453,  0.07601564])
+    else:
+        x_terminal_ref = np.array([-0.0028129 , -0.00106827,  0.00653341,  0.00663193])
+
+    x_terminal = simX[-1, :]
+    if np.linalg.norm(x_terminal - x_terminal_ref) > 1e-3:
+        raise Exception(f"Terminal state {x_terminal} does not match reference {x_terminal_ref}. Exiting.")
+    else:
+        print(f"Terminal state {x_terminal} matches reference {x_terminal_ref}. Test passed.")
+
+    # delete solver
+    ocp_solver = None
+
+
+def create_fine_integrator(dt):
+    sim = AcadosSim()
+    sim.model = export_pendulum_ode_model()
+    sim.model.name += 'fine'
+    sim.solver_options.integrator_type = "IRK"
+    sim.solver_options.T = dt
+    return AcadosSimSolver(sim)
+
+def simulation_loop(integrator: AcadosSimSolver, x0, u, N):
+    nx = integrator.acados_sim.dims.nx
+    simX = np.zeros((N+1, nx))
+    simX[0, :] = x0
+    for k in range(N):
+        simX[k+1, :] = integrator.simulate(simX[k, :], u)
+    return simX
+
+
+
+def convergence_over_time_plot(algorithm='RTI', as_rti_iter=1, self_contained=True, plot_idx=None):
+
+    if plot_idx is None:
+        plot_idx = range(1, 20)
+
+    x0 = np.array([0.0, np.pi, 0.0, 0.0])
+    Fmax = 80
+
+    Tf = .8
+    N_horizon = 40
+
+    ocp_solver, integrator = setup(x0, Fmax, N_horizon, Tf, algorithm, as_rti_iter)
+    model = integrator.acados_sim.model
+
+
+    ocp = ocp_solver.acados_ocp
+    dt_plant = ocp_solver.ocp.solver_options.time_steps[0]
+
+    n_fine = 25
+    fine_integrator = create_fine_integrator(dt_plant/n_fine)
+
+    nx = ocp_solver.ocp.dims.nx
+    nu = ocp_solver.ocp.dims.nu
+
+    Nsim = 100
+    simX = np.zeros((Nsim+1, nx))
+    simU = np.zeros((Nsim, nu))
+    simT = np.cumsum([0] + Nsim * [dt_plant])
+
+    simX[0,:] = x0
+
+    if algorithm != "SQP":
+        t_preparation = np.zeros((Nsim))
+        t_feedback = np.zeros((Nsim))
+
+    else:
+        t = np.zeros((Nsim))
+
+    # closed loop
+    for i in range(Nsim):
+
+        if algorithm != "SQP":
+            # preparation phase
+            ocp_solver.options_set('rti_phase', 1)
+            status = ocp_solver.solve()
+            t_preparation[i] = ocp_solver.get_stats('time_tot')
+
+            if status not in [0, 2, 5]:
+                raise Exception(f'acados returned status {status}. Exiting.')
+
+            # set initial state
+            ocp_solver.set(0, "lbx", simX[i, :])
+            ocp_solver.set(0, "ubx", simX[i, :])
+
+            # feedback phase
+            ocp_solver.options_set('rti_phase', 2)
+            status = ocp_solver.solve()
+            t_feedback[i] = ocp_solver.get_stats('time_tot')
+
+            simU[i, :] = ocp_solver.get(0, "u")
+
+        else:
+            # solve ocp and get next control input
+            simU[i,:] = ocp_solver.solve_for_x0(x0_bar = simX[i, :])
+            status = ocp_solver.get_status()
+
+            t[i] = ocp_solver.get_stats('time_tot')
+
+        if status not in [0, 2, 5]:
+            raise Exception(f'acados returned status {status}. Exiting.')
+        # simulate system
+        simX[i+1, :] = integrator.simulate(x=simX[i, :], u=simU[i,:])
+
+        # plot
+        algorithm_str = algorithm
+        if algorithm.startswith("AS-RTI") and algorithm != "AS-RTI-A":
+            algorithm_str = f"{algorithm}-{as_rti_iter}"
+        iterate = ocp_solver.store_iterate_to_obj()
+
+        if i in plot_idx:
+            x_traj_list = [simX[:i+1, :]]
+            u_traj_list = [simU[:i, :]]
+            time_traj_list = [simT[:i+1]]
+            colors = ['C0']
+            linestyle_list = ['-']
+            labels = ['realized']
+            for k in range(N_horizon):
+                u = iterate.u_traj[k]
+                simX_k = simulation_loop(fine_integrator, iterate.x_traj[k], u, n_fine)
+
+                x_traj_list.append(simX_k)
+                time_traj_list.append(
+                    np.linspace(simT[i]+ocp.solver_options.shooting_nodes[k], simT[i]+ocp.solver_options.shooting_nodes[k+1], n_fine+1))
+
+                # plot u separately as proper stairs instead.
+                u_traj_list.append(np.inf * np.tile(u, (n_fine, 1)))
+
+                colors.append('C1')
+                linestyle_list.append('--')
+                if k == 0:
+                    labels.append('planned')
+                else:
+                    labels.append(None)
+
+            # append u planned horizon:
+            u_traj_list.append(np.array(iterate.u_traj))
+            x_traj_list.append(np.inf * np.array(iterate.x_traj))
+            labels.append(None)
+            time_traj_list.append(simT[i]+ocp.solver_options.shooting_nodes)
+            colors.append('C1')
+            linestyle_list.append('--')
+
+            x_labels=model.x_labels
+            u_labels=model.u_labels
+            show_legend = True
+            hide_y_tick_labels = False
+            figsize = None
+            legend_loc = None
+            idx_legend_subplot = None
+            single_column = False
+
+            if not self_contained:
+                single_column = True
+                figsize = (3.6, 7)
+                idx_legend_subplot = 0
+                legend_loc = 'upper center'
+                x_labels = ['$x$ [m]', r'$\theta$ [rad]', '$s$ [m/s]', r'$\omega$ [rad/s]']
+                if i != plot_idx[0]:
+                    x_labels=['' for _ in model.x_labels]
+                    u_labels=['' for _ in model.u_labels]
+                    hide_y_tick_labels = True
+                    show_legend = False
+
+            plot_trajectories(x_traj_list, u_traj_list, labels,
+                              time_traj_list,
+                              figsize = figsize,
+                              single_column=single_column,
+                              x_labels=x_labels,
+                              u_labels=u_labels,
+                              hide_y_tick_labels = hide_y_tick_labels,
+                              title=f'{algorithm_str} instance {i}',
+                              color_list=colors,
+                              show_legend=show_legend,
+                              linestyle_list=linestyle_list,
+                              x_min=[-.5, -.7, -10, -12],
+                              x_max=[1.5, 3.5, 10, 12],
+                              t_max = 1.0,
+                              legend_loc=legend_loc,
+                              idx_legend_subplot=idx_legend_subplot,
+                              fig_filename=f"{algorithm_str.lower()}_convergence_{i}.pdf", show_plot=False)
+
+
+    # plot results
+    # plot_pendulum(np.linspace(0, (Tf/N_horizon)*Nsim, Nsim+1), Fmax, simU, simX, title=algorithm)
+
+    # delete solver
+    ocp_solver = None
+
+if __name__ == '__main__':
+    # self_contained = False # True for slides, False when putting plots next to each other
+    # plot_idx = [1, 5, 15]
+    # convergence_over_time_plot(algorithm="AS-RTI-A", as_rti_iter=1, self_contained=self_contained, plot_idx=plot_idx)
+    # convergence_over_time_plot(algorithm="RTI", as_rti_iter=1, self_contained=self_contained, plot_idx=plot_idx)
+    # main(algorithm="AS-RTI-D", as_rti_iter=1)
+
+    for algorithm in ["SQP", "RTI", "AS-RTI-A", "AS-RTI-B", "AS-RTI-C", "AS-RTI-D"]:
+        main(algorithm=algorithm, as_rti_iter=1)

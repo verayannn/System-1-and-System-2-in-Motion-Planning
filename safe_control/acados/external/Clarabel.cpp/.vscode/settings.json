@@ -1,0 +1,14 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "${workspaceFolder}/Clarabel.rs/Cargo.toml",
+        "${workspaceFolder}/rust_wrapper/Cargo.toml"
+    ],
+    "files.associations": {
+        "**/include/c/*.h": "c",
+        "stack": "cpp",
+        "iosfwd": "cpp",
+        "vector": "cpp",
+        "complex": "cpp",
+        "ostream": "cpp"
+    }
+}

@@ -1,0 +1,371 @@
+%
+% Copyright (c) The acados authors.
+%
+% This file is part of acados.
+%
+% The 2-Clause BSD License
+%
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions are met:
+%
+% 1. Redistributions of source code must retain the above copyright notice,
+% this list of conditions and the following disclaimer.
+%
+% 2. Redistributions in binary form must reproduce the above copyright notice,
+% this list of conditions and the following disclaimer in the documentation
+% and/or other materials provided with the distribution.
+%
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+% ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+% LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+% CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+% SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+% INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+% CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+% ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+% POSSIBILITY OF SUCH DAMAGE.;
+
+%
+
+classdef AcadosSimSolver < handle
+
+    properties (Access = public)
+        sim % MATLAB class AcadosSim describing the initial value problem
+        solver_creation_opts
+    end
+
+    properties (Access = private)
+        t_sim % templated solver
+        name
+    end % properties
+
+    methods
+
+        function obj = AcadosSimSolver(sim, varargin)
+            %% optional arguments:
+            % varargin{1}: solver_creation_opts: this is a struct in which some of the fields can be defined to overwrite the default values.
+            % The fields are:
+            % - json_file: path to the json file containing the sim description
+            % - build: boolean, if true, the problem specific shared library is compiled
+            % - generate: boolean, if true, the C code is generated
+            % - check_reuse_possible: boolean, default true.
+            %        if true and generate is false:
+            %        check if code reuse is possible by comparing SIM formulations,
+            %        options and acados version. If not identical, code generation and build are forced.
+            % - compile_mex_wrapper: boolean, if true, the mex wrapper is compiled
+            % - compile_interface: can be [], true or false. If [], the interface is compiled if it does not exist.
+            % - output_dir: path to the directory where the MEX interface is compiled
+            obj.sim = sim;
+
+            % optional arguments
+            % solver creation options
+            default_solver_creation_opts = struct('json_file', '', ...
+                    'build', true, ...
+                    'generate', true, ...
+                    'check_reuse_possible', true, ...
+                    'compile_mex_wrapper', true, ...
+                    'compile_interface', [], ...
+                    'output_dir', fullfile(pwd, 'build'));
+            if length(varargin) > 0
+                solver_creation_opts = varargin{1};
+                % set non-specified opts to default
+                fields = fieldnames(default_solver_creation_opts);
+                for i = 1:length(fields)
+                    if ~isfield(solver_creation_opts, fields{i})
+                        solver_creation_opts.(fields{i}) = default_solver_creation_opts.(fields{i});
+                    end
+                end
+            else
+                solver_creation_opts = default_solver_creation_opts;
+            end
+            obj.solver_creation_opts = solver_creation_opts;
+
+            if isempty(sim) && isempty(obj.solver_creation_opts.json_file)
+                error('AcadosSimSolver: provide either a sim object or a json file');
+            end
+
+            if isempty(sim)
+                json_file = obj.solver_creation_opts.json_file;
+                if obj.solver_creation_opts.generate
+                    disp('AcadosSimSolver: SIM not provided, cannot generate code, setting generate to false');
+                    obj.solver_creation_opts.generate = false;
+                end
+                obj.solver_creation_opts.check_reuse_possible = false;
+            else
+                % formulation provided
+                if ~isempty(sim.solver_options.compile_interface) && ~isempty(obj.solver_creation_opts.compile_interface)
+                    error('AcadosSimSolver: provide either compile_interface in SIM object or obj.solver_creation_opts');
+                end
+                if ~isempty(sim.solver_options.compile_interface)
+                    obj.solver_creation_opts.compile_interface = sim.solver_options.compile_interface;
+                end
+                if ~isempty(obj.solver_creation_opts.json_file)
+                    sim.code_gen_opts.json_file = obj.solver_creation_opts.json_file;
+                end
+                % make consistent
+                sim.make_consistent();
+
+                json_file = sim.code_gen_opts.json_file;
+            end
+
+            % compile mex sim interface if needed
+            obj.compile_mex_sim_interface_if_needed();
+
+            %% generate
+            if ~obj.solver_creation_opts.generate && obj.solver_creation_opts.check_reuse_possible
+                % check if code reuse can be done
+                reuse_possible = obj.is_code_reuse_possible(json_file, 1);
+                if ~reuse_possible
+                    disp('AcadosSimSolver: code reuse not possible, forcing code generation and build...');
+                    obj.solver_creation_opts.generate = true;
+                    obj.solver_creation_opts.build = true;
+                else
+                    disp('AcadosSimSolver: attempting code reuse...')
+                end
+            end
+
+            if obj.solver_creation_opts.generate
+                obj.generate();
+            end
+
+            % load json: TODO!?
+            acados_folder = getenv('ACADOS_INSTALL_DIR');
+            addpath(fullfile(acados_folder, 'external', 'jsonlab'));
+            acados_sim_struct = loadjson(fileread(json_file), 'SimplifyCell', 0);
+            obj.name = acados_sim_struct.model.name;
+            code_export_directory = acados_sim_struct.code_gen_opts.code_export_directory;
+
+            %% compile problem specific shared library
+            if obj.solver_creation_opts.build
+                tic;
+                obj.compile_sim_shared_lib(code_export_directory);
+                t_elapsed = toc;
+                disp(['AcadosSimSolver: Build completed in ' num2str(1000*(t_elapsed)) ' ms.']);
+            end
+
+            %% create solver
+            return_dir = pwd();
+            cd(code_export_directory)
+
+            mex_sim_solver = str2func(sprintf('%s_mex_sim_solver', obj.name));
+            obj.t_sim = mex_sim_solver();
+            addpath(pwd());
+
+            cd(return_dir)
+        end
+
+
+        function set(obj, field, value)
+            obj.t_sim.set(field, value);
+        end
+
+
+        function status = solve(obj)
+            status = obj.t_sim.solve();
+        end
+
+
+        function value = get(obj, field)
+            value = obj.t_sim.get(field);
+        end
+
+
+        function x_next = simulate(obj, x, u, z, xdot, p)
+        % Simulate the system forward for the given x, u, p and return x_next.
+        % The values xdot, z are used as initial guesses for implicit integrators, if provided.
+        % Wrapper around solve() taking care of setting/getting inputs/outputs.
+        % Fields which are set to an empty array or not provided will not be set.
+
+            if nargin >= 2 && ~isempty(x)
+                obj.set('x', x);
+            end
+            if nargin >= 3 && ~isempty(u)
+                obj.set('u', u);
+            end
+
+            if strcmp(obj.sim.solver_options.integrator_type, 'IRK')
+                if nargin >= 4 && ~isempty(z)
+                    obj.set('z', z);
+                end
+                if nargin >= 5 && ~isempty(xdot)
+                    obj.set('xdot', xdot);
+                end
+            end
+
+            if nargin >= 6 && ~isempty(p)
+                obj.set('p', p);
+            end
+
+            status = obj.solve();
+
+            if status ~= 0
+                error('AcadosSimSolver for model %s returned status %d.', obj.name, status);
+            end
+
+            x_next = obj.get('xn');
+        end
+
+        function code_reuse_possible = is_code_reuse_possible(obj, json_file, verbose)
+            code_reuse_possible = 1;
+            if ~exist(obj.sim.code_gen_opts.code_export_directory, 'dir')
+                code_reuse_possible = 0;
+                if verbose
+                    disp('code reuse not possible: code export directory does not exist');
+                end
+                return;
+            end
+            if ~exist(json_file, 'file')
+                code_reuse_possible = 0;
+                if verbose
+                    disp('code reuse not possible: json file does not exist');
+                end
+                return;
+            end
+            try
+                sim_struct_restore = loadjson(fileread(json_file), 'SimplifyCell', 0);
+            catch
+                code_reuse_possible = 0;
+                if verbose
+                    disp('code reuse not possible: error loading json file');
+                end
+                return;
+            end
+
+            try
+                old_hash = sim_struct_restore.hash;
+            catch
+                code_reuse_possible = 0;
+                if verbose
+                    disp('code reuse not possible: no hash in json file');
+                end
+                return;
+            end
+
+            % create hash for current sim
+            try
+                obj.sim.make_consistent();
+                sim_struct = orderfields(obj.sim.to_struct());
+                new_hash = hash_struct(sim_struct);
+            catch
+                code_reuse_possible = 0;
+                if verbose
+                    disp('code reuse not possible: error creating hash for current sim');
+                end
+                return;
+            end
+
+            if strcmp(old_hash, new_hash) ~= 1
+                code_reuse_possible = 0;
+                if verbose
+                    disp('code reuse not possible: hash mismatch');
+                end
+                return;
+            end
+        end
+
+
+        % function delete(obj)
+        %     Use default implementation.
+        %     MATLAB destroys the property values after the destruction of the object.
+        %     Because `t_sim` is the only referrence to the `mex_sim_solver` object, MATLAB also destroys the latter.
+        % end
+
+    end % methods
+
+    methods (Access = private)
+        function generate(obj)
+            % generate
+            check_dir_and_create(obj.sim.code_gen_opts.code_export_directory);
+            tic;
+            obj.sim.generate_external_functions();
+            t_elapsed = toc;
+            disp(['AcadosSimSolver: External functions generated in ' num2str(1000*(t_elapsed)) ' ms.']);
+
+
+            obj.sim.dump_to_json()
+
+            tic;
+            obj.sim.render_templates()
+            t_elapsed = toc;
+            disp(['AcadosSimSolver: Templated solver code generated in  ' num2str(1000*(t_elapsed)) ' ms.']);
+
+        end
+
+        function compile_mex_sim_interface_if_needed(obj)
+
+            [~,~] = mkdir(obj.solver_creation_opts.output_dir);
+            addpath(obj.solver_creation_opts.output_dir);
+
+            % check if path contains spaces
+            if ~isempty(strfind(obj.solver_creation_opts.output_dir, ' '))
+                error(strcat('compile_mex_sim_interface_if_needed: Path should not contain spaces, got: ',...
+                    obj.solver_creation_opts.output_dir));
+            end
+
+            %% compile mex without model dependency
+            % check if mex interface exists already
+            if isempty(obj.solver_creation_opts.compile_interface) % auto-detect
+                if is_octave()
+                    extension = '.mex';
+                else
+                    extension = ['.' mexext];
+                end
+                obj.solver_creation_opts.compile_interface = ~exist(fullfile(obj.solver_creation_opts.output_dir, ['/sim_create', extension]), 'file');
+            end
+
+            if obj.solver_creation_opts.compile_interface
+                sim_compile_interface(obj.solver_creation_opts.output_dir);
+            end
+        end
+
+        function compile_sim_shared_lib(obj, export_dir)
+            return_dir = pwd;
+            cd(export_dir);
+            if isunix
+                [ status, result ] = system('make sim_shared_lib');
+                if status
+                    cd(return_dir);
+                    error('Building templated code as shared library failed.\nGot status %d, result: %s',...
+                        status, result);
+                end
+            else
+                % check compiler
+                use_msvc = false;
+                if ~is_octave()
+                    mexOpts = mex.getCompilerConfigurations('C', 'Selected');
+                    if contains(mexOpts.ShortName, 'MSVC')
+                        use_msvc = true;
+                    end
+                end
+                % compile on Windows platform
+                if use_msvc
+                    % get env vars for MSVC
+                    % msvc_env = fullfile(mexOpts.Location, 'VC\Auxiliary\Build\vcvars64.bat');
+                    % assert(isfile(msvc_env), 'Cannot find definition of MSVC env vars.');
+                    % detect MSVC version
+                    msvc_ver_str = "Visual Studio " + mexOpts.Version(1:2) + " " + mexOpts.Name(22:25);
+                    [ status, result ] = system(['cmake -G "' + msvc_ver_str + '" -A x64 -DCMAKE_BUILD_TYPE=Release -DBUILD_ACADOS_SIM_SOLVER_LIB=ON -DBUILD_ACADOS_OCP_SOLVER_LIB=OFF -S . -B .']);
+                else
+                    [ status, result ] = system('cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_ACADOS_SIM_SOLVER_LIB=ON -DBUILD_ACADOS_OCP_SOLVER_LIB=OFF -S . -B .');
+                end
+                if status
+                    cd(return_dir);
+                    error('Generating buildsystem failed.\nGot status %d, result: %s',...
+                        status, result);
+                end
+                [ status, result ] = system('cmake --build . --config Release');
+                if status
+                    cd(return_dir);
+                    error('Building templated code as shared library failed.\nGot status %d, result: %s',...
+                        status, result);
+                end
+            end
+
+            cd(return_dir);
+        end % methods (Access = private)
+
+    end
+end % class
+

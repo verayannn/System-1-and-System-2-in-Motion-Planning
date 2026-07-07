@@ -1,0 +1,315 @@
+%
+% Copyright (c) The acados authors.
+%
+% This file is part of acados.
+%
+% The 2-Clause BSD License
+%
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions are met:
+%
+% 1. Redistributions of source code must retain the above copyright notice,
+% this list of conditions and the following disclaimer.
+%
+% 2. Redistributions in binary form must reproduce the above copyright notice,
+% this list of conditions and the following disclaimer in the documentation
+% and/or other materials provided with the distribution.
+%
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+% ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+% LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+% CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+% SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+% INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+% CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+% ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+% POSSIBILITY OF SUCH DAMAGE.;
+
+%
+
+classdef AcadosSim < handle
+
+    properties
+        % struct / object
+        dims
+        model
+        solver_options
+        % plain data
+        parameter_values
+        problem_class
+        external_function_files_model
+
+        code_gen_opts
+        % kept for backward compatibility
+        json_file
+        code_export_directory
+    end
+
+    methods
+        function obj = AcadosSim()
+
+            obj.dims = AcadosSimDims();
+            obj.model = AcadosModel();
+            obj.solver_options = AcadosSimOptions();
+            obj.code_gen_opts = AcadosCodeGenOpts();
+
+            obj.parameter_values = [];
+            obj.problem_class = 'SIM';
+
+            obj.json_file = '';
+            obj.code_export_directory = '';
+        end
+
+        function make_consistent(self)
+
+            % model
+            self.model.make_consistent(self.dims);
+
+
+            % code generation options
+            % migrate deprecated top-level fields into code_gen_opts (backward compatibility)
+            deprecated_fields = {'json_file', 'code_export_directory'};
+
+            for i = 1:length(deprecated_fields)
+                fld = deprecated_fields{i};
+
+                old_val = self.(fld);
+                new_val = self.code_gen_opts.(fld);
+
+                if ~isempty(old_val)
+                    warning(['AcadosOcp.', fld, ' is deprecated, please use AcadosOcp.code_gen_opts.', fld, '.']);
+                    if ~isempty(new_val)
+                        warning(['Both AcadosOcp.', fld, ' and AcadosOcp.code_gen_opts.', fld, ' are set, using AcadosOcp.code_gen_opts.', fld, '.']);
+                    else
+                        self.code_gen_opts.(fld) = old_val;
+                    end
+                end
+            end
+
+            if isempty(self.code_gen_opts.json_file)
+                self.code_gen_opts.json_file = [self.model.name, '_sim.json'];
+            end
+            self.code_gen_opts.make_consistent();
+
+            if self.dims.np_global > 0
+                error('p_global is not supported for AcadosSim.')
+            end
+
+            % detect GNSF structure
+            if strcmp(self.solver_options.integrator_type, 'GNSF')
+                % TODO: interface these options
+                gnsf_transcription_opts = struct();
+                if self.dims.gnsf_nx1 + self.dims.gnsf_nx2 ~= self.dims.nx
+                    detect_gnsf_structure(self.model, self.dims, gnsf_transcription_opts);
+                else
+                    warning('No GNSF model detected, assuming all required fields are set.')
+                end
+            end
+
+            % parameters
+            if self.dims.np > 0
+                if isempty(self.parameter_values)
+                    warning(['opts_struct.parameter_values are not set.', ...
+                                10 'Using zeros(np,1) by default.' 10 'You can update them later using set().']);
+                    self.parameter_values = zeros(self.dims.np,1);
+                end
+            end
+
+            % solver options checks
+            opts = self.solver_options;
+            if ~strcmp(opts.integrator_type, 'ERK') && ~strcmp(opts.integrator_type, 'IRK') && ...
+               ~strcmp(opts.integrator_type, 'GNSF') && ~strcmp(opts.integrator_type, 'DISCRETE')
+                error(['integrator_type = ', opts.integrator_type, ' not available. Choose ERK, IRK, GNSF.']);
+            end
+
+            if opts.sens_forw_p && ~any(strcmp(opts.integrator_type, {'ERK', 'IRK'}))
+                error('Option sens_forw_p=true is currently only supported for integrator_type = ERK and IRK.');
+            end
+
+            if length(opts.num_stages) ~= 1
+                error('num_stages should be a scalar.');
+            end
+            if length(opts.num_steps) ~= 1
+                error('num_steps should be a scalar.');
+            end
+            if length(opts.newton_iter) ~= 1
+                error('newton_iter should be a scalar.');
+            end
+            % check bool options
+            if ~islogical(opts.sens_forw)
+                error('sens_forw should be a boolean.');
+            end
+            if ~islogical(opts.sens_forw_p)
+                error('sens_forw_p should be a boolean.');
+            end
+            if ~islogical(opts.sens_adj)
+                error('sens_adj should be a boolean.');
+            end
+            if ~islogical(opts.sens_algebraic)
+                error('sens_algebraic should be a boolean.');
+            end
+            if ~islogical(opts.sens_hess)
+                error('sens_hess should be a boolean.');
+            end
+            if ~islogical(opts.output_z)
+                error('output_z should be a boolean.');
+            end
+            if ~strcmp(opts.collocation_type, "GAUSS_LEGENDRE") && ~strcmp(opts.collocation_type, "GAUSS_RADAU_IIA")
+                error(['collocation_type = ', opts.collocation_type, ' not available. Choose GAUSS_LEGENDRE, GAUSS_RADAU_IIA.']);
+            end
+
+            if(strcmp(self.solver_options.integrator_type, "ERK"))
+                if(self.solver_options.num_stages == 1 || self.solver_options.num_stages == 2 || ...
+                    self.solver_options.num_stages == 3 || self.solver_options.num_stages == 4)
+                else
+                    error(['ERK: num_stages = ', num2str(self.solver_options.num_stages) ' not available. Only number of stages = {1,2,3,4} implemented!']);
+                end
+            end
+        end
+
+        function generate_external_functions(self)
+            if nargin < 2
+                % options for code generation
+                casadi_code_gen_opts = struct();
+                casadi_code_gen_opts.sens_forw_p = self.solver_options.sens_forw_p;
+                casadi_code_gen_opts.generate_hess = self.solver_options.sens_hess;
+                casadi_code_gen_opts.code_export_directory = self.code_gen_opts.code_export_directory;
+                casadi_code_gen_opts.ext_fun_expand_dyn = self.solver_options.ext_fun_expand_dyn;
+                casadi_code_gen_opts.ext_fun_expand_cost = false;
+                casadi_code_gen_opts.ext_fun_expand_constr = false;
+                casadi_code_gen_opts.ext_fun_expand_precompute = false;
+
+                context = GenerateContext(self.model.p_global, self.model.name, casadi_code_gen_opts);
+            else
+                casadi_code_gen_opts = context.code_gen_opts;
+            end
+
+            model_dir = fullfile(casadi_code_gen_opts.code_export_directory, [self.model.name '_model']);
+            check_dir_and_create(model_dir);
+
+            if strcmp(self.model.dyn_ext_fun_type, 'generic')
+                copyfile(fullfile(pwd, self.model.dyn_generic_source), model_dir);
+                context.add_external_function_file(ocp.model.dyn_generic_source, model_dir);
+
+            elseif strcmp(self.model.dyn_ext_fun_type, 'casadi')
+                import casadi.*
+                check_casadi_version();
+                switch self.solver_options.integrator_type
+                    case 'ERK'
+                        generate_c_code_explicit_ode(context, self.model, model_dir);
+                    case 'IRK'
+                        generate_c_code_implicit_ode(context, self.model, model_dir);
+                    case 'GNSF'
+                        generate_c_code_gnsf(context, self.model, model_dir);
+                    case 'DISCRETE'
+                        error('Discrete dynamics not supported in AcadosSim yet.')
+                        % generate_c_code_discrete_dynamics(context, self.model, model_dir);
+                    otherwise
+                        error('Unknown integrator type.')
+                end
+            else
+                error('Unknown dyn_ext_fun_type.')
+            end
+
+            context.finalize();
+            self.external_function_files_model = context.get_external_function_file_list(false);
+        end
+
+        function dump_to_json(self, json_file)
+            if nargin < 2
+                json_file = self.code_gen_opts.json_file;
+            end
+
+            % jsonlab
+            acados_folder = getenv('ACADOS_INSTALL_DIR');
+            addpath(fullfile(acados_folder, 'external', 'jsonlab'))
+
+            out_struct = self.to_struct();
+
+            % add hash
+            out_struct.hash = hash_struct(out_struct);
+
+            % actual json dump
+            json_string = savejson('', out_struct, 'ForceRootName', 0);
+            fid = fopen(json_file, 'w');
+            if fid == -1, error('Cannot create JSON file'); end
+            fwrite(fid, json_string, 'char');
+            fclose(fid);
+        end
+
+        function render_templates(self)
+
+            json_fullfile = self.code_gen_opts.json_file;
+
+            acados_root_dir = getenv('ACADOS_INSTALL_DIR');
+            acados_template_folder = fullfile(acados_root_dir,...
+                                'interfaces', 'acados_template', 'acados_template');
+
+            t_renderer_location = get_tera();
+
+            %% load json data
+            acados_sim = loadjson(fileread(json_fullfile));
+            model_name = acados_sim.model.name;
+
+            %% render templates
+            matlab_template_path = 'matlab_templates';
+            main_dir = pwd;
+            chdir(self.code_gen_opts.code_export_directory);
+
+            % cell array with entries (template_file, output file)
+            template_list = { ...
+                {'main_sim.in.c', ['main_sim_', model_name, '.c']}, ...
+                {fullfile(matlab_template_path, 'mex_sim_solver.in.m'), [model_name, '_mex_sim_solver.m']}, ...
+                {fullfile(matlab_template_path, 'make_mex_sim.in.m'), ['make_mex_sim_', model_name, '.m']}, ...
+                {fullfile(matlab_template_path, 'acados_sim_create.in.c'), ['acados_sim_create_', model_name, '.c']}, ...
+                {fullfile(matlab_template_path, 'acados_sim_free.in.c'), ['acados_sim_free_', model_name, '.c']}, ...
+                {fullfile(matlab_template_path, 'acados_sim_set.in.c'), ['acados_sim_set_', model_name, '.c']}, ...
+                {'acados_sim_solver.in.c', ['acados_sim_solver_', model_name, '.c']}, ...
+                {'acados_sim_solver.in.h', ['acados_sim_solver_', model_name, '.h']}, ...
+                {fullfile(matlab_template_path, 'acados_sim_solver_sfun.in.c'), ['acados_sim_solver_sfunction_', model_name, '.c']}, ...
+                {fullfile(matlab_template_path, 'make_sfun_sim.in.m'), ['make_sfun_sim_', model_name, '.m']}, ...
+                {'Makefile.in', 'Makefile'}, ...
+                {'CMakeLists.in.txt', 'CMakeLists.txt'}};
+
+            num_entries = length(template_list);
+            for n=1:num_entries
+                entry = template_list{n};
+                render_file( entry{1}, entry{2}, json_fullfile);
+            end
+
+            c_dir = pwd;
+            chdir([model_name, '_model']);
+            render_file( 'model.in.h', [model_name, '_model.h'], json_fullfile);
+            cd(c_dir);
+
+            fprintf('Successfully rendered acados templates!\n');
+            cd(main_dir)
+        end
+
+        function s = to_struct(self)
+            if exist('properties')
+                publicProperties = eval('properties(self)');
+            else
+                publicProperties = fieldnames(self);
+            end
+            s = struct();
+            for fi = 1:numel(publicProperties)
+                s.(publicProperties{fi}) = self.(publicProperties{fi});
+            end
+
+            s = orderfields(s);
+
+            % prepare struct for json dump
+            s.parameter_values = reshape(num2cell(self.parameter_values), [1, self.dims.np]);
+            s.model = s.model.to_struct();
+            s.dims = orderfields(s.dims.to_struct());
+            s.code_gen_opts = orderfields(s.code_gen_opts.to_struct());
+            s.solver_options = orderfields(s.solver_options.to_struct());
+
+            s = orderfields(s);
+        end
+    end
+
+end % class
