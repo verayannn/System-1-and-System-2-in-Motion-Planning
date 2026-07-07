@@ -190,7 +190,9 @@ def collect_rows(suite_dir: Path, manifest: Dict[str, Any], cfg: str) -> List[Di
 
 def main() -> None:
     args = parse_args()
-    os.environ.setdefault("MPLCONFIGDIR", "/private/tmp/mpl")
+    from solvers._s2_common import resolve_mplconfigdir
+
+    os.environ["MPLCONFIGDIR"] = str(resolve_mplconfigdir(Path(__file__).resolve().parent, os.environ.get("MPLCONFIGDIR")))
     suite_dir = Path(args.suite_dir).expanduser().resolve()
     manifest_path = Path(args.manifest).expanduser().resolve() if args.manifest else suite_dir / "suite_manifest.json"
     manifest = read_manifest(manifest_path)

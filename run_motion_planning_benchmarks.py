@@ -65,7 +65,9 @@ CSV_FIELDS = [
 
 
 def configure_repo(root: Path, mplconfigdir: str) -> None:
-    os.environ.setdefault("MPLCONFIGDIR", mplconfigdir)
+    from solvers._s2_common import resolve_mplconfigdir
+
+    os.environ["MPLCONFIGDIR"] = str(resolve_mplconfigdir(root, mplconfigdir))
     for path in (root, root / "sofai", root / "solvers"):
         value = str(path)
         if value not in sys.path:
@@ -373,7 +375,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--timeout_sec", type=float, default=300.0)
     p.add_argument("--same_process", action="store_true")
     p.add_argument("--workers", type=int, default=1, help="Number of benchmark cases to run concurrently.")
-    p.add_argument("--mplconfigdir", default="/private/tmp/mpl")
+    p.add_argument("--mplconfigdir", default="")
     p.add_argument("--out_dir", default="output/benchmark_runs")
     p.add_argument("--out_prefix", default="benchmark_dualmp")
     p.add_argument("--dry_run", action="store_true")

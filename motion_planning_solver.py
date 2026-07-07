@@ -75,8 +75,8 @@ python motion_planning_solver.py \
 
 
 
-cd /Users/apple/Desktop/sofai
-PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/private/tmp/mpl \
+cd <repo-root>
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python motion_planning_solver.py \
   --problem_dictionary benchmark_dualmp_nl_dense_clutter.json \
   --scenario_id 3 \
@@ -85,8 +85,8 @@ python motion_planning_solver.py \
   --run_type s2
 
 
-PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/private/tmp/mpl \
-/Users/apple/miniconda3/envs/s12_env/bin/python3.10 motion_planning_solver.py \
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
+python motion_planning_solver.py \
   --problem_dictionary benchmark_dualmp_nl_dense_clutter.json \
   --scenario_id 3 \
   --s1 neural \

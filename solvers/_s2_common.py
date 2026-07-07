@@ -4,6 +4,7 @@ import os
 import sys
 import ctypes
 import shutil
+import tempfile
 from pathlib import Path
 from typing import Iterable, Sequence, Tuple
 
@@ -20,6 +21,32 @@ def env_float(name: str, default: float) -> float:
 def env_int(name: str, default: int) -> int:
     raw = os.environ.get(name)
     return int(raw) if raw not in (None, "") else int(default)
+
+
+def resolve_mplconfigdir(root: Path | None = None, requested: str | None = None) -> Path:
+    candidates: list[Path] = []
+    if requested:
+        candidates.append(Path(requested).expanduser())
+
+    env_value = os.environ.get("MPLCONFIGDIR")
+    if env_value:
+        candidates.append(Path(env_value).expanduser())
+
+    if root is not None:
+        candidates.append(Path(root).expanduser() / ".cache" / "matplotlib")
+
+    candidates.append(Path(tempfile.gettempdir()) / "matplotlib")
+
+    for candidate in candidates:
+        try:
+            candidate.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            continue
+        if candidate.is_dir() and os.access(candidate, os.W_OK):
+            return candidate
+
+    fallback = Path(tempfile.mkdtemp(prefix="matplotlib-"))
+    return fallback
 
 
 def scenario_rects(scenario) -> list[Rect]:
@@ -107,13 +134,34 @@ def acados_root_candidates() -> list[Path]:
     if env_root:
         candidates.append(Path(env_root))
     candidates.append(Path("/private/tmp/acados-install"))
+    candidates.append(Path(tempfile.gettempdir()) / "acados-install")
     candidates.append(Path(__file__).resolve().parents[1] / "safe_control" / "acados")
     return candidates
 
 
+def _shared_library_patterns(base: str) -> tuple[str, ...]:
+    if sys.platform == "darwin":
+        return (f"{base}.dylib", f"{base}.dylib.*", f"{base}.so", f"{base}.so.*")
+    if sys.platform.startswith("linux"):
+        return (f"{base}.so", f"{base}.so.*", f"{base}.dylib", f"{base}.dylib.*")
+    return (f"{base}.so", f"{base}.so.*", f"{base}.dylib", f"{base}.dylib.*")
+
+
+def _shared_library_paths(lib_dir: Path, base: str) -> list[Path]:
+    paths: list[Path] = []
+    seen: set[Path] = set()
+    for pattern in _shared_library_patterns(base):
+        for path in sorted(lib_dir.glob(pattern)):
+            if path.is_file() and path not in seen:
+                seen.add(path)
+                paths.append(path)
+    return paths
+
+
 def detect_acados_root() -> Path | None:
     for root in acados_root_candidates():
-        if (root / "lib" / "libacados.dylib").is_file():
+        lib_dir = root / "lib"
+        if any(_shared_library_paths(lib_dir, "libacados")):
             return root
     return None
 
@@ -150,25 +198,27 @@ def bootstrap_acados_backend() -> Path | None:
         os.environ.setdefault("TERA_PATH", str(tera_path))
 
     if lib_dir.is_dir():
-        current = os.environ.get("DYLD_LIBRARY_PATH", "")
+        path_key = "DYLD_LIBRARY_PATH" if sys.platform == "darwin" else "LD_LIBRARY_PATH"
+        current = os.environ.get(path_key, "")
         parts = [str(lib_dir)]
         if current:
             parts.append(current)
-        os.environ["DYLD_LIBRARY_PATH"] = ":".join(parts)
+        os.environ[path_key] = os.pathsep.join(parts)
 
-        current_fb = os.environ.get("DYLD_FALLBACK_LIBRARY_PATH", "")
-        fb_parts = [str(lib_dir)]
-        if current_fb:
-            fb_parts.append(current_fb)
-        os.environ["DYLD_FALLBACK_LIBRARY_PATH"] = ":".join(fb_parts)
+        if sys.platform == "darwin":
+            current_fb = os.environ.get("DYLD_FALLBACK_LIBRARY_PATH", "")
+            fb_parts = [str(lib_dir)]
+            if current_fb:
+                fb_parts.append(current_fb)
+            os.environ["DYLD_FALLBACK_LIBRARY_PATH"] = os.pathsep.join(fb_parts)
 
-        for lib_name in ("libacados.dylib", "libblasfeo.dylib", "libhpipm.dylib"):
-            lib_path = lib_dir / lib_name
-            if lib_path.is_file():
+        for base_name in ("libacados", "libblasfeo", "libhpipm"):
+            for lib_path in _shared_library_paths(lib_dir, base_name):
                 try:
                     ctypes.CDLL(str(lib_path), mode=getattr(ctypes, "RTLD_GLOBAL", 0))
+                    break
                 except Exception:
-                    pass
+                    continue
     return root
 
 

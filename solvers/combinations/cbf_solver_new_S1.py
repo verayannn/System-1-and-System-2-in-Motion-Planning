@@ -13,7 +13,7 @@ import numpy as np
 
 """
 cd "/Users/apple/Desktop/System-1-and-System-2-in-Motion-Planning-sofai-integration/sofai_tool/sofai_instances/mpc-sofai"
-MPLCONFIGDIR=/private/tmp/mpl /Users/apple/miniconda3/envs/s12_env/bin/python3.10 cbf_solver_new_S1.py --problem_dictionary benchmark_scenarios_maze_1199_block200.json --scenario_id 1
+MPLCONFIGDIR=/tmp/mpl /Users/apple/miniconda3/envs/s12_env/bin/python3.10 cbf_solver_new_S1.py --problem_dictionary benchmark_scenarios_maze_1199_block200.json --scenario_id 1
 
 """
 

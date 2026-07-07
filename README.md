@@ -16,118 +16,71 @@ The core idea is to combine:
 
 ## Installation
 
-Follow the steps below to install the project locally.
+Follow the steps below to install the project locally on either macOS or Linux.
 
-### 0. Install `acados` first
+### 0. Install `acados`
 
-System 2 MPC uses a native `acados` backend. Install `acados` separately, then point the Python environment to it.
+System 2 MPC uses a native `acados` backend. Build or install `acados` first, then point the environment to the installed prefix.
+
+If you are using a separate `acados` install:
 
 ```bash
-export ACADOS_SOURCE_DIR=/path/to/acados
-python -m pip install -e /path/to/acados/interfaces/acados_template
+export ACADOS_SOURCE_DIR=/path/to/built/acados
+python -m pip install -e "$ACADOS_SOURCE_DIR/interfaces/acados_template"
 ```
 
-### Option A: `uv` (recommended)
+If you want to use the vendored `acados` tree shipped in this repo, build it first and then point `ACADOS_SOURCE_DIR` at that built prefix.
 
-1. Clone the repository or download the source archive, then move into the project root:
+### 1. Clone the repository
 
 ```bash
 git clone <repository-url>
-cd <repo-root>
+cd System-1-and-System-2-in-Motion-Planning
 ```
 
-2. Create and activate a Python 3.10 virtual environment:
+### 2. Create a Python 3.10 environment
+
+Pick one of the following:
 
 ```bash
+# uv
 uv venv --python 3.10
 source .venv/bin/activate
-```
 
-3. Install the full experiment stack:
-
-```bash
-uv pip install -r requirements.txt
-```
-
-4. Verify that the vendored SOFAI package is importable:
-
-```bash
-python -c "import sofai_tool, safe_control; print('installation verified.')"
-```
-
-The root `requirements.txt` installs:
-
-- the local `sofai` package in editable mode
-- the local `safe_control` package in editable mode
-- the MPC dependencies
-- the CBF dependencies
-- the neural-policy dependencies
-
-### Option B: Conda
-
-1. Clone the repository or download the source archive, then move into the project root:
-
-```bash
-git clone <repository-url>
-cd <repo-root>
-```
-
-2. Create and activate a Conda environment:
-
-```bash
+# conda
 conda create --name dualmp_env python=3.10 -y
 conda activate dualmp_env
-```
 
-3. Install the dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-4. Verify the installation:
-
-```bash
-python -c "import sofai_tool, safe_control; print('installation verified.')"
-```
-
-### Option C: standard `venv`
-
-1. Clone the repository or download the source archive, then move into the project root:
-
-```bash
-git clone <repository-url>
-cd <repo-root>
-```
-
-2. Create and activate a virtual environment:
-
-```bash
+# standard venv
 python3.10 -m venv .venv
 source .venv/bin/activate
 ```
 
-3. Install the dependencies:
+### 3. Install dependencies
 
 ```bash
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-4. Verify the installation:
+If you prefer `uv`, use:
 
 ```bash
-python -c "import sofai_tool, safe_control; print('installation verified.')"
+uv pip install -r requirements.txt
 ```
 
-### Development-mode install
+### 4. Verify the install
+
+```bash
+python -c "import sofai_tool, safe_control; print('SOFAI installation verified.')"
+```
 
 The root `requirements.txt` installs both local packages in editable mode:
 
-```bash
-pip install -e ./sofai
-pip install -e ./safe_control
-```
+- `-e ./sofai`
+- `-e ./safe_control`
+
+The repository scripts automatically choose a writable `MPLCONFIGDIR`, so you do not normally need to set it manually. If you want to override it, use a writable path such as `/tmp/mpl` on both macOS and Linux.
 
 ## Directory Structure
 
@@ -136,9 +89,13 @@ sofai/
 ├── README.md                           # Project documentation
 ├── requirements.txt                    # Top-level experiment environment
 ├── motion_planning_solver.py           # Main single-scenario runner
+├── visualize_mp.py                     # Single-case runner + plot output
 ├── run_motion_planning_benchmarks.py   # Batch benchmark runner
+├── plot_suite_results.py               # Suite success-rate / runtime plots
+├── plot_suite_s1_s2_ratio.py           # S1 vs S2 split plot for CL runs
 │
 ├── sofai/                              # Vendored upstream SOFAI package
+├── safe_control/                       # Vendored safe_control + acados
 │
 ├── solvers/                            # Motion-planning solver implementations
 │   ├── S1_motion_primitives.py         # Primitive-based System 1
@@ -155,18 +112,19 @@ sofai/
 ├── input/                              # Benchmark dictionaries and metadata
 │   ├── input_handler.py
 │   ├── generate_benchmark_dictionaries.py
+│   ├── generate_nl_dict.py
 │   ├── meta/
 │   │   ├── context.txt
 │   │   └── thresholds.txt
-│   └── benchmarks_10k/                 # Large generated benchmark sets
+│   └── nl/                             # Nonlinear benchmark dictionaries
 │
 ├── db/                                 # Active/default S1 assets
 │   └── by_env/                         # Per-environment assets
 │
 ├── script/                             # Experiment orchestration scripts
 │   ├── prepare_environment_assets.py
-│   ├── run_12_solver_suite.py
-│   └── plot_12_solver_suite.py
+│   ├── run_suite.py
+│   └── train_s1_nonlinear.py
 │
 └── output/                             # Generated results, plots, summaries
     ├── single_scenario_runs/
@@ -187,7 +145,7 @@ Example: run the dual-process planner with primitive System 1 and MPC System 2:
 
 ```bash
 python motion_planning_solver.py \
-  --problem_dictionary benchmark_dualmp_dense_clutter.json \
+  --problem_dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
   --scenario_id 1 \
   --s1 primitives \
   --s2 mpc \
@@ -198,7 +156,7 @@ Example: neural System 1 only:
 
 ```bash
 python motion_planning_solver.py \
-  --problem_dictionary benchmark_dualmp_dense_clutter.json \
+  --problem_dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
   --scenario_id 1 \
   --s1 neural \
   --s2 mpc \
@@ -209,7 +167,7 @@ Example: CBF System 2 only:
 
 ```bash
 python motion_planning_solver.py \
-  --problem_dictionary benchmark_dualmp_dense_clutter.json \
+  --problem_dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
   --scenario_id 1 \
   --s1 primitives \
   --s2 cbf \
@@ -225,8 +183,7 @@ Notes:
 
 ## Usage: Running the Benchmarks
 
-### 1. Generate S1 assets and benchmark dictionaries from scratch
-
+### 1. Generate S1 assets and benchmark dictionaries
 
 Use `script/prepare_environment_assets.py` to create:
 
@@ -240,28 +197,20 @@ Example:
 
 ```bash
 python script/prepare_environment_assets.py \
-  --families all \
-  --training_trajectories 500 \
-  --benchmark_instances 10000 \
-  --seed 7 \
-  --max_attempts 20000 \
-  --train_epochs 25 \
-  --train_batch 128 \
-  --train_lr 5e-4 \
-  --assets_dir db/by_env \
-  --benchmark_dir input/benchmarks_10k
+  --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap \
+  --train_n_per_family 100 \
+  --eval_n_per_family 500 \
+  --s2_solver cbf
 ```
 
-This writes per-environment assets under:
+For a single family:
 
-```text
-db/by_env/<family>/
-```
-
-and benchmark dictionaries under:
-
-```text
-input/benchmarks_10k/
+```bash
+python script/prepare_environment_assets.py \
+  --family dense_clutter \
+  --train_n_per_family 100 \
+  --eval_n_per_family 500 \
+  --s2_solver cbf
 ```
 
 Supported environment families:
@@ -274,44 +223,50 @@ Supported environment families:
 - `maze_branching`
 - `bugtrap`
 
-### 2. Run the full seven-environment / twelve-configuration suite
-
-`script/run_12_solver_suite.py` is the main paper-scale runner. It assumes environment assets already exist under `db/by_env/<family>/`.
+The script writes benchmark dictionaries to `input/nl/` and assets to `db/by_env/<family>_nl/`.
 
 Example:
 
 ```bash
-python script/run_12_solver_suite.py \
-  --families all \
-  --configs all \
-  --assets_dir db/by_env \
-  --benchmark_dir input/benchmarks_10k \
-  --out_dir output/benchmark_runs/twelve_solver_suite \
-  --scenario_ids all \
-  --workers 1 \
-  --case_workers 1 \
-  --timeout_sec 300 \
-  --retrain_every 500 \
-  --train_epochs_cl 25 \
-  --mplconfigdir /private/tmp/mpl
+python script/run_suite.py \
+  --dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
+  --bootstrap_results_dir output/bootstrap_dense_clutter_nl \
+  --assets_dir db/by_env/dense_clutter_nl \
+  --out_dir output/benchmark_runs/nl_dense_clutter_suite \
+  --scenario_ids 0-499 \
+  --block_size 100 \
+  --workers 2 \
+  --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl
 ```
 
-The twelve configuration labels are:
+`script/run_suite.py` supports:
 
-- `s1_primitives`
 - `s1_neural`
-- `s2_mpc`
 - `s2_cbf`
-- `sofai_mpc_primitives`
-- `sofai_mpc_neural`
-- `sofai_cbf_primitives`
-- `sofai_cbf_neural`
-- `sofai_mpc_primitives_cl`
-- `sofai_mpc_neural_cl`
-- `sofai_cbf_primitives_cl`
-- `sofai_cbf_neural_cl`
+- `s2_mpc`
+- `sofai_cbf_cl`
+- `sofai_mpc_cl`
 
-The `_cl` variants enable online memory updates and continual-learning behavior.
+The SOFAI continual-learning modes run in blocks, retrain the neural System 1 after each block, and carry the updated checkpoint into the next block.
+
+### 3. Plot results
+
+Example:
+
+```bash
+python plot_suite_results.py \
+  --suite_dir output/benchmark_runs/nl_dense_clutter_suite \
+  --out output/benchmark_runs/nl_dense_clutter_suite/summary.png
+```
+
+To plot the System 1 / System 2 split by block:
+
+```bash
+python plot_suite_s1_s2_ratio.py \
+  --suite_dir output/benchmark_runs/nl_dense_clutter_suite \
+  --config sofai_cbf_cl \
+  --out output/benchmark_runs/nl_dense_clutter_suite/s1_s2_ratio.png
+```
 
 
 ## Upstream SOFAI Reference

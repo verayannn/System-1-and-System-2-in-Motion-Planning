@@ -7,7 +7,7 @@ This script does three things:
 3. Train the initial neural System 1 checkpoint from all successful bootstrap trajectories.
 
 
-cd /Users/apple/Desktop/sofai
+cd <repo-root>
 PYTHONDONTWRITEBYTECODE=1 \
 python script/prepare_environment_assets.py \
   --family bugtrap \
@@ -20,10 +20,19 @@ python script/prepare_environment_assets.py \
   --s2_solver cbf
 
 
+cd <repo-root>
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
+python script/prepare_environment_assets.py \
+  --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap \
+  --train_n_per_family 500 \
+  --eval_n_per_family 10000 \
+  --s2_solver cbf
+
+
 
 all the families:
 
-cd /Users/apple/Desktop/sofai
+cd <repo-root>
 PYTHONDONTWRITEBYTECODE=1 \
 python script/prepare_environment_assets.py \
   --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap \
@@ -82,9 +91,11 @@ def run(cmd: List[str], *, cwd: Path, dry_run: bool) -> None:
     print("\n[cmd]", " ".join(cmd))
     if dry_run:
         return
+    from solvers._s2_common import resolve_mplconfigdir
+
     env = dict(os.environ)
     env.setdefault("PYTHONDONTWRITEBYTECODE", "1")
-    env.setdefault("MPLCONFIGDIR", "/private/tmp/mpl")
+    env["MPLCONFIGDIR"] = str(resolve_mplconfigdir(cwd, env.get("MPLCONFIGDIR")))
     subprocess.run(cmd, cwd=str(cwd), env=env, check=True)
 
 

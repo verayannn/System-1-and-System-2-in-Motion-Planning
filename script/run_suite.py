@@ -15,7 +15,7 @@ successful trajectory in each block.
 python script/run_suite.py --workers 3
 
 
-PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/private/tmp/mpl \
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python script/run_suite.py \
   --dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
   --bootstrap_results_dir output/bootstrap_dense_clutter_nl \
@@ -63,7 +63,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--train_batch", type=int, default=64)
     p.add_argument("--train_lr", type=float, default=3e-4)
     p.add_argument("--train_source", choices=["s2", "selected", "all_success"], default="all_success")
-    p.add_argument("--mplconfigdir", default="/private/tmp/mpl")
+    p.add_argument("--mplconfigdir", default="")
     p.add_argument("--dry_run", action="store_true")
     return p.parse_args()
 
@@ -110,9 +110,11 @@ def effective_workers(requested: int) -> int:
 
 
 def base_env(root: Path, model_path: Path, mplconfigdir: str) -> Dict[str, str]:
+    from solvers._s2_common import resolve_mplconfigdir
+
     env = dict(os.environ)
     env["PYTHONDONTWRITEBYTECODE"] = "1"
-    env["MPLCONFIGDIR"] = mplconfigdir
+    env["MPLCONFIGDIR"] = str(resolve_mplconfigdir(root, mplconfigdir))
     env["SOFAI_NEW_S1_MODEL"] = str(model_path)
     env.setdefault("SOFAI_NEW_S1_DEVICE", "cpu")
     return env

@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 
 '''
-MPLCONFIGDIR=/private/tmp/mpl /Users/apple/miniconda3/envs/s12_env/bin/python3.10 cbf_solver.py \
+MPLCONFIGDIR=/tmp/mpl /Users/apple/miniconda3/envs/s12_env/bin/python3.10 cbf_solver.py \
   --problem_dictionary benchmark_scenarios_maze_1199_block200.json \
   --scenario_id 2
 '''

@@ -73,7 +73,9 @@ def count_attempts(rows: List[Dict[str, Any]], block_size: int, n_blocks: int) -
 
 def main() -> None:
     args = parse_args()
-    os.environ.setdefault("MPLCONFIGDIR", "/private/tmp/mpl")
+    from solvers._s2_common import resolve_mplconfigdir
+
+    os.environ["MPLCONFIGDIR"] = str(resolve_mplconfigdir(Path(__file__).resolve().parent, os.environ.get("MPLCONFIGDIR")))
 
     suite_dir = Path(args.suite_dir).expanduser().resolve()
     manifest = json.loads((suite_dir / "suite_manifest.json").read_text())

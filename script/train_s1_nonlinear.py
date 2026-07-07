@@ -18,7 +18,9 @@ from torch.utils.data import DataLoader, TensorDataset, WeightedRandomSampler
 
 
 def configure_repo(root: Path, mplconfigdir: str) -> None:
-    os.environ.setdefault("MPLCONFIGDIR", mplconfigdir)
+    from solvers._s2_common import resolve_mplconfigdir
+
+    os.environ["MPLCONFIGDIR"] = str(resolve_mplconfigdir(root, mplconfigdir))
     for path in (root, root / "sofai", root / "solvers"):
         value = str(path)
         if value not in sys.path:
@@ -64,7 +66,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--near_goal_boost", type=float, default=2.0)
     p.add_argument("--progress_boost", type=float, default=2.0)
     p.add_argument("--max_sample_weight", type=float, default=25.0)
-    p.add_argument("--mplconfigdir", default="/private/tmp/mpl")
+    p.add_argument("--mplconfigdir", default="")
     return p.parse_args()
 
 

@@ -13,7 +13,7 @@ Example:
 
 cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
 
-PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/private/tmp/mpl \
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python visualize_mp.py \
   --problem_dictionary nl/benchmark_dualmp_nl_bugtrap_eval_bugtrap.json \
   --scenario_ids 19 \
@@ -44,7 +44,9 @@ import numpy as np
 
 
 def configure_imports(root: Path, mplconfigdir: str) -> None:
-    os.environ.setdefault("MPLCONFIGDIR", mplconfigdir)
+    from solvers._s2_common import bootstrap_acados_backend, resolve_mplconfigdir
+
+    os.environ["MPLCONFIGDIR"] = str(resolve_mplconfigdir(root, mplconfigdir))
 
     for path in (root, root / "sofai", root / "solvers"):
         value = str(path)
@@ -52,8 +54,6 @@ def configure_imports(root: Path, mplconfigdir: str) -> None:
             sys.path.insert(0, value)
 
     try:
-        from solvers._s2_common import bootstrap_acados_backend
-
         bootstrap_acados_backend()
     except Exception:
         pass
@@ -344,7 +344,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--plot_all_attempts", action="store_true")
     parser.add_argument("--out_dir", default="output/visualize_mp")
     parser.add_argument("--out_prefix", default="")
-    parser.add_argument("--mplconfigdir", default="/private/tmp/mpl")
+    parser.add_argument("--mplconfigdir", default="")
     return parser.parse_args()
 
 
