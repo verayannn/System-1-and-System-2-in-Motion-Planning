@@ -110,6 +110,10 @@ def effective_workers(requested: int) -> int:
 
 
 def base_env(root: Path, model_path: Path, mplconfigdir: str) -> Dict[str, str]:
+    for path in (root, root / "sofai", root / "solvers"):
+        value = str(path)
+        if value not in sys.path:
+            sys.path.insert(0, value)
     from solvers._s2_common import resolve_mplconfigdir
 
     env = dict(os.environ)

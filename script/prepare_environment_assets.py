@@ -91,6 +91,10 @@ def run(cmd: List[str], *, cwd: Path, dry_run: bool) -> None:
     print("\n[cmd]", " ".join(cmd))
     if dry_run:
         return
+    for path in (cwd, cwd / "sofai", cwd / "solvers"):
+        value = str(path)
+        if value not in sys.path:
+            sys.path.insert(0, value)
     from solvers._s2_common import resolve_mplconfigdir
 
     env = dict(os.environ)

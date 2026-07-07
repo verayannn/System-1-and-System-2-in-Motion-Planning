@@ -18,13 +18,13 @@ from torch.utils.data import DataLoader, TensorDataset, WeightedRandomSampler
 
 
 def configure_repo(root: Path, mplconfigdir: str) -> None:
-    from solvers._s2_common import resolve_mplconfigdir
-
-    os.environ["MPLCONFIGDIR"] = str(resolve_mplconfigdir(root, mplconfigdir))
     for path in (root, root / "sofai", root / "solvers"):
         value = str(path)
         if value not in sys.path:
             sys.path.insert(0, value)
+    from solvers._s2_common import resolve_mplconfigdir
+
+    os.environ["MPLCONFIGDIR"] = str(resolve_mplconfigdir(root, mplconfigdir))
 
 
 def parse_args() -> argparse.Namespace:
