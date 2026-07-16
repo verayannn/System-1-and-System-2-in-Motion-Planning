@@ -6,7 +6,7 @@ import ctypes
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Iterable, Sequence, Tuple
+from typing import Any, Dict, Iterable, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -113,6 +113,53 @@ def maybe_patch_goal_trajectory(
     return np.vstack([X, goal_state[None, :]]).astype(np.float32)
 
 
+def benchmark_family_from_dictionary(dictionary_name: str) -> str:
+    stem = Path(str(dictionary_name)).stem
+    for marker in ("_eval_", "_train_"):
+        if marker in stem:
+            return stem.split(marker, 1)[1] or stem
+    return stem
+
+
+def quality_weights_for_family(family: str) -> Dict[str, float]:
+    family = str(family).strip().lower()
+    presets: Dict[str, Dict[str, float]] = {
+        # Trajectory-shape heavy tasks.
+        "dense_clutter": {"path_length": 0.25, "control_effort": 0.15, "smoothness": 0.60},
+        "bugtrap": {"path_length": 0.20, "control_effort": 0.10, "smoothness": 0.70},
+        "maze_branching": {"path_length": 0.25, "control_effort": 0.10, "smoothness": 0.65},
+        "serial_walls": {"path_length": 0.25, "control_effort": 0.15, "smoothness": 0.60},
+        "wall_gap": {"path_length": 0.25, "control_effort": 0.15, "smoothness": 0.60},
+        # Dynamics-dominated open spaces can afford slightly more effort sensitivity.
+        "small_open": {"path_length": 0.35, "control_effort": 0.20, "smoothness": 0.45},
+        "large_sparse": {"path_length": 0.30, "control_effort": 0.20, "smoothness": 0.50},
+    }
+    weights = dict(presets.get(family, {"path_length": 0.25, "control_effort": 0.15, "smoothness": 0.60}))
+    total = float(sum(weights.values()))
+    if total <= 0.0:
+        return {"path_length": 1.0 / 3.0, "control_effort": 1.0 / 3.0, "smoothness": 1.0 / 3.0}
+    for key in weights:
+        weights[key] = float(weights[key]) / total
+    return weights
+
+
+def _turning_smoothness(states: np.ndarray) -> float:
+    xy = np.asarray(states, dtype=float)[:, :2]
+    if xy.shape[0] < 3:
+        return 0.0
+    v1 = xy[1:-1] - xy[:-2]
+    v2 = xy[2:] - xy[1:-1]
+    n1 = np.linalg.norm(v1, axis=1)
+    n2 = np.linalg.norm(v2, axis=1)
+    mask = (n1 > 1e-9) & (n2 > 1e-9)
+    if not np.any(mask):
+        return 0.0
+    cos = np.sum(v1[mask] * v2[mask], axis=1) / (n1[mask] * n2[mask])
+    cos = np.clip(cos, -1.0, 1.0)
+    angles = np.arccos(cos)
+    return float(np.sum(np.square(angles)))
+
+
 def rect_to_superellipse(
     rect: Rect,
     *,
@@ -126,6 +173,141 @@ def rect_to_superellipse(
     ax = max(0.5 * (xmax - xmin) - float(robot_radius) - float(margin), 1e-3)
     ay = max(0.5 * (ymax - ymin) - float(robot_radius) - float(margin), 1e-3)
     return np.array([cx, cy, ax, ay, float(exponent), 0.0, 1.0], dtype=float)
+
+
+def selected_success_attempt(result: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    attempts = result.get("attempts", []) or []
+    selected_name = str(result.get("selected_attempt") or "").strip()
+    if selected_name:
+        for attempt in attempts:
+            if str(attempt.get("name")) == selected_name and bool(attempt.get("success")):
+                return attempt
+    for attempt in attempts:
+        if bool(attempt.get("success")):
+            return attempt
+    return None
+
+
+def _scenario_matrix(scenario: Dict[str, Any] | None, *names: str) -> Optional[np.ndarray]:
+    if not isinstance(scenario, dict):
+        return None
+    for name in names:
+        value = scenario.get(name)
+        if value is None:
+            continue
+        try:
+            arr = np.asarray(value, dtype=float)
+        except Exception:
+            continue
+        if arr.ndim == 2 and arr.size:
+            return arr
+    return None
+
+
+def _controls_from_attempt(
+    result: Dict[str, Any],
+    attempt: Dict[str, Any],
+    *,
+    dt: float,
+) -> np.ndarray:
+    inputs = attempt.get("inputs")
+    if inputs is not None:
+        try:
+            arr = np.asarray(inputs, dtype=float)
+            if arr.ndim == 2 and arr.shape[0] > 0:
+                return arr
+        except Exception:
+            pass
+
+    states = np.asarray(attempt.get("states", []), dtype=float)
+    if states.ndim != 2 or states.shape[0] < 2:
+        return np.zeros((0, 2), dtype=float)
+
+    scenario = result.get("scenario")
+    A = _scenario_matrix(scenario, "A_query", "A")
+    B = _scenario_matrix(scenario, "B_query", "B")
+    if A is None or B is None:
+        return np.diff(states[:, :2], axis=0) / max(float(dt), 1e-6)
+
+    xy = states[:, :2]
+    dx = (xy[1:] - xy[:-1]) / max(float(dt), 1e-6)
+    drift = xy[:-1] @ A.T
+    residual = dx - drift
+    try:
+        u = residual @ np.linalg.pinv(B).T
+    except Exception:
+        u = residual
+    return np.asarray(u, dtype=float)
+
+
+def trajectory_quality_components(result: Dict[str, Any], *, dt: float = 0.05) -> Optional[Dict[str, float]]:
+    attempt = selected_success_attempt(result)
+    if attempt is None:
+        return None
+
+    states = np.asarray(attempt.get("states", []), dtype=float)
+    if states.ndim != 2 or states.shape[0] == 0:
+        return None
+
+    xy = states[:, :2]
+    path_length = float(np.linalg.norm(xy[1:] - xy[:-1], axis=1).sum()) if xy.shape[0] > 1 else 0.0
+    controls = _controls_from_attempt(result, attempt, dt=dt)
+    control_effort = float(np.sum(np.sum(np.square(controls), axis=1))) if controls.size else 0.0
+    smoothness = _turning_smoothness(xy)
+    if smoothness <= 0.0 and controls.shape[0] > 1:
+        smoothness = float(np.sum(np.sum(np.square(np.diff(controls, axis=0)), axis=1)))
+
+    return {
+        "path_length": path_length,
+        "control_effort": control_effort,
+        "smoothness": smoothness,
+    }
+
+
+def quality_reference_values(samples: Sequence[Dict[str, float]]) -> Dict[str, float]:
+    refs: Dict[str, float] = {}
+    for key in ("path_length", "control_effort", "smoothness"):
+        values = [float(sample[key]) for sample in samples if sample.get(key) is not None and float(sample[key]) > 0.0]
+        refs[key] = float(np.median(values)) if values else 1.0
+        refs[key] = max(refs[key], 1e-9)
+    return refs
+
+
+def quality_score(sample: Dict[str, float], refs: Dict[str, float], weights: Optional[Dict[str, float]] = None) -> float:
+    if weights is None:
+        weights = {"path_length": 1.0 / 3.0, "control_effort": 1.0 / 3.0, "smoothness": 1.0 / 3.0}
+    total = float(sum(float(weights.get(key, 0.0)) for key in ("path_length", "control_effort", "smoothness")))
+    if total <= 0.0:
+        weights = {"path_length": 1.0 / 3.0, "control_effort": 1.0 / 3.0, "smoothness": 1.0 / 3.0}
+        total = 1.0
+    j = (
+        float(weights.get("path_length", 0.0)) * float(sample["path_length"]) / float(refs["path_length"])
+        + float(weights.get("control_effort", 0.0)) * float(sample["control_effort"]) / float(refs["control_effort"])
+        + float(weights.get("smoothness", 0.0)) * float(sample["smoothness"]) / float(refs["smoothness"])
+    ) / total
+    return 1.0 / (1.0 + j)
+
+
+def quality_refs_for_result(result: Dict[str, Any]) -> Dict[str, float]:
+    selected = selected_success_attempt(result)
+    scenario = result.get("scenario") if isinstance(result, dict) else None
+    if selected is None or not isinstance(scenario, dict):
+        return {"path_length": 1.0, "control_effort": 1.0, "smoothness": 1.0}
+
+    states = np.asarray(selected.get("states", []), dtype=float)
+    if states.ndim != 2 or states.shape[0] == 0:
+        return {"path_length": 1.0, "control_effort": 1.0, "smoothness": 1.0}
+
+    start = np.asarray(scenario.get("start", (0.0, 0.0)), dtype=float).reshape(-1)[:2]
+    goal = np.asarray(scenario.get("goal", (0.0, 0.0)), dtype=float).reshape(-1)[:2]
+    path_ref = max(float(np.linalg.norm(goal - start)), 1e-6)
+    u_max = float(scenario.get("u_max", 3.0))
+    effort_ref = max(path_ref * max(int(states.shape[0]) - 1, 1) * (u_max**2), 1e-6)
+    return {
+        "path_length": path_ref,
+        "control_effort": effort_ref,
+        "smoothness": 1.0,
+    }
 
 
 def acados_root_candidates() -> list[Path]:

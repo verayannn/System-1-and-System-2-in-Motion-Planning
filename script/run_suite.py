@@ -17,13 +17,12 @@ python script/run_suite.py --workers 3
 
 PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python script/run_suite.py \
-  --dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
-  --bootstrap_results_dir output/bootstrap_dense_clutter_nl \
-  --assets_dir db/by_env/dense_clutter_nl \
-  --out_dir output/benchmark_runs/nl_dense_clutter_suite \
-  --scenario_ids 0-499 \
-  --workers 3 \
-  --configs sofai_mpc_cl
+  --dictionary input/nl/benchmark_dualmp_nl_bugtrap_eval_bugtrap.json \
+  --bootstrap_results_dir output/bootstrap_bugtrap_nl \
+  --assets_dir db/by_env/bugtrap_nl \
+  --out_dir output/benchmark_runs/nl_bugtrap_suite \
+  --scenario_ids 0-49 \
+  --workers 3
 
 """
 
@@ -37,11 +36,12 @@ import sys
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
 
-## MODES = ("s1_neural", "s2_cbf", "s2_mpc")
 
-## MODES = ("s1_neural",)
+MODES = ("s1_neural", "s2_cbf", "s2_mpc")
 
-MODES = ("s1_neural", "s2_mpc", "s2_cbf", "sofai_cbf_cl", "sofai_mpc_cl")
+## MODES = ("s1_neural",) 
+
+## MODES = ("s1_neural", "s2_mpc", "s2_cbf", "sofai_cbf_cl", "sofai_mpc_cl")
 
 
 

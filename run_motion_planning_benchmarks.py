@@ -55,6 +55,11 @@ CSV_FIELDS = [
     "selected_attempt", "success", "collision_free", "goal_reached",
     "final_goal_error", "path_length", "num_states", "runtime_sec",
     "selected_runtime_sec", "wall_runtime_sec",
+    "quality_path_length", "quality_control_effort", "quality_smoothness",
+    "quality_j", "quality_score",
+    "quality_path_length_ref", "quality_control_effort_ref", "quality_smoothness_ref",
+    "quality_weight_path_length", "quality_weight_control_effort", "quality_weight_smoothness",
+    "quality_family",
     "s1_attempted", "s1_success", "s1_collision_free", "s1_goal_reached",
     "s1_confidence", "s1_runtime_sec", "s1_final_goal_error",
     "s1_path_length", "s1_num_states",
@@ -301,6 +306,18 @@ def flat(result: Dict[str, Any]) -> Dict[str, Any]:
         "runtime_sec": result.get("runtime_sec", ""),
         "selected_runtime_sec": "" if result.get("selected_runtime_sec") is None else result.get("selected_runtime_sec"),
         "wall_runtime_sec": result.get("wall_runtime_sec", result.get("runtime_sec", "")),
+        "quality_path_length": "" if result.get("quality_path_length") is None else result.get("quality_path_length"),
+        "quality_control_effort": "" if result.get("quality_control_effort") is None else result.get("quality_control_effort"),
+        "quality_smoothness": "" if result.get("quality_smoothness") is None else result.get("quality_smoothness"),
+        "quality_j": "" if result.get("quality_j") is None else result.get("quality_j"),
+        "quality_score": "" if result.get("quality_score") is None else result.get("quality_score"),
+        "quality_path_length_ref": "" if result.get("quality_path_length_ref") is None else result.get("quality_path_length_ref"),
+        "quality_control_effort_ref": "" if result.get("quality_control_effort_ref") is None else result.get("quality_control_effort_ref"),
+        "quality_smoothness_ref": "" if result.get("quality_smoothness_ref") is None else result.get("quality_smoothness_ref"),
+        "quality_weight_path_length": "" if result.get("quality_weight_path_length") is None else result.get("quality_weight_path_length"),
+        "quality_weight_control_effort": "" if result.get("quality_weight_control_effort") is None else result.get("quality_weight_control_effort"),
+        "quality_weight_smoothness": "" if result.get("quality_weight_smoothness") is None else result.get("quality_weight_smoothness"),
+        "quality_family": result.get("quality_family", ""),
         "s1_attempted": s1 is not None,
         "s1_success": get(s1, "success"),
         "s1_collision_free": get(s1, "collision_free"),
@@ -339,6 +356,56 @@ def write_outputs(out_dir: Path, prefix: str, results: List[Dict[str, Any]]) -> 
             writer.writerow(flat(result))
 
     return jsonl_path, csv_path
+
+
+def annotate_quality(results: List[Dict[str, Any]]) -> Dict[str, float]:
+    from solvers._s2_common import (
+        benchmark_family_from_dictionary,
+        quality_refs_for_result,
+        quality_score,
+        quality_weights_for_family,
+        trajectory_quality_components,
+    )
+
+    per_result: List[Dict[str, float] | None] = []
+    family = benchmark_family_from_dictionary(results[0].get("dictionary", "")) if results else ""
+    weights = quality_weights_for_family(family)
+    for result in results:
+        sample = trajectory_quality_components(result) if bool(result.get("success", False)) else None
+        per_result.append(sample)
+
+    for result, sample in zip(results, per_result):
+        refs = quality_refs_for_result(result)
+        result["quality_path_length_ref"] = refs["path_length"]
+        result["quality_control_effort_ref"] = refs["control_effort"]
+        result["quality_smoothness_ref"] = refs["smoothness"]
+        result["quality_weight_path_length"] = weights["path_length"]
+        result["quality_weight_control_effort"] = weights["control_effort"]
+        result["quality_weight_smoothness"] = weights["smoothness"]
+        result["quality_family"] = family
+        if sample is None:
+            result["quality_path_length"] = None
+            result["quality_control_effort"] = None
+            result["quality_smoothness"] = None
+            result["quality_j"] = None
+            result["quality_score"] = None
+            continue
+        j = (
+            weights["path_length"] * float(sample["path_length"]) / float(refs["path_length"])
+            + weights["control_effort"] * float(sample["control_effort"]) / float(refs["control_effort"])
+            + weights["smoothness"] * float(sample["smoothness"]) / float(refs["smoothness"])
+        )
+        result["quality_path_length"] = float(sample["path_length"])
+        result["quality_control_effort"] = float(sample["control_effort"])
+        result["quality_smoothness"] = float(sample["smoothness"])
+        result["quality_j"] = j
+        result["quality_score"] = quality_score(sample, refs, weights)
+
+    return quality_refs_for_result(results[0]) if results else {
+        "path_length": 1.0,
+        "control_effort": 1.0,
+        "smoothness": 1.0,
+    }
 
 
 def print_aggregate(results: List[Dict[str, Any]]) -> None:
@@ -464,6 +531,7 @@ def main() -> None:
                 results.append(result)
                 print_result(result, i)
 
+    annotate_quality(results)
     jsonl_path, csv_path = write_outputs(out_dir, args.out_prefix, results)
     print_aggregate(results)
     print(f"[write] {jsonl_path}")

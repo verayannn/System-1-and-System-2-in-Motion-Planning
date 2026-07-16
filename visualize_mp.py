@@ -15,13 +15,13 @@ cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
 
 PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python visualize_mp.py \
-  --problem_dictionary nl/benchmark_dualmp_nl_bugtrap_eval_bugtrap.json \
-  --scenario_ids 19 \
+  --problem_dictionary nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
+  --scenario_ids 1 \
   --s1 neural \
   --s2 mpc \
   --run_type s2 \
   --out_dir output/visualize_mp \
-  --out_prefix s2_mpc_sc19
+  --out_prefix s2_mpc_sc1
 
 
 
@@ -149,6 +149,107 @@ def add_metrics(attempt: Dict[str, Any], scenario: Any) -> Dict[str, Any]:
     return attempt
 
 
+def add_quality(result: Dict[str, Any]) -> Dict[str, Any]:
+    from solvers._s2_common import (
+        benchmark_family_from_dictionary,
+        quality_score,
+        quality_weights_for_family,
+        selected_success_attempt,
+        trajectory_quality_components,
+    )
+
+    selected = selected_success_attempt(result)
+    family = benchmark_family_from_dictionary(result.get("dictionary", ""))
+    weights = quality_weights_for_family(family)
+    result["quality_family"] = family
+    result["quality_weight_path_length"] = weights["path_length"]
+    result["quality_weight_control_effort"] = weights["control_effort"]
+    result["quality_weight_smoothness"] = weights["smoothness"]
+
+    if selected is None or not bool(selected.get("success", False)):
+        result.update(
+            {
+                "quality_path_length": None,
+                "quality_control_effort": None,
+                "quality_smoothness": None,
+                "quality_j": None,
+                "quality_score": None,
+                "quality_path_length_ref": None,
+                "quality_control_effort_ref": None,
+                "quality_smoothness_ref": None,
+            }
+        )
+        return result
+
+    sample = trajectory_quality_components(result)
+    if sample is None:
+        result.update(
+            {
+                "quality_path_length": None,
+                "quality_control_effort": None,
+                "quality_smoothness": None,
+                "quality_j": None,
+                "quality_score": None,
+                "quality_path_length_ref": None,
+                "quality_control_effort_ref": None,
+                "quality_smoothness_ref": None,
+            }
+        )
+        return result
+
+    scenario = result["scenario"]
+    states = np.asarray(selected.get("states", []), dtype=float)
+    if states.ndim != 2 or states.shape[0] == 0:
+        result.update(
+            {
+                "quality_path_length": None,
+                "quality_control_effort": None,
+                "quality_smoothness": None,
+                "quality_j": None,
+                "quality_score": None,
+                "quality_path_length_ref": None,
+                "quality_control_effort_ref": None,
+                "quality_smoothness_ref": None,
+            }
+        )
+        return result
+
+    start = np.asarray(scenario["start"], dtype=float).reshape(-1)[:2]
+    goal = np.asarray(scenario["goal"], dtype=float).reshape(-1)[:2]
+    path_ref = max(float(np.linalg.norm(goal - start)), 1e-6)
+    u_max = float(scenario.get("u_max", 3.0))
+    effort_ref = max(path_ref * max(int(states.shape[0]) - 1, 1) * (u_max**2), 1e-6)
+    smooth_ref = 1.0
+
+    j = (
+        weights["path_length"] * float(sample["path_length"]) / path_ref
+        + weights["control_effort"] * float(sample["control_effort"]) / effort_ref
+        + weights["smoothness"] * float(sample["smoothness"]) / smooth_ref
+    )
+
+    result.update(
+        {
+            "quality_path_length": float(sample["path_length"]),
+            "quality_control_effort": float(sample["control_effort"]),
+            "quality_smoothness": float(sample["smoothness"]),
+            "quality_j": float(j),
+            "quality_score": float(quality_score(
+                sample,
+                {
+                    "path_length": path_ref,
+                    "control_effort": effort_ref,
+                    "smoothness": smooth_ref,
+                },
+                weights,
+            )),
+            "quality_path_length_ref": path_ref,
+            "quality_control_effort_ref": effort_ref,
+            "quality_smoothness_ref": smooth_ref,
+        }
+    )
+    return result
+
+
 def run_s1(scenario: Any, mode: str) -> Dict[str, Any]:
     t0 = time.perf_counter()
     if mode == "neural":
@@ -244,7 +345,7 @@ def run_case(args: argparse.Namespace) -> Dict[str, Any]:
             attempts.append(add_metrics(run_s2(scenario, args.s2), scenario))
 
     selected = choose_selected(attempts, args.run_type)
-    return {
+    result = {
         "dictionary": dictionary_path.name,
         "dictionary_path": str(dictionary_path),
         "scenario_id": scenario_id,
@@ -257,6 +358,7 @@ def run_case(args: argparse.Namespace) -> Dict[str, Any]:
         "success": bool(selected and selected.get("success", False)),
         "runtime_sec": time.perf_counter() - t0,
     }
+    return add_quality(result)
 
 
 def plot_result(result: Dict[str, Any], out_png: Path, *, plot_all_attempts: bool) -> None:
@@ -369,11 +471,13 @@ def main() -> None:
 
     print(f"[write] {out_json}")
     print(f"[write] {out_png}")
+    quality_text = "nan" if result.get("quality_score") is None else f"{float(result['quality_score']):.3f}"
     print(
         "[summary] "
         f"selected={result['selected_attempt']} "
         f"success={result['success']} "
-        f"runtime={result['runtime_sec']:.3f}s"
+        f"runtime={result['runtime_sec']:.3f}s "
+        f"quality={quality_text}"
     )
 
 
