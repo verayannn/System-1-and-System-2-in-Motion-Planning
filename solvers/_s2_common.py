@@ -312,13 +312,28 @@ def quality_refs_for_result(result: Dict[str, Any]) -> Dict[str, float]:
 
 def acados_root_candidates() -> list[Path]:
     candidates = []
-    env_root = os.environ.get("ACADOS_SOURCE_DIR")
-    if env_root:
-        candidates.append(Path(env_root))
-    candidates.append(Path("/private/tmp/acados-install"))
-    candidates.append(Path(tempfile.gettempdir()) / "acados-install")
-    candidates.append(Path(__file__).resolve().parents[1] / "safe_control" / "acados")
-    return candidates
+    for env_name in ("ACADOS_SOURCE_DIR", "ACADOS_INSTALL_DIR", "ACADOS_ROOT"):
+        env_root = os.environ.get(env_name)
+        if env_root:
+            candidates.append(Path(env_root))
+
+    repo_root = Path(__file__).resolve().parents[1]
+    candidates.extend(
+        [
+            repo_root / "safe_control" / "acados",
+            repo_root / ".acados",
+            Path(tempfile.gettempdir()) / "acados-install",
+        ]
+    )
+
+    unique: list[Path] = []
+    seen: set[Path] = set()
+    for candidate in candidates:
+        resolved = candidate.expanduser()
+        if resolved not in seen:
+            seen.add(resolved)
+            unique.append(resolved)
+    return unique
 
 
 def _shared_library_patterns(base: str) -> tuple[str, ...]:
@@ -407,7 +422,23 @@ def bootstrap_acados_backend() -> Path | None:
 def ensure_acados_template_path() -> Path:
     source_root = Path(__file__).resolve().parents[1] / "safe_control" / "acados"
     backend_root = bootstrap_acados_backend() or source_root
-    template_path = source_root / "interfaces" / "acados_template"
+    env_template = os.environ.get("ACADOS_PYTHON_INTERFACE_PATH")
+    template_candidates = []
+    if env_template:
+        template_env_path = Path(env_template).expanduser()
+        template_candidates.extend([template_env_path, template_env_path.parent])
+    template_candidates.extend(
+        [
+            backend_root / "interfaces" / "acados_template",
+            source_root / "interfaces" / "acados_template",
+        ]
+    )
+
+    template_path = template_candidates[-1]
+    for candidate in template_candidates:
+        if candidate.exists():
+            template_path = candidate
+            break
 
     if template_path.exists():
         template_path_str = str(template_path)

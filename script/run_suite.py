@@ -25,7 +25,8 @@ python script/run_suite.py \
   --workers 6 \
   --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl
 
-  
+
+for the whole benchmark run:
 
 for family in dense_clutter small_open large_sparse wall_gap serial_walls maze_branching bugtrap; do
   PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR="${TMPDIR:-/tmp}/mpl" \
@@ -41,7 +42,8 @@ for family in dense_clutter small_open large_sparse wall_gap serial_walls maze_b
 done
 
 
-testing by this:
+
+testing by these two:
 
 for family in dense_clutter bugtrap; do
   PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR="${TMPDIR:-/tmp}/mpl" \
@@ -53,6 +55,22 @@ for family in dense_clutter bugtrap; do
     --scenario_ids 0-9 \
     --workers 3 \
     --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl
+done
+
+
+Jul 18th:
+
+for family in dense_clutter bugtrap small_open large_sparse wall_gap serial_walls maze_branching; do
+  PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR="${TMPDIR:-/tmp}/mpl" \
+  python script/run_suite.py \
+    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
+    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
+    --assets_dir "db/by_env/${family}_nl" \
+    --out_dir "output/benchmark_runs/nl_${family}_suite" \
+    --scenario_ids 0-99 \
+    --block_size 50 \
+    --workers 3 \
+    --configs s2_mpc s1_neural s2_cbf sofai_cbf_cl sofai_mpc_cl
 done
 
 
@@ -74,7 +92,7 @@ from typing import Dict, Iterable, List, Sequence
 
 ## MODES = ("s1_neural",) 
 
-MODES = ( "s1_neural", "s2_cbf", "s2_mpc", "sofai_cbf_cl", "sofai_mpc_cl")
+MODES = ( "s2_mpc", "s1_neural", "s2_cbf", "sofai_cbf_cl", "sofai_mpc_cl")
 
 
 

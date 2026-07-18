@@ -1,12 +1,12 @@
 # Top-level environment for the Dual Process Motion Planning experiments.
-# This installs the local SOFAI package and the vendored safe_control package,
-# plus the solver/runtime libraries required by the repo-level experiment scripts.
+# For new installs, prefer `uv sync --extra acados-template`.
+# This file is kept for pip/conda users and mirrors the core project deps.
 
 -e ./sofai
 -e ./safe_control
 
 # Core numerical stack
-numpy==1.26.4
+numpy>=1.26.4,<2.0
 scipy>=1.15
 matplotlib>=3.10
 
@@ -29,6 +29,8 @@ tqdm>=4.67
 
 # Needed by vendored acados_template imports
 deprecated>=1.2.14
+cython
+setuptools-scm
 
-# Optional, only if you use safe_control examples that require it
-gurobipy
+# Optional, only if you use safe_control examples that require it:
+# gurobipy

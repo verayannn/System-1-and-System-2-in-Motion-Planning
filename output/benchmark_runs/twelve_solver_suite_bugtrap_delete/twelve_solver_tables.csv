@@ -1,3 +1,0 @@
-environment,solver,success_rate,average_runtime,mean_runtime,p90_runtime,s1_solved,s2_solved
-bugtrap,sofai_mpc_primitives,0.51,8.797530757019558,8.797530757019558,20.732316099703894,35,16
-average,sofai_mpc_primitives,0.51,8.797530757019558,8.797530757019558,20.732316099703894,35.0,16.0

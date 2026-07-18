@@ -29,6 +29,13 @@ python script/prepare_environment_assets.py \
   --s2_solver cbf
 
 
+Jul 18th using:
+cd <repo-root>
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
+python script/prepare_environment_assets.py \
+  --families small_open large_sparse wall_gap serial_walls maze_branching \
+  --s2_solver cbf
+
 
 all the families:
 

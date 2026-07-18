@@ -14,6 +14,7 @@ env/
 ENV/
 env.bak/
 venv.bak/
+.env.acados
 
 # =========================
 # Distribution / packaging
@@ -81,12 +82,14 @@ Thumbs.db
 # =========================
 # Data / large files (customize!)
 # =========================
-
+input/nl/
+benchmark*/
+benchmarks*/
 
 # =========================
 # Outputs / results
 # =========================
-
+output/
 
 # =========================
 # Temporary files

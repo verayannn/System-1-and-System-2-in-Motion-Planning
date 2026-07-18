@@ -16,69 +16,96 @@ The core idea is to combine:
 
 ## Installation
 
-Follow the steps below to install the project locally on either macOS or Linux.
+The recommended setup uses `uv` plus the repo-local `safe_control/acados` tree. This works on macOS and Linux as long as the machine has a C/C++ compiler, `cmake`, `make`, and `git`.
 
-### 0. Install `acados`
-
-System 2 MPC uses a native `acados` backend. Build or install `acados` first, then point the environment to the installed prefix.
-
-If you are using a separate `acados` install:
-
-```bash
-export ACADOS_SOURCE_DIR=/path/to/built/acados
-python -m pip install -e "$ACADOS_SOURCE_DIR/interfaces/acados_template"
-```
-
-If you want to use the vendored `acados` tree shipped in this repo, build it first and then point `ACADOS_SOURCE_DIR` at that built prefix.
+System 2 MPC is acados-only in this repo. The Python dependencies can be installed by `uv` or `pip`, but the native acados shared libraries must still be built with CMake. System 1 and System 2 CBF do not require acados.
 
 ### 1. Clone the repository
 
 ```bash
 git clone <repository-url>
 cd System-1-and-System-2-in-Motion-Planning
+git submodule update --recursive --init
 ```
 
-### 2. Create a Python 3.10 environment
-
-Pick one of the following:
+### 2. Install Python dependencies with `uv`
 
 ```bash
-# uv
 uv venv --python 3.10
 source .venv/bin/activate
-
-# conda
-conda create --name dualmp_env python=3.10 -y
-conda activate dualmp_env
-
-# standard venv
-python3.10 -m venv .venv
-source .venv/bin/activate
+uv sync --extra acados-template
 ```
 
-### 3. Install dependencies
+The root `pyproject.toml` installs the local packages in editable mode:
+
+- `sofai/`
+- `safe_control/`
+
+It also keeps the numerical stack on `numpy>=1.26.4,<2.0`, which avoids the previous mismatch between vendored SOFAI and `safe_control`.
+
+### 3. Build and register acados
 
 ```bash
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python script/setup_acados.py --jobs 4
+source .env.acados
 ```
 
-If you prefer `uv`, use:
+The setup script:
+
+- builds `safe_control/acados` with CMake
+- checks that `libacados`, `libblasfeo`, and `libhpipm` exist
+- installs `acados_template` into the active Python environment
+- writes `.env.acados` with the correct library path variables for macOS or Linux
+
+On Linux servers, install native build tools first if they are missing:
 
 ```bash
-uv pip install -r requirements.txt
+sudo apt-get update
+sudo apt-get install -y git build-essential cmake python3-dev
+```
+
+On macOS, install build tools if they are missing:
+
+```bash
+xcode-select --install
+brew install cmake
+```
+
+If you want to use a separate acados checkout instead of the repo-local one:
+
+```bash
+python script/setup_acados.py --acados_root /path/to/acados --skip_build
+source .env.acados
 ```
 
 ### 4. Verify the install
 
 ```bash
-python -c "import sofai_tool, safe_control; print('SOFAI installation verified.')"
+python - <<'PY'
+import sofai_tool
+import safe_control
+from solvers._s2_common import detect_acados_root
+
+root = detect_acados_root()
+print("SOFAI import: ok")
+print("safe_control import: ok")
+print("acados root:", root)
+assert root is not None, "acados shared libraries were not found"
+PY
 ```
 
-The root `requirements.txt` installs both local packages in editable mode:
+### Pip or Conda fallback
 
-- `-e ./sofai`
-- `-e ./safe_control`
+If `uv` is not available, use a Python 3.10 environment and install the compatibility requirements:
+
+```bash
+python3.10 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python script/setup_acados.py --jobs 4
+source .env.acados
+```
 
 The repository scripts automatically choose a writable `MPLCONFIGDIR`, so you do not normally need to set it manually. If you want to override it, use a writable path such as `/tmp/mpl` on both macOS and Linux.
 

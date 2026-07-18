@@ -1,0 +1,45 @@
+[project]
+name = "dual-process-motion-planning"
+version = "0.1.0"
+description = "System 1/System 2 motion-planning experiments with neural, CBF, and acados MPC solvers."
+readme = "README.md"
+requires-python = ">=3.10,<3.12"
+dependencies = [
+    "sofai_tool",
+    "safe_control",
+    "numpy>=1.26.4,<2.0",
+    "scipy>=1.15",
+    "matplotlib>=3.10",
+    "torch>=2.2",
+    "casadi>=3.7",
+    "cvxpy>=1.7",
+    "osqp>=1.1",
+    "scs>=3.2",
+    "clarabel>=0.11",
+    "do-mpc[full]>=5.1.1",
+    "shapely>=2.0.7",
+    "pandas>=2.3",
+    "seaborn>=0.13",
+    "tqdm>=4.67",
+    "deprecated>=1.2.14",
+]
+
+[project.optional-dependencies]
+acados-template = [
+    # The native acados library is still built with CMake. These are Python-side
+    # build/import helpers used by the vendored acados_template package.
+    "cython",
+    "setuptools-scm",
+]
+gurobi = ["gurobipy"]
+
+[tool.uv.sources]
+sofai_tool = { path = "sofai", editable = true }
+safe_control = { path = "safe_control", editable = true }
+
+[tool.setuptools]
+packages = []
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

@@ -5,15 +5,17 @@ description = "Safe Control Library"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "numpy==1.26.4",
+    "numpy>=1.26.4,<2.0",
     "scipy",
     "matplotlib",
     "cvxpy",
     "casadi",
     "do-mpc[full]>=5.1.1",
     "shapely>=2.0.7",
-    "gurobipy",
 ]
+
+[project.optional-dependencies]
+gurobi = ["gurobipy"]
 
 [build-system]
 requires = ["setuptools>=61.0"]

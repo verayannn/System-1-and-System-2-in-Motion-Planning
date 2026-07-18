@@ -11,11 +11,15 @@ python plot_suite_results.py\
 
   
 python plot_suite_results.py\
-  --suite_dir output/benchmark_runs/nl_dense_clutter_suite \
+  --suite_dir output/benchmark_runs/nl_maze_branching_suite \
   --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl\
-  --out output/benchmark_runs/nl_dense_clutter_suite/results_by_block.png
+  --out output/benchmark_runs/nl_maze_branching_suite/results_by_block.png
 
-  
+
+small_open large_sparse wall_gap serial_walls maze_branching
+
+
+
 """
 
 from __future__ import annotations
