@@ -2,8 +2,7 @@
 # For new installs, prefer `uv sync --extra acados-template`.
 # This file is kept for pip/conda users and mirrors the core project deps.
 
--e ./sofai
--e ./safe_control
+-e .
 
 # Core numerical stack
 numpy>=1.26.4,<2.0

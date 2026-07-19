@@ -5,8 +5,6 @@ description = "System 1/System 2 motion-planning experiments with neural, CBF, a
 readme = "README.md"
 requires-python = ">=3.10,<3.12"
 dependencies = [
-    "sofai_tool",
-    "safe_control",
     "numpy>=1.26.4,<2.0",
     "scipy>=1.15",
     "matplotlib>=3.10",
@@ -33,12 +31,15 @@ acados-template = [
 ]
 gurobi = ["gurobipy"]
 
-[tool.uv.sources]
-sofai_tool = { path = "sofai", editable = true }
-safe_control = { path = "safe_control", editable = true }
-
-[tool.setuptools]
-packages = []
+[tool.setuptools.packages.find]
+where = [".", "sofai"]
+include = ["sofai_tool*", "safe_control*"]
+exclude = [
+    "safe_control.acados*",
+    "safe_control.examples*",
+    "sofai.build*",
+]
+namespaces = true
 
 [build-system]
 requires = ["setuptools>=61.0"]

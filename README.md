@@ -36,10 +36,12 @@ source .venv/bin/activate
 uv sync --extra acados-template
 ```
 
-The root `pyproject.toml` installs the local packages in editable mode:
+The root `pyproject.toml` installs the repo itself in editable mode and exposes the local source packages directly:
 
 - `sofai/`
 - `safe_control/`
+
+Do not install `./sofai` and `./safe_control` as separate editable packages for the normal experiment environment; that reintroduces nested build-system resolution.
 
 It also keeps the numerical stack on `numpy>=1.26.4,<2.0`, which avoids the previous mismatch between vendored SOFAI and `safe_control`.
 
