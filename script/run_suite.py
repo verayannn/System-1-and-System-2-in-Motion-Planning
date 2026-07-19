@@ -25,6 +25,7 @@ for family in dense_clutter small_open large_sparse wall_gap serial_walls maze_b
     --workers 6 \
     --configs s2_mpc sofai_mpc_cl \
     --block_order shuffled \
+    --block_seed 42 \
     --cl_init base \
     --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
     --probe_scenario_ids 0-499 \
