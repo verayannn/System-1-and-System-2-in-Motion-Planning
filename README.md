@@ -220,15 +220,15 @@ Use `script/prepare_environment_assets.py` to create:
 - trained neural S1 checkpoints
 - solver-ready benchmark dictionaries
 
-Example:
+Supported environment families:
 
-```bash
-python script/prepare_environment_assets.py \
-  --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap \
-  --train_n_per_family 100 \
-  --eval_n_per_family 500 \
-  --s2_solver cbf
-```
+- `small_open`
+- `large_sparse`
+- `dense_clutter`
+- `wall_gap`
+- `serial_walls`
+- `maze_branching`
+- `bugtrap`
 
 For a single family:
 
@@ -240,31 +240,20 @@ python script/prepare_environment_assets.py \
   --s2_solver cbf
 ```
 
-Supported environment families:
+For all the families:
 
-- `small_open`
-- `large_sparse`
-- `dense_clutter`
-- `wall_gap`
-- `serial_walls`
-- `maze_branching`
-- `bugtrap`
+```bash
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/private/tmp/mpl \
+python script/prepare_environment_assets.py \
+  --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap \
+  --train_n_per_family 500 \
+  --eval_n_per_family 2500 \
+  --s2_solver cbf
+```
 
 The script writes benchmark dictionaries to `input/nl/` and assets to `db/by_env/<family>_nl/`.
 
-Example:
-
-```bash
-python script/run_suite.py \
-  --dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
-  --bootstrap_results_dir output/bootstrap_dense_clutter_nl \
-  --assets_dir db/by_env/dense_clutter_nl \
-  --out_dir output/benchmark_runs/nl_dense_clutter_suite \
-  --scenario_ids 0-499 \
-  --block_size 100 \
-  --workers 2 \
-  --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl
-```
+### 2. Run the full benchmark set
 
 `script/run_suite.py` supports:
 
@@ -275,6 +264,39 @@ python script/run_suite.py \
 - `sofai_mpc_cl`
 
 The SOFAI continual-learning modes run in blocks, retrain the neural System 1 after each block, and carry the updated checkpoint into the next block.
+
+For a single family:
+
+```bash
+python script/run_suite.py \
+  --dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
+  --bootstrap_results_dir output/bootstrap_dense_clutter_nl \
+  --assets_dir db/by_env/dense_clutter_nl \
+  --out_dir output/benchmark_runs/nl_dense_clutter_suite \
+  --scenario_ids 0-2499 \
+  --block_size 500 \
+  --workers 6 \
+  --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl
+```
+
+For all the families:
+
+```bash
+for family in dense_clutter small_open large_sparse wall_gap serial_walls maze_branching bugtrap; do
+ PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR="${TMPDIR:-/tmp}/mpl" \
+ python script/run_suite.py \
+   --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
+   --bootstrap_results_dir "output/bootstrap_${family}_nl" \
+   --assets_dir "db/by_env/${family}_nl" \
+   --out_dir "output/benchmark_runs/nl_${family}_suite" \
+   --scenario_ids 0-2499 \
+   --block_size 500 \
+   --workers 6 \
+   --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl
+done
+```
+
+
 
 ### 3. Plot results
 
