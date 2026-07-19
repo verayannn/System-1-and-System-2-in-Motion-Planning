@@ -35,7 +35,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out_model", required=True)
     p.add_argument("--out_dataset", default="")
     p.add_argument("--init_model", default="")
-    p.add_argument("--source", choices=["s2", "selected", "all_success"], default="all_success")
+    p.add_argument("--source", choices=["s2", "selected", "all_success", "fallback_success"], default="all_success")
     p.add_argument("--max_trajectories", type=int, default=200)
     p.add_argument("--context_len", type=int, default=20)
     p.add_argument("--grid_n", type=int, default=25)
@@ -65,6 +65,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--train_head_only", action="store_true")
     p.add_argument("--near_goal_boost", type=float, default=2.0)
     p.add_argument("--progress_boost", type=float, default=2.0)
+    p.add_argument("--fallback_success_weight", type=float, default=5.0)
+    p.add_argument("--s1_success_weight", type=float, default=1.0)
+    p.add_argument("--bootstrap_success_weight", type=float, default=1.0)
     p.add_argument("--max_sample_weight", type=float, default=25.0)
     p.add_argument("--mplconfigdir", default="")
     return p.parse_args()
@@ -100,6 +103,16 @@ def select_training_attempts(result: Dict[str, Any], source: str) -> List[Dict[s
     if source == "all_success":
         return [attempt for attempt in attempts if bool(attempt.get("success"))]
 
+    if source == "fallback_success":
+        s1_failed = any(str(attempt.get("system")) == "s1" and not bool(attempt.get("success")) for attempt in attempts)
+        if not s1_failed:
+            return []
+        return [
+            attempt
+            for attempt in attempts
+            if str(attempt.get("system")) == "s2" and bool(attempt.get("success"))
+        ]
+
     selected_name = str(result.get("selected_attempt") or "").strip()
     if selected_name:
         for attempt in attempts:
@@ -110,6 +123,28 @@ def select_training_attempts(result: Dict[str, Any], source: str) -> List[Dict[s
         if bool(attempt.get("success")):
             return [attempt]
     return []
+
+
+def attempt_weight(
+    result: Dict[str, Any],
+    attempt: Dict[str, Any],
+    *,
+    fallback_success_weight: float,
+    s1_success_weight: float,
+    bootstrap_success_weight: float,
+) -> float:
+    system = str(attempt.get("system"))
+    run_type = str(result.get("run_type"))
+    attempts = result.get("attempts", []) or []
+    s1_failed = any(str(a.get("system")) == "s1" and not bool(a.get("success")) for a in attempts)
+
+    if run_type == "s2" and system == "s2":
+        return max(float(bootstrap_success_weight), 0.0)
+    if system == "s2" and s1_failed and bool(attempt.get("success")):
+        return max(float(fallback_success_weight), 0.0)
+    if system == "s1" and bool(attempt.get("success")):
+        return max(float(s1_success_weight), 0.0)
+    return 1.0
 
 
 def _xy(x: Any) -> np.ndarray:
@@ -152,6 +187,9 @@ def build_samples(
     u_max_nom: float,
     buffer_cells: int,
     stop_tol: float,
+    fallback_success_weight: float,
+    s1_success_weight: float,
+    bootstrap_success_weight: float,
 ):
     from input.input_handler import load_scenarios
     from solvers import s1_nonlinear as nl
@@ -162,7 +200,11 @@ def build_samples(
         key = str(dictionary_path.resolve())
         if key not in scenario_cache:
             scenarios = load_scenarios(str(dictionary_path))
-            scenario_cache[key] = {int(getattr(sc, "scenario_id", i)): sc for i, sc in enumerate(scenarios)}
+            by_id: Dict[int, Any] = {}
+            for i, sc in enumerate(scenarios):
+                by_id[i] = sc
+                by_id[int(getattr(sc, "scenario_id", i))] = sc
+            scenario_cache[key] = by_id
         return scenario_cache[key]
 
     default_by_id = load_by_id(default_dictionary)
@@ -187,6 +229,7 @@ def build_samples(
     u_list: List[np.ndarray] = []
     next_list: List[np.ndarray] = []
     traj_ids: List[int] = []
+    source_weight_list: List[float] = []
 
     traj_count = 0
     max_traj = int(max_trajectories)
@@ -197,7 +240,7 @@ def build_samples(
         attempts = select_training_attempts(row, source)
         if not attempts:
             continue
-        scenario_id = int(row.get("scenario_id", -1))
+        scenario_id = int(row.get("scenario_index", row.get("scenario_id", -1)))
         row_dictionary = resolve_row_dictionary(row.get("dictionary_path") or row.get("dictionary") or str(default_dictionary))
         by_id = load_by_id(row_dictionary) if row_dictionary.exists() else default_by_id
         scenario = by_id.get(scenario_id)
@@ -222,6 +265,13 @@ def build_samples(
             inputs = np.asarray(attempt.get("inputs", []), dtype=np.float32)
             if states.shape[0] < 2:
                 continue
+            traj_weight = attempt_weight(
+                row,
+                attempt,
+                fallback_success_weight=fallback_success_weight,
+                s1_success_weight=s1_success_weight,
+                bootstrap_success_weight=bootstrap_success_weight,
+            )
 
             traj_idx = traj_count
             traj_count += 1
@@ -244,6 +294,7 @@ def build_samples(
                 u_list.append(u_local.astype(np.float32))
                 next_list.append(next_local.astype(np.float32))
                 traj_ids.append(traj_idx)
+                source_weight_list.append(float(traj_weight))
 
     if not ctx_list:
         raise RuntimeError("No successful benchmark trajectories found for S1 training.")
@@ -255,6 +306,7 @@ def build_samples(
     u = np.stack(u_list, axis=0).astype(np.float32)
     next_local = np.stack(next_list, axis=0).astype(np.float32)
     traj_id = np.asarray(traj_ids, dtype=np.int32)
+    source_weight = np.asarray(source_weight_list, dtype=np.float32)
 
     return {
         "ctx": ctx,
@@ -264,6 +316,7 @@ def build_samples(
         "u": u,
         "next_local": next_local,
         "traj_id": traj_id,
+        "source_weight": source_weight,
         "meta": {
             "dynamics_mode": "nonlinear_point_policy",
             "ctx_shape": tuple(ctx.shape[1:]),
@@ -287,8 +340,12 @@ def build_samples(
 def grouped_train_val_split(traj_ids: np.ndarray, val_frac: float, seed: int = 42):
     rng = np.random.default_rng(seed)
     unique_ids = np.unique(traj_ids)
+    if unique_ids.size <= 1 or val_frac <= 0:
+        train_mask = np.ones_like(traj_ids, dtype=bool)
+        return train_mask, ~train_mask
     rng.shuffle(unique_ids)
     n_val_groups = max(1, int(len(unique_ids) * val_frac))
+    n_val_groups = min(n_val_groups, len(unique_ids) - 1)
     val_ids = set(unique_ids[:n_val_groups].tolist())
     val_mask = np.array([tid in val_ids for tid in traj_ids], dtype=bool)
     return ~val_mask, val_mask
@@ -331,6 +388,9 @@ def main() -> None:
         u_max_nom=float(args.u_max_nom),
         buffer_cells=int(args.buffer_cells),
         stop_tol=float(args.stop_tol),
+        fallback_success_weight=float(args.fallback_success_weight),
+        s1_success_weight=float(args.s1_success_weight),
+        bootstrap_success_weight=float(args.bootstrap_success_weight),
     )
 
     out_model = Path(args.out_model).expanduser()
@@ -358,6 +418,9 @@ def main() -> None:
     if args.max_sample_weight > 0:
         sample_weights_np = np.minimum(sample_weights_np, float(args.max_sample_weight))
     sample_weights_np = sample_weights_np / (sample_weights_np.mean() + 1e-6)
+    source_weights_np = np.asarray(data["source_weight"], dtype=np.float32)
+    source_mean = float(source_weights_np.mean()) if source_weights_np.size else 0.0
+    source_weights_np = source_weights_np / source_mean if source_mean > 0 else np.ones_like(source_weights_np)
     W = torch.from_numpy(sample_weights_np).float()
 
     train_mask, val_mask = grouped_train_val_split(traj_ids, args.val_frac, seed=42)
@@ -442,8 +505,10 @@ def main() -> None:
         Y_next[train_mask],
         W[train_mask],
     )
+    train_sampler_weights = train_balance * source_weights_np[train_mask]
+    train_sampler_weights = train_sampler_weights / (train_sampler_weights.mean() + 1e-6)
     train_sampler = WeightedRandomSampler(
-        weights=torch.from_numpy(train_balance).double(),
+        weights=torch.from_numpy(train_sampler_weights).double(),
         num_samples=len(train_balance),
         replacement=True,
     )
@@ -468,6 +533,37 @@ def main() -> None:
 
     best_val = float("inf")
     out_model.parent.mkdir(parents=True, exist_ok=True)
+
+    def save_checkpoint() -> None:
+        nl.save_s1_checkpoint(
+            model,
+            out_model,
+            meta={
+                "ctx_shape": tuple(X_ctx.shape[1:]),
+                "sit_dim": int(X_sit.shape[1]),
+                "dyn_dim": int(X_dyn.shape[1]),
+                "goal_dim": int(X_goal.shape[1]),
+                "u_dim": int(Y_u.shape[1]),
+                "hidden": int(args.hidden),
+                "cnn_channels": int(args.cnn_channels),
+                "dropout": float(args.dropout),
+                "dataset_meta": meta,
+            },
+            norm={
+                "ctx_mean": ctx_mean.cpu().numpy(),
+                "ctx_std": ctx_std.cpu().numpy(),
+                "sit_mean": sit_mean.cpu().numpy(),
+                "sit_std": sit_std.cpu().numpy(),
+                "dyn_mean": dyn_mean.cpu().numpy(),
+                "dyn_std": dyn_std.cpu().numpy(),
+                "goal_mean": goal_mean.cpu().numpy(),
+                "goal_std": goal_std.cpu().numpy(),
+                "u_mean": u_mean.cpu().numpy(),
+                "u_std": u_std.cpu().numpy(),
+                "next_mean": next_mean.cpu().numpy(),
+                "next_std": next_std.cpu().numpy(),
+            },
+        )
 
     for epoch in range(int(args.epochs)):
         model.train()
@@ -545,41 +641,16 @@ def main() -> None:
                 total = args.lambda_u * loss_u + args.lambda_next * loss_next
                 val_loss += float(total.detach().cpu())
 
-        scheduler.step(val_loss)
+        avg_train_loss = train_loss / max(1, len(train_loader))
+        avg_val_loss = val_loss / len(val_loader) if len(val_loader) else float("nan")
+        monitor_loss = avg_val_loss if len(val_loader) else avg_train_loss
+        scheduler.step(monitor_loss)
         if (epoch + 1) % 5 == 0 or epoch == 0:
-            print(f"Epoch {epoch+1:03d}/{args.epochs} | train={train_loss/ max(1, len(train_loader)):.6f} | val={val_loss/ max(1, len(val_loader)):.6f}")
+            print(f"Epoch {epoch+1:03d}/{args.epochs} | train={avg_train_loss:.6f} | val={avg_val_loss:.6f}")
 
-    if val_loss < best_val:
-            best_val = val_loss
-            nl.save_s1_checkpoint(
-                model,
-                out_model,
-                meta={
-                    "ctx_shape": tuple(X_ctx.shape[1:]),
-                    "sit_dim": int(X_sit.shape[1]),
-                    "dyn_dim": int(X_dyn.shape[1]),
-                    "goal_dim": int(X_goal.shape[1]),
-                    "u_dim": int(Y_u.shape[1]),
-                    "hidden": int(args.hidden),
-                    "cnn_channels": int(args.cnn_channels),
-                    "dropout": float(args.dropout),
-                    "dataset_meta": meta,
-                },
-                norm={
-                    "ctx_mean": ctx_mean.cpu().numpy(),
-                    "ctx_std": ctx_std.cpu().numpy(),
-                    "sit_mean": sit_mean.cpu().numpy(),
-                    "sit_std": sit_std.cpu().numpy(),
-                    "dyn_mean": dyn_mean.cpu().numpy(),
-                    "dyn_std": dyn_std.cpu().numpy(),
-                    "goal_mean": goal_mean.cpu().numpy(),
-                    "goal_std": goal_std.cpu().numpy(),
-                    "u_mean": u_mean.cpu().numpy(),
-                    "u_std": u_std.cpu().numpy(),
-                    "next_mean": next_mean.cpu().numpy(),
-                    "next_std": next_std.cpu().numpy(),
-                },
-            )
+        if monitor_loss < best_val:
+            best_val = monitor_loss
+            save_checkpoint()
 
     print(f"[done] model saved to {out_model}")
 

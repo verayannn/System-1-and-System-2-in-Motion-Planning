@@ -51,7 +51,7 @@ DEFAULT_PATTERNS = [
 ]
 
 CSV_FIELDS = [
-    "dictionary", "scenario_id", "run_type", "s1", "s2", "status", "timed_out",
+    "dictionary", "scenario_index", "scenario_id", "run_type", "s1", "s2", "status", "timed_out",
     "selected_attempt", "success", "collision_free", "goal_reached",
     "final_goal_error", "path_length", "num_states", "runtime_sec",
     "selected_runtime_sec", "wall_runtime_sec",
@@ -149,6 +149,7 @@ def error_result(exc: BaseException, opts: Dict[str, Any], runtime: float = 0.0)
         "problem_name": problem_name,
         "dictionary": Path(opts["dictionary"]).name,
         "dictionary_path": str(opts["dictionary"]),
+        "scenario_index": int(opts["scenario_id"]),
         "scenario_id": int(opts["scenario_id"]),
         "run_type": str(opts["run_type"]),
         "s1": str(opts["s1"]),
@@ -188,7 +189,7 @@ def run_case(opts: Dict[str, Any]) -> Dict[str, Any]:
     configure_repo(Path(opts["root"]), str(opts["mplconfigdir"]))
     from motion_planning_solver import solve_benchmark_case
 
-    return solve_benchmark_case(
+    result = solve_benchmark_case(
         opts["dictionary"],
         int(opts["scenario_id"]),
         s1=str(opts["s1"]),
@@ -196,6 +197,8 @@ def run_case(opts: Dict[str, Any]) -> Dict[str, Any]:
         run_type=str(opts["run_type"]),
         run_all_attempts=bool(opts["run_all_attempts"]),
     )
+    result["scenario_index"] = int(opts["scenario_id"])
+    return result
 
 
 def worker(opts: Dict[str, Any], queue: Any) -> None:
@@ -231,6 +234,7 @@ def run_case_timed(opts: Dict[str, Any], timeout_sec: float, same_process: bool)
             "problem_name": problem_name,
             "dictionary": Path(opts["dictionary"]).name,
             "dictionary_path": str(opts["dictionary"]),
+            "scenario_index": int(opts["scenario_id"]),
             "scenario_id": int(opts["scenario_id"]),
             "run_type": str(opts["run_type"]),
             "s1": str(opts["s1"]),
@@ -290,6 +294,7 @@ def flat(result: Dict[str, Any]) -> Dict[str, Any]:
 
     return {
         "dictionary": result.get("dictionary", ""),
+        "scenario_index": result.get("scenario_index", result.get("scenario_id", "")),
         "scenario_id": result.get("scenario_id", ""),
         "run_type": result.get("run_type", ""),
         "s1": result.get("s1", ""),

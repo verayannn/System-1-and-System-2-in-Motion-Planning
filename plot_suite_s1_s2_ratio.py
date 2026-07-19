@@ -51,14 +51,40 @@ def read_jsonl(path: Path) -> List[Dict[str, Any]]:
     return rows
 
 
-def count_attempts(rows: List[Dict[str, Any]], block_size: int, n_blocks: int) -> tuple[List[int], List[int]]:
+def run_block_index(run: Dict[str, Any], default: int) -> int:
+    prefix = str(run.get("prefix", ""))
+    if "_block" in prefix:
+        tail = prefix.rsplit("_block", 1)[1]
+        digits = "".join(ch for ch in tail if ch.isdigit())
+        if digits:
+            return int(digits)
+    return default
+
+
+def resolve_jsonl(suite_dir: Path, config: str, run: Dict[str, Any]) -> Path:
+    prefix = str(run.get("prefix", "")).strip()
+    if prefix:
+        local = suite_dir / config / "runs" / f"{prefix}_runs.jsonl"
+        if local.is_file():
+            return local
+
+    path = Path(str(run["jsonl"])).expanduser()
+    if path.is_file():
+        return path
+
+    parts = path.parts
+    if suite_dir.name in parts:
+        idx = parts.index(suite_dir.name)
+        local = suite_dir.joinpath(*parts[idx + 1 :])
+        if local.is_file():
+            return local
+    return path
+
+
+def count_attempts(block_rows: List[tuple[int, Dict[str, Any]]], n_blocks: int) -> tuple[List[int], List[int]]:
     s1 = [0] * n_blocks
     s2_only = [0] * n_blocks
-    for row in rows:
-        sid = int(row.get("scenario_id", -1))
-        if sid < 0:
-            continue
-        b = sid // block_size
+    for b, row in block_rows:
         if b < 0 or b >= n_blocks:
             continue
         attempts = row.get("attempts", [])
@@ -79,16 +105,16 @@ def main() -> None:
 
     suite_dir = Path(args.suite_dir).expanduser().resolve()
     manifest = json.loads((suite_dir / "suite_manifest.json").read_text())
-    block_size = int(manifest["block_size"])
-    n_blocks = math.ceil(int(manifest["scenario_count"]) / block_size)
+    n_blocks = len(manifest.get("blocks", [])) or math.ceil(int(manifest["scenario_count"]) / int(manifest["block_size"]))
 
     cfg = manifest["configs"][args.config]
-    rows: List[Dict[str, Any]] = []
-    for run in cfg.get("runs", []):
-        jsonl = Path(run["jsonl"]).expanduser()
-        rows.extend(read_jsonl(jsonl))
+    block_rows: List[tuple[int, Dict[str, Any]]] = []
+    for i, run in enumerate(cfg.get("runs", [])):
+        block_idx = run_block_index(run, i)
+        jsonl = resolve_jsonl(suite_dir, args.config, run)
+        block_rows.extend((block_idx, row) for row in read_jsonl(jsonl))
 
-    s1_counts, s2_only_counts = count_attempts(rows, block_size, n_blocks)
+    s1_counts, s2_only_counts = count_attempts(block_rows, n_blocks)
     ratio = [
         (s1_counts[i] / (s1_counts[i] + s2_only_counts[i])) if (s1_counts[i] + s2_only_counts[i]) > 0 else math.nan
         for i in range(n_blocks)

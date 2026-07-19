@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the nonlinear dense-clutter benchmark suite.
+"""Run nonlinear benchmark suites.
 
 Modes:
   - s1_neural
@@ -8,25 +8,10 @@ Modes:
   - sofai_cbf_cl
   - sofai_mpc_cl
 
-The continual-learning modes advance through 200-scenario blocks, run SOFAI
-with all attempts recorded, and retrain the neural System 1 on every
-successful trajectory in each block.
+The continual-learning modes run SOFAI in strict fallback mode:
+S1 is attempted first, S2 is only attempted when S1 fails, and retraining uses
+successful trajectories accumulated from bootstrap plus completed blocks.
 
-python script/run_suite.py --workers 3
-
-
-python script/run_suite.py \
-  --dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
-  --bootstrap_results_dir output/bootstrap_dense_clutter_nl \
-  --assets_dir db/by_env/dense_clutter_nl \
-  --out_dir output/benchmark_runs/nl_dense_clutter_suite \
-  --scenario_ids 0-9999 \
-  --block_size 500 \
-  --workers 6 \
-  --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl
-
-
-for the whole benchmark run:
 
 for family in dense_clutter small_open large_sparse wall_gap serial_walls maze_branching bugtrap; do
   PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR="${TMPDIR:-/tmp}/mpl" \
@@ -35,45 +20,17 @@ for family in dense_clutter small_open large_sparse wall_gap serial_walls maze_b
     --bootstrap_results_dir "output/bootstrap_${family}_nl" \
     --assets_dir "db/by_env/${family}_nl" \
     --out_dir "output/benchmark_runs/nl_${family}_suite" \
-    --scenario_ids 0-9999 \
+    --scenario_ids 0-2499 \
     --block_size 500 \
     --workers 6 \
-    --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl
+    --configs s2_mpc sofai_mpc_cl \
+    --block_order shuffled \
+    --cl_init base \
+    --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
+    --probe_scenario_ids 0-499 \
+    --train_source all_success \
+    --fallback_success_weight 5.0
 done
-
-
-
-testing by these two:
-
-for family in dense_clutter bugtrap; do
-  PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR="${TMPDIR:-/tmp}/mpl" \
-  python script/run_suite.py \
-    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
-    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
-    --assets_dir "db/by_env/${family}_nl" \
-    --out_dir "output/benchmark_runs/nl_${family}_suite" \
-    --scenario_ids 0-9 \
-    --workers 3 \
-    --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl
-done
-
-
-Jul 18th:
-
-for family in dense_clutter bugtrap small_open large_sparse wall_gap serial_walls maze_branching; do
-  PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR="${TMPDIR:-/tmp}/mpl" \
-  python script/run_suite.py \
-    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
-    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
-    --assets_dir "db/by_env/${family}_nl" \
-    --out_dir "output/benchmark_runs/nl_${family}_suite" \
-    --scenario_ids 0-99 \
-    --block_size 50 \
-    --workers 3 \
-    --configs s2_mpc s1_neural s2_cbf sofai_cbf_cl sofai_mpc_cl
-done
-
-
 
 """
 
@@ -82,6 +39,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import random
 import subprocess
 import sys
 from pathlib import Path
@@ -113,7 +71,16 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--train_epochs", type=int, default=30)
     p.add_argument("--train_batch", type=int, default=64)
     p.add_argument("--train_lr", type=float, default=3e-4)
-    p.add_argument("--train_source", choices=["s2", "selected", "all_success"], default="all_success")
+    p.add_argument("--train_source", choices=["s2", "selected", "all_success", "fallback_success"], default="all_success")
+    p.add_argument("--fallback_success_weight", type=float, default=5.0)
+    p.add_argument("--s1_success_weight", type=float, default=1.0)
+    p.add_argument("--bootstrap_success_weight", type=float, default=1.0)
+    p.add_argument("--cl_init", choices=["base", "previous"], default="base")
+    p.add_argument("--block_order", choices=["shuffled", "sequential"], default="shuffled")
+    p.add_argument("--block_seed", type=int, default=42)
+    p.add_argument("--probe_dictionary", default="")
+    p.add_argument("--probe_scenario_ids", default="")
+    p.add_argument("--probe_workers", type=int, default=0)
     p.add_argument("--mplconfigdir", default="")
     p.add_argument("--dry_run", action="store_true")
     return p.parse_args()
@@ -239,6 +206,9 @@ def train_model(
     train_epochs: int,
     train_batch: int,
     train_lr: float,
+    fallback_success_weight: float,
+    s1_success_weight: float,
+    bootstrap_success_weight: float,
     env: Dict[str, str],
     dry_run: bool,
 ) -> Path:
@@ -271,6 +241,12 @@ def train_model(
         str(train_batch),
         "--lr",
         str(train_lr),
+        "--fallback_success_weight",
+        str(fallback_success_weight),
+        "--s1_success_weight",
+        str(s1_success_weight),
+        "--bootstrap_success_weight",
+        str(bootstrap_success_weight),
     ])
     run(cmd, cwd=root, env=env, dry_run=dry_run)
     return out_model
@@ -310,8 +286,19 @@ def main() -> None:
     if not scenario_ids:
         raise SystemExit("No scenario ids selected.")
     block_size = max(1, int(args.block_size))
-    blocks = chunks(scenario_ids, block_size)
+    block_ids = list(scenario_ids)
+    if args.block_order == "shuffled":
+        random.Random(int(args.block_seed)).shuffle(block_ids)
+    blocks = chunks(block_ids, block_size)
+    probe_dictionary = Path(args.probe_dictionary).expanduser() if str(args.probe_dictionary).strip() else dictionary
+    if not probe_dictionary.is_absolute():
+        probe_dictionary = root / probe_dictionary
+    if not probe_dictionary.exists() and not args.dry_run:
+        raise FileNotFoundError(probe_dictionary)
+    probe_count = read_count(probe_dictionary) if probe_dictionary.exists() else count
+    probe_ids = parse_ids(args.probe_scenario_ids, probe_count) if str(args.probe_scenario_ids).strip() else []
     workers = effective_workers(args.workers)
+    probe_workers = effective_workers(args.probe_workers or args.workers)
 
     if args.s1_model:
         init_model = Path(args.s1_model).expanduser()
@@ -328,6 +315,11 @@ def main() -> None:
         "dictionary": str(dictionary),
         "scenario_count": len(scenario_ids),
         "block_size": block_size,
+        "block_order": args.block_order,
+        "block_seed": int(args.block_seed),
+        "blocks": blocks,
+        "probe_dictionary": str(probe_dictionary) if probe_ids else "",
+        "probe_scenario_ids": probe_ids,
         "configs": {},
     }
 
@@ -422,13 +414,14 @@ def main() -> None:
                 cumulative_jsonls.append(block_jsonl)
                 next_model = cfg_dir / "models" / f"{prefix}_s1_policy_nonlinear.pth"
                 next_dataset = cfg_dir / "datasets" / f"{prefix}_s1_nonlinear_dataset.npz"
+                train_init_model = init_model if args.cl_init == "base" else current_model
                 if not args.dry_run: ### retraining happens here
                     train_model(
                         root=root,
                         python=python,
                         dictionary=dictionary,
                         results_jsonl=cumulative_jsonls,
-                        init_model=current_model,
+                        init_model=train_init_model,
                         out_model=next_model,
                         out_dataset=next_dataset,
                         source=args.train_source,
@@ -436,17 +429,40 @@ def main() -> None:
                         train_epochs=args.train_epochs,
                         train_batch=args.train_batch,
                         train_lr=args.train_lr,
+                        fallback_success_weight=args.fallback_success_weight,
+                        s1_success_weight=args.s1_success_weight,
+                        bootstrap_success_weight=args.bootstrap_success_weight,
                         env=env,
                         dry_run=False,
                     )
                 current_model = next_model
-                cfg_manifest["runs"].append(
-                    {
-                        "prefix": prefix,
-                        "jsonl": str(block_jsonl),
-                        "model": str(current_model),
-                    }
-                )
+                run_entry = {
+                    "prefix": prefix,
+                    "jsonl": str(block_jsonl),
+                    "model": str(current_model),
+                    "train_init_model": str(train_init_model),
+                    "block_ids": block_ids,
+                }
+                if probe_ids:
+                    probe_dir = cfg_dir / "probe"
+                    probe_prefix = f"{prefix}_probe_s1"
+                    probe_jsonl = run_benchmark(
+                        root=root,
+                        python=python,
+                        dictionary=probe_dictionary,
+                        scenario_ids=probe_ids,
+                        run_type="s1",
+                        s2=solver,
+                        out_dir=probe_dir,
+                        out_prefix=probe_prefix,
+                        env={**env, "SOFAI_NEW_S1_MODEL": str(current_model)},
+                        timeout_sec=args.timeout_sec,
+                        workers=probe_workers,
+                        dry_run=args.dry_run,
+                    )
+                    run_entry["probe_jsonl"] = str(probe_jsonl)
+                    run_entry["probe_prefix"] = probe_prefix
+                cfg_manifest["runs"].append(run_entry)
 
         manifest["configs"][cfg] = cfg_manifest
 

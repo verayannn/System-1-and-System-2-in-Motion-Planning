@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import os
 import platform
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -11,6 +12,27 @@ from pathlib import Path
 def run(cmd: list[str], *, cwd: Path) -> None:
     print("[cmd]", " ".join(cmd))
     subprocess.run(cmd, cwd=str(cwd), check=True)
+
+
+def install_editable(package_dir: Path, *, cwd: Path) -> None:
+    has_pip = subprocess.run(
+        [sys.executable, "-m", "pip", "--version"],
+        cwd=str(cwd),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    ).returncode == 0
+    if has_pip:
+        run([sys.executable, "-m", "pip", "install", "-e", str(package_dir)], cwd=cwd)
+        return
+
+    uv = shutil.which("uv")
+    if uv:
+        run([uv, "pip", "install", "--python", sys.executable, "-e", str(package_dir)], cwd=cwd)
+        return
+
+    run([sys.executable, "-m", "ensurepip", "--upgrade"], cwd=cwd)
+    run([sys.executable, "-m", "pip", "install", "-e", str(package_dir)], cwd=cwd)
 
 
 def lib_patterns() -> tuple[str, ...]:
@@ -73,7 +95,7 @@ def main() -> None:
         run(["cmake", "--build", ".", "--target", "install", "-j", str(args.jobs)], cwd=build_dir)
 
     check_libs(acados_root)
-    run([sys.executable, "-m", "pip", "install", "-e", str(acados_root / "interfaces" / "acados_template")], cwd=repo_root)
+    install_editable(acados_root / "interfaces" / "acados_template", cwd=repo_root)
     env_path = write_env_file(repo_root, acados_root)
 
     print(f"[ok] acados root: {acados_root}")
