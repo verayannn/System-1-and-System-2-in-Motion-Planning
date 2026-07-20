@@ -101,6 +101,13 @@ c_generated_code
 *.swp
 build/
 include/
+
+# This repository vendors acados as source. Keep its source dependency headers
+# under version control; only the top-level install output remains ignored.
+!external/blasfeo/include/
+!external/blasfeo/include/**
+!external/hpipm/include/
+!external/hpipm/include/**
 lib/
 bin/
 local/

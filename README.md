@@ -25,8 +25,11 @@ System 2 MPC is acados-only in this repo. The Python dependencies can be install
 ```bash
 git clone <repository-url>
 cd System-1-and-System-2-in-Motion-Planning
-git submodule update --recursive --init
 ```
+
+`safe_control/acados` is vendored in this repository, including its required
+BLASFEO and HPIPM sources. Do not run `git -C safe_control/acados submodule
+update ...`: this vendored directory is not an independent Git worktree.
 
 ### 2. Install Python dependencies with `uv`
 
@@ -58,6 +61,11 @@ The setup script:
 - checks that `libacados`, `libblasfeo`, and `libhpipm` exist
 - installs `acados_template` into the active Python environment
 - writes `.env.acados` with the correct library path variables for macOS or Linux
+
+It builds the portable BLASFEO `GENERIC` target. This is deliberate: the
+vendored upstream snapshot does not track BLASFEO's ignored ISA-probing assembly
+files, and `GENERIC` avoids that fragile CPU-specific probe on both macOS and
+Linux.
 
 On Linux servers, install native build tools first if they are missing:
 
