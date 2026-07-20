@@ -14,6 +14,28 @@ def run(cmd: list[str], *, cwd: Path) -> None:
     subprocess.run(cmd, cwd=str(cwd), check=True)
 
 
+def ensure_acados_submodules(acados_root: Path) -> None:
+    if not (acados_root / ".gitmodules").is_file():
+        return
+    run(["git", "submodule", "sync", "--recursive"], cwd=acados_root)
+    run(["git", "submodule", "update", "--init", "--recursive"], cwd=acados_root)
+
+
+def check_acados_sources(acados_root: Path) -> None:
+    required = [
+        acados_root / "external" / "blasfeo" / "cmake" / "isa_tests" / "TEST_AVX2.S",
+        acados_root / "external" / "blasfeo" / "CMakeLists.txt",
+        acados_root / "external" / "hpipm" / "CMakeLists.txt",
+    ]
+    missing = [str(path) for path in required if not path.is_file()]
+    if missing:
+        raise SystemExit(
+            "acados source tree is incomplete. Missing:\n  "
+            + "\n  ".join(missing)
+            + "\nRun: git -C safe_control/acados submodule update --init --recursive"
+        )
+
+
 def install_editable(package_dir: Path, *, cwd: Path) -> None:
     has_pip = subprocess.run(
         [sys.executable, "-m", "pip", "--version"],
@@ -75,11 +97,16 @@ def main() -> None:
     p.add_argument("--jobs", type=int, default=max(os.cpu_count() or 2, 2))
     p.add_argument("--clean", action="store_true", help="Reconfigure CMake from scratch.")
     p.add_argument("--skip_build", action="store_true", help="Only install acados_template and write .env.acados.")
+    p.add_argument("--skip_submodules", action="store_true", help="Do not update acados nested git submodules before building.")
     args = p.parse_args()
 
     acados_root = args.acados_root.expanduser().resolve()
     if not (acados_root / "CMakeLists.txt").is_file():
         raise SystemExit(f"acados root does not look valid: {acados_root}")
+
+    if not args.skip_submodules:
+        ensure_acados_submodules(acados_root)
+    check_acados_sources(acados_root)
 
     if not args.skip_build:
         build_dir = acados_root / "build"
