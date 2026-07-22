@@ -32,6 +32,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--root", default=Path(__file__).resolve().parents[1])
     p.add_argument("--dictionary", required=True)
     p.add_argument("--results_jsonl", nargs="+", required=True)
+    p.add_argument("--audit_json", default="", help="Optional JSON audit written for the training inputs.")
     p.add_argument("--out_model", required=True)
     p.add_argument("--out_dataset", default="")
     p.add_argument("--init_model", default="")
@@ -83,7 +84,9 @@ def load_results(paths: Sequence[str]) -> List[Dict[str, Any]]:
             for line in f:
                 line = line.strip()
                 if line:
-                    rows.append(json.loads(line))
+                    row = json.loads(line)
+                    row["_training_jsonl"] = str(path.resolve())
+                    rows.append(row)
     return rows
 
 
@@ -209,18 +212,20 @@ def build_samples(
 
     default_by_id = load_by_id(default_dictionary)
 
-    def resolve_row_dictionary(row_value: Any) -> Path:
+    def resolve_row_dictionary(row_value: Any) -> Path | None:
+        if row_value in (None, ""):
+            return default_dictionary
         candidate = Path(str(row_value)).expanduser()
-        if candidate.is_absolute() and candidate.exists():
-            return candidate
-        for path in (
-            root / candidate,
-            root / "input" / candidate,
-            root / "input" / "nl" / candidate,
-        ):
+        candidates = [candidate]
+        if not candidate.is_absolute():
+            candidates.extend((root / candidate, root / "input" / candidate, root / "input" / "nl" / candidate))
+        # Results copied from another machine retain absolute paths.  Rebase by
+        # filename instead of silently substituting the evaluation dictionary.
+        candidates.extend((root / "input" / candidate.name, root / "input" / "nl" / candidate.name))
+        for path in candidates:
             if path.exists():
                 return path
-        return default_dictionary
+        return None
 
     ctx_list: List[np.ndarray] = []
     sit_list: List[np.ndarray] = []
@@ -230,6 +235,22 @@ def build_samples(
     next_list: List[np.ndarray] = []
     traj_ids: List[int] = []
     source_weight_list: List[float] = []
+    trajectory_count_by_jsonl: Dict[str, int] = {}
+    row_count_by_jsonl: Dict[str, int] = {}
+    trajectory_count_by_type: Dict[str, int] = {
+        "bootstrap_s2": 0,
+        "s1_success": 0,
+        "s2_fallback_success": 0,
+        "other_success": 0,
+    }
+    selected_success_count = 0
+    skipped_missing_dictionary = 0
+    skipped_missing_scenario = 0
+    skipped_invalid_states = 0
+    for row in result_rows:
+        source_file = str(row.get("_training_jsonl", ""))
+        row_count_by_jsonl[source_file] = row_count_by_jsonl.get(source_file, 0) + 1
+        trajectory_count_by_jsonl.setdefault(source_file, 0)
 
     traj_count = 0
     max_traj = int(max_trajectories)
@@ -240,11 +261,16 @@ def build_samples(
         attempts = select_training_attempts(row, source)
         if not attempts:
             continue
+        selected_success_count += len(attempts)
         scenario_id = int(row.get("scenario_index", row.get("scenario_id", -1)))
         row_dictionary = resolve_row_dictionary(row.get("dictionary_path") or row.get("dictionary") or str(default_dictionary))
-        by_id = load_by_id(row_dictionary) if row_dictionary.exists() else default_by_id
+        if row_dictionary is None:
+            skipped_missing_dictionary += len(attempts)
+            continue
+        by_id = load_by_id(row_dictionary)
         scenario = by_id.get(scenario_id)
         if scenario is None:
+            skipped_missing_scenario += len(attempts)
             continue
 
         goal = nl.scenario_goal(scenario)
@@ -264,6 +290,7 @@ def build_samples(
             states = _xy(attempt.get("states", []))
             inputs = np.asarray(attempt.get("inputs", []), dtype=np.float32)
             if states.shape[0] < 2:
+                skipped_invalid_states += 1
                 continue
             traj_weight = attempt_weight(
                 row,
@@ -275,6 +302,22 @@ def build_samples(
 
             traj_idx = traj_count
             traj_count += 1
+            source_file = str(row.get("_training_jsonl", ""))
+            trajectory_count_by_jsonl[source_file] = trajectory_count_by_jsonl.get(source_file, 0) + 1
+            system = str(attempt.get("system", ""))
+            run_type = str(row.get("run_type", ""))
+            s1_failed = any(
+                str(item.get("system")) == "s1" and not bool(item.get("success"))
+                for item in (row.get("attempts", []) or [])
+            )
+            if run_type == "s2" and system == "s2":
+                trajectory_count_by_type["bootstrap_s2"] += 1
+            elif system == "s1":
+                trajectory_count_by_type["s1_success"] += 1
+            elif system == "s2" and s1_failed:
+                trajectory_count_by_type["s2_fallback_success"] += 1
+            else:
+                trajectory_count_by_type["other_success"] += 1
             for t in range(states.shape[0] - 1):
                 prefix = states[: t + 1]
                 ctx_global = make_context_window(prefix, L_c)
@@ -333,6 +376,14 @@ def build_samples(
             "stop_tol": float(stop_tol),
             "trajectory_count": int(traj_count),
             "sample_count": int(ctx.shape[0]),
+            "input_jsonls": sorted(row_count_by_jsonl),
+            "input_row_count_by_jsonl": row_count_by_jsonl,
+            "trajectory_count_by_jsonl": trajectory_count_by_jsonl,
+            "trajectory_count_by_type": trajectory_count_by_type,
+            "selected_success_count": int(selected_success_count),
+            "skipped_missing_dictionary": int(skipped_missing_dictionary),
+            "skipped_missing_scenario": int(skipped_missing_scenario),
+            "skipped_invalid_states": int(skipped_invalid_states),
         },
     }
 
@@ -370,7 +421,10 @@ def main() -> None:
 
     dictionary = Path(args.dictionary).expanduser()
     if not dictionary.is_absolute():
-        dictionary = root / "input" / dictionary
+        candidates = (root / dictionary, root / "input" / dictionary)
+        dictionary = next((path for path in candidates if path.exists()), candidates[0])
+    if not dictionary.is_file():
+        raise FileNotFoundError(dictionary)
 
     from solvers import s1_nonlinear as nl
 
@@ -392,6 +446,24 @@ def main() -> None:
         s1_success_weight=float(args.s1_success_weight),
         bootstrap_success_weight=float(args.bootstrap_success_weight),
     )
+
+    if data["meta"]["trajectory_count"] != data["meta"]["selected_success_count"]:
+        raise RuntimeError(
+            "Training input audit failed: not every selected successful trajectory could be used. "
+            f"selected={data['meta']['selected_success_count']} "
+            f"used={data['meta']['trajectory_count']} "
+            f"missing_dictionary={data['meta']['skipped_missing_dictionary']} "
+            f"missing_scenario={data['meta']['skipped_missing_scenario']} "
+            f"invalid_states={data['meta']['skipped_invalid_states']}"
+        )
+
+    if args.audit_json:
+        audit_path = Path(args.audit_json).expanduser()
+        if not audit_path.is_absolute():
+            audit_path = root / audit_path
+        audit_path.parent.mkdir(parents=True, exist_ok=True)
+        audit_path.write_text(json.dumps(data["meta"], indent=2, sort_keys=True) + "\n")
+        print(f"[write] {audit_path}")
 
     out_model = Path(args.out_model).expanduser()
     if not out_model.is_absolute():

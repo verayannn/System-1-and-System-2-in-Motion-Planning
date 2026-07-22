@@ -20,18 +20,36 @@ for family in dense_clutter small_open large_sparse wall_gap serial_walls maze_b
     --bootstrap_results_dir "output/bootstrap_${family}_nl" \
     --assets_dir "db/by_env/${family}_nl" \
     --out_dir "output/benchmark_runs/nl_${family}_suite" \
-    --scenario_ids 0-2499 \
-    --block_size 500 \
-    --workers 6 \
+    --scenario_ids 0-99 \
+    --block_size 50 \
+    --workers 3 \
     --configs s2_mpc sofai_mpc_cl \
     --block_order shuffled \
     --block_seed 42 \
     --cl_init base \
     --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-    --probe_scenario_ids 0-499 \
+    --probe_scenario_ids 0-99 \
     --train_source all_success \
     --fallback_success_weight 5.0
 done
+
+
+for family in bugtrap; do
+ PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR="${TMPDIR:-/tmp}/mpl" \
+ python script/run_suite.py \
+   --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
+   --bootstrap_results_dir "output/bootstrap_${family}_nl" \
+   --assets_dir "db/by_env/${family}_nl" \
+   --out_dir "output/benchmark_runs/nl_${family}_suite" \
+   --scenario_ids 0-19 \
+   --workers 3 \
+   --block_order shuffled \
+   --block_seed 42 \
+   --cl_init base \
+   --train_source all_success \
+   --fallback_success_weight 5.0
+done
+
 
 """
 
@@ -61,6 +79,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--python", default=sys.executable)
     p.add_argument("--dictionary", default="input/nl/benchmark_dualmp_nl_bugtrap_eval_bugtrap.json")
     p.add_argument("--bootstrap_results_dir", default="output/bootstrap_bugtrap_nl")
+    p.add_argument(
+        "--cl_bootstrap_solver",
+        choices=["cbf", "mpc"],
+        default="cbf",
+        help="System 2 source for the shared initial S1 training trajectories.",
+    )
     p.add_argument("--scenario_ids", default="0-499")
     p.add_argument("--block_size", type=int, default=100) ## block size for continual learning: continual learning happens after a block finishes
     p.add_argument("--configs", nargs="+", default=list(MODES))
@@ -157,6 +181,7 @@ def run_benchmark(
     timeout_sec: float,
     workers: int,
     run_all_attempts: bool = False,
+    same_process: bool = False,
     dry_run: bool = False,
 ) -> Path:
     if not dry_run:
@@ -189,6 +214,8 @@ def run_benchmark(
     ]
     if run_all_attempts:
         cmd.append("--run_all_attempts")
+    if same_process:
+        cmd.append("--same_process")
     run(cmd, cwd=root, env=env, dry_run=dry_run)
     return out_dir / f"{out_prefix}_runs.jsonl"
 
@@ -210,6 +237,7 @@ def train_model(
     fallback_success_weight: float,
     s1_success_weight: float,
     bootstrap_success_weight: float,
+    audit_json: Path,
     env: Dict[str, str],
     dry_run: bool,
 ) -> Path:
@@ -229,8 +257,9 @@ def train_model(
         "--init_model",
         str(init_model),
     ]
-    for path in results_jsonl:
-        cmd.extend(["--results_jsonl", str(path)])
+    # argparse uses nargs="+" here, so this must be one option followed by
+    # every JSONL. Repeating the option silently retained only the last block.
+    cmd.extend(["--results_jsonl", *(str(path.resolve()) for path in results_jsonl)])
     cmd.extend([
         "--source",
         source,
@@ -248,9 +277,32 @@ def train_model(
         str(s1_success_weight),
         "--bootstrap_success_weight",
         str(bootstrap_success_weight),
+        "--audit_json",
+        str(audit_json),
     ])
     run(cmd, cwd=root, env=env, dry_run=dry_run)
     return out_model
+
+
+def verify_cumulative_training_audit(audit_json: Path, expected_jsonls: Sequence[Path], previous_count: int) -> int:
+    if not audit_json.is_file():
+        raise RuntimeError(f"Training audit was not written: {audit_json}")
+    audit = json.loads(audit_json.read_text())
+    expected = [str(path.resolve()) for path in expected_jsonls]
+    actual = [str(path) for path in audit.get("input_jsonls", [])]
+    if sorted(actual) != sorted(expected):
+        raise RuntimeError(
+            "Cumulative training audit mismatch. "
+            f"expected JSONLs={expected}; recorded JSONLs={actual}"
+        )
+    if int(audit.get("selected_success_count", -1)) != int(audit.get("trajectory_count", -2)):
+        raise RuntimeError(f"Training audit dropped successful trajectories: {audit_json}")
+    count = int(audit.get("trajectory_count", 0))
+    if count < previous_count:
+        raise RuntimeError(
+            f"Cumulative training trajectory count decreased from {previous_count} to {count}: {audit_json}"
+        )
+    return count
 
 
 def main() -> None:
@@ -318,6 +370,7 @@ def main() -> None:
         "block_size": block_size,
         "block_order": args.block_order,
         "block_seed": int(args.block_seed),
+        "cl_bootstrap_solver": args.cl_bootstrap_solver,
         "blocks": blocks,
         "probe_dictionary": str(probe_dictionary) if probe_ids else "",
         "probe_scenario_ids": probe_ids,
@@ -351,6 +404,9 @@ def main() -> None:
                 env=env,
                 timeout_sec=args.timeout_sec,
                 workers=workers,
+                # Keep the neural checkpoint loaded across cases. The runner
+                # otherwise spawns and reloads Python/Torch for every case.
+                same_process=True,
                 dry_run=args.dry_run,
             )
             cfg_manifest["runs"].append({"prefix": cfg, "model": str(init_model)})
@@ -393,8 +449,13 @@ def main() -> None:
             solver = "cbf" if "cbf" in cfg else "mpc" ## continual learning happens here automatically
             current_model = init_model
             bootstrap_stem = dictionary.stem.replace("_eval_", "_train_")
-            bootstrap_jsonl = bootstrap_results_dir / f"{bootstrap_stem}_{solver}_bootstrap_runs.jsonl"
+            bootstrap_jsonl = bootstrap_results_dir / f"{bootstrap_stem}_{args.cl_bootstrap_solver}_bootstrap_runs.jsonl"
+            if not bootstrap_jsonl.is_file() and not args.dry_run:
+                raise FileNotFoundError(
+                    f"Missing {args.cl_bootstrap_solver.upper()} base successful-trajectory JSONL: {bootstrap_jsonl}"
+                )
             cumulative_jsonls: List[Path] = [bootstrap_jsonl]
+            previous_trajectory_count = 0
             for block_idx, block_ids in enumerate(blocks):
                 prefix = f"{cfg}_block{block_idx:02d}"
                 block_run_dir = cfg_dir / "runs"
@@ -415,6 +476,7 @@ def main() -> None:
                 cumulative_jsonls.append(block_jsonl)
                 next_model = cfg_dir / "models" / f"{prefix}_s1_policy_nonlinear.pth"
                 next_dataset = cfg_dir / "datasets" / f"{prefix}_s1_nonlinear_dataset.npz"
+                training_audit = cfg_dir / "audits" / f"{prefix}_training_audit.json"
                 train_init_model = init_model if args.cl_init == "base" else current_model
                 if not args.dry_run: ### retraining happens here
                     train_model(
@@ -433,8 +495,14 @@ def main() -> None:
                         fallback_success_weight=args.fallback_success_weight,
                         s1_success_weight=args.s1_success_weight,
                         bootstrap_success_weight=args.bootstrap_success_weight,
+                        audit_json=training_audit,
                         env=env,
                         dry_run=False,
+                    )
+                    previous_trajectory_count = verify_cumulative_training_audit(
+                        training_audit,
+                        cumulative_jsonls,
+                        previous_trajectory_count,
                     )
                 current_model = next_model
                 run_entry = {
@@ -442,7 +510,12 @@ def main() -> None:
                     "jsonl": str(block_jsonl),
                     "model": str(current_model),
                     "train_init_model": str(train_init_model),
+                    "bootstrap_solver": args.cl_bootstrap_solver,
+                    "bootstrap_jsonl": str(bootstrap_jsonl),
                     "block_ids": block_ids,
+                    "training_jsonls": [str(path) for path in cumulative_jsonls],
+                    "training_audit": str(training_audit),
+                    "training_trajectory_count": previous_trajectory_count,
                 }
                 if probe_ids:
                     probe_dir = cfg_dir / "probe"

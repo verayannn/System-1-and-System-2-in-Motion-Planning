@@ -23,6 +23,13 @@ def env_int(name: str, default: int) -> int:
     return int(raw) if raw not in (None, "") else int(default)
 
 
+def env_bool(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return bool(default)
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
 def resolve_mplconfigdir(root: Path | None = None, requested: str | None = None) -> Path:
     candidates: list[Path] = []
     if requested:
@@ -133,6 +140,7 @@ def quality_weights_for_family(family: str) -> Dict[str, float]:
         # Dynamics-dominated open spaces can afford slightly more effort sensitivity.
         "small_open": {"path_length": 0.35, "control_effort": 0.20, "smoothness": 0.45},
         "large_sparse": {"path_length": 0.30, "control_effort": 0.20, "smoothness": 0.50},
+        "long_slalom": {"path_length": 0.35, "control_effort": 0.20, "smoothness": 0.45},
     }
     weights = dict(presets.get(family, {"path_length": 0.25, "control_effort": 0.15, "smoothness": 0.60}))
     total = float(sum(weights.values()))
@@ -167,12 +175,21 @@ def rect_to_superellipse(
     margin: float,
     exponent: float,
 ) -> np.ndarray:
+    """Return a conservative superellipse that contains the inflated rectangle.
+
+    For a finite exponent, using the rectangle half-axes directly gives an
+    *inner* rounded shape: the rectangle corners satisfy ``h > 0`` and can be
+    accepted by an obstacle-avoidance constraint. The scale below makes every
+    inflated rectangle corner lie on or inside the superellipse.
+    """
     xmin, ymin, xmax, ymax = rect
     cx = 0.5 * (xmin + xmax)
     cy = 0.5 * (ymin + ymax)
-    ax = max(0.5 * (xmax - xmin) - float(robot_radius) - float(margin), 1e-3)
-    ay = max(0.5 * (ymax - ymin) - float(robot_radius) - float(margin), 1e-3)
-    return np.array([cx, cy, ax, ay, float(exponent), 0.0, 1.0], dtype=float)
+    exponent = max(float(exponent), 2.0)
+    corner_scale = 2.0 ** (1.0 / exponent)
+    ax = max(corner_scale * (0.5 * (xmax - xmin) + float(robot_radius) + float(margin)), 1e-3)
+    ay = max(corner_scale * (0.5 * (ymax - ymin) + float(robot_radius) + float(margin)), 1e-3)
+    return np.array([cx, cy, ax, ay, exponent, 0.0, 1.0], dtype=float)
 
 
 def selected_success_attempt(result: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -371,7 +388,8 @@ def bootstrap_acados_backend() -> Path | None:
     source_root = Path(__file__).resolve().parents[1] / "safe_control" / "acados"
     os.environ.setdefault("ACADOS_SOURCE_DIR", str(root))
     if source_root.exists():
-        os.environ.setdefault("ACADOS_PYTHON_INTERFACE_PATH", str(source_root / "interfaces" / "acados_template" / "acados_template"))
+        # sys.path must contain the package parent, not the package directory.
+        os.environ.setdefault("ACADOS_PYTHON_INTERFACE_PATH", str(source_root / "interfaces" / "acados_template"))
     lib_dir = root / "lib"
     src_lib_dir = source_root / "lib"
     if src_lib_dir.is_dir():
@@ -426,7 +444,10 @@ def ensure_acados_template_path() -> Path:
     template_candidates = []
     if env_template:
         template_env_path = Path(env_template).expanduser()
-        template_candidates.extend([template_env_path, template_env_path.parent])
+        # Accept older .env.acados files that point at the package itself.
+        if (template_env_path / "__init__.py").is_file():
+            template_env_path = template_env_path.parent
+        template_candidates.append(template_env_path)
     template_candidates.extend(
         [
             backend_root / "interfaces" / "acados_template",

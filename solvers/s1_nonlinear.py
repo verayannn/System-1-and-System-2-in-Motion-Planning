@@ -468,6 +468,7 @@ def rollout_policy(
     n_steps_nom: int,
     buffer_cells: int,
     stop_tol: float,
+    action_hold: int = 1,
     debug: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
     rects = scenario_rects(scenario)
@@ -478,6 +479,14 @@ def rollout_policy(
 
     traj_out: List[np.ndarray] = [x_curr.copy()]
     controls_out: List[np.ndarray] = []
+    action_hold = max(1, int(action_hold))
+    held_u_global: Optional[np.ndarray] = None
+
+    # These inputs do not depend on the current rollout state. Keeping them on
+    # the model device removes repeated NumPy-to-Torch transfers in S1.
+    sit_in = _normalize(sit_vec[None, :], norm["sit_mean"][None, :], norm["sit_std"][None, :]).astype(np.float32)
+    with torch.inference_mode():
+        t_sit = torch.from_numpy(sit_in).to(device)
 
     for k in range(int(total_steps)):
         if np.linalg.norm(x_curr - goal[:2]) <= float(goal_tol):
@@ -486,20 +495,26 @@ def rollout_policy(
         ctx_local, goal_local, origin, heading = transform_to_local(ctx, goal[:2])
         dyn_feat = nonlinear_dynamics_features(scenario, x_curr, heading)
 
-        ctx_in = _normalize(ctx_local[None, :, :], norm["ctx_mean"][None, :, :], norm["ctx_std"][None, :, :]).astype(np.float32)
-        sit_in = _normalize(sit_vec[None, :], norm["sit_mean"][None, :], norm["sit_std"][None, :]).astype(np.float32)
-        dyn_in = _normalize(dyn_feat[None, :], norm["dyn_mean"][None, :], norm["dyn_std"][None, :]).astype(np.float32)
-        goal_in = _normalize(goal_local[None, :], norm["goal_mean"][None, :], norm["goal_std"][None, :]).astype(np.float32)
+        if held_u_global is None or k % action_hold == 0:
+            ctx_in = _normalize(ctx_local[None, :, :], norm["ctx_mean"][None, :, :], norm["ctx_std"][None, :, :]).astype(np.float32)
+            dyn_in = _normalize(dyn_feat[None, :], norm["dyn_mean"][None, :], norm["dyn_std"][None, :]).astype(np.float32)
+            goal_in = _normalize(goal_local[None, :], norm["goal_mean"][None, :], norm["goal_std"][None, :]).astype(np.float32)
+            with torch.inference_mode():
+                u_local_norm = model(
+                    torch.from_numpy(ctx_in).to(device),
+                    t_sit,
+                    torch.from_numpy(dyn_in).to(device),
+                    torch.from_numpy(goal_in).to(device),
+                ).cpu().numpy()
+            u_local = (u_local_norm * norm["u_std"][None, :] + norm["u_mean"][None, :]).squeeze(0)
+            held_u_global = nonlinear_local_control_to_global(u_local, heading)
+        else:
+            # Keep the held action in world coordinates as the local frame
+            # rotates with the rollout history.
+            held_u_global = np.asarray(held_u_global, dtype=np.float32)
+            u_local = rotation_from_heading(heading) @ held_u_global
 
-        with torch.no_grad():
-            t_ctx = torch.from_numpy(ctx_in).float().to(device)
-            t_sit = torch.from_numpy(sit_in).float().to(device)
-            t_dyn = torch.from_numpy(dyn_in).float().to(device)
-            t_goal = torch.from_numpy(goal_in).float().to(device)
-            u_local_norm = model(t_ctx, t_sit, t_dyn, t_goal).cpu().numpy()
-
-        u_local = (u_local_norm * norm["u_std"][None, :] + norm["u_mean"][None, :]).squeeze(0).astype(np.float32)
-        u_local = np.clip(u_local, -float(u_max_nom), float(u_max_nom))
+        u_local = np.clip(u_local, -float(u_max_nom), float(u_max_nom)).astype(np.float32)
         u_goal_local = estimate_nominal_goal_control_local(scenario, x_curr, goal, heading, u_max_nom)
 
         u_safe_local, x_next = choose_safe_control(
@@ -524,6 +539,7 @@ def rollout_policy(
             print("DEBUG x_next =", x_next)
 
         controls_out.append(u_safe_local.copy())
+        held_u_global = nonlinear_local_control_to_global(u_safe_local, heading)
         traj_out.append(x_next.copy())
         ctx = np.concatenate([ctx, x_next[None, :]], axis=0)[-ctx.shape[0]:]
         x_curr = x_next

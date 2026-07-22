@@ -39,11 +39,13 @@ python script/prepare_environment_assets.py \
 
 all the families:
 
-cd <repo-root>
-PYTHONDONTWRITEBYTECODE=1 \
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python script/prepare_environment_assets.py \
-  --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap \
+  --families small_open large_sparse wall_gap serial_walls maze_branching \
   --s2_solver cbf
+
+
+new family: long_slalom
 
 """
 
@@ -65,6 +67,7 @@ FAMILY_CHOICES = [
     "serial_walls",
     "maze_branching",
     "bugtrap",
+    "long_slalom",
 ]
 
 
@@ -142,46 +145,44 @@ def main() -> None:
         dataset_path = assets_dir / "s1_nonlinear_dataset.npz"
 
         if not args.skip_generate:
-            run(
-                [
-                    python,
-                    "input/generate_nl_dict.py",
-                    "--root",
-                    str(root),
-                    "--output_dir",
-                    str(out_dir),
-                    "--prefix",
-                    f"benchmark_dualmp_nl_{family}_train",
-                    "--n_per_family",
-                    str(args.train_n_per_family),
-                    "--seed",
-                    str(args.train_seed),
-                    "--families",
-                    family,
-                ],
-                cwd=root,
-                dry_run=args.dry_run,
-            )
-            run(
-                [
-                    python,
-                    "input/generate_nl_dict.py",
-                    "--root",
-                    str(root),
-                    "--output_dir",
-                    str(out_dir),
-                    "--prefix",
-                    f"benchmark_dualmp_nl_{family}_eval",
-                    "--n_per_family",
-                    str(args.eval_n_per_family),
-                    "--seed",
-                    str(args.eval_seed),
-                    "--families",
-                    family,
-                ],
-                cwd=root,
-                dry_run=args.dry_run,
-            )
+            for split, count, seed in (
+                ("train", args.train_n_per_family, args.train_seed),
+                ("eval", args.eval_n_per_family, args.eval_seed),
+            ):
+                prefix = f"benchmark_dualmp_nl_{family}_{split}_{family}"
+                if family == "long_slalom":
+                    cmd = [
+                        python,
+                        "input/generate_long_slalom.py",
+                        "--root",
+                        str(root),
+                        "--output_dir",
+                        str(out_dir),
+                        "--prefix",
+                        prefix,
+                        "--n_scenarios",
+                        str(count),
+                        "--seed",
+                        str(seed),
+                    ]
+                else:
+                    cmd = [
+                        python,
+                        "input/generate_nl_dict.py",
+                        "--root",
+                        str(root),
+                        "--output_dir",
+                        str(out_dir),
+                        "--prefix",
+                        f"benchmark_dualmp_nl_{family}_{split}",
+                        "--n_per_family",
+                        str(count),
+                        "--seed",
+                        str(seed),
+                        "--families",
+                        family,
+                    ]
+                run(cmd, cwd=root, dry_run=args.dry_run)
 
         if not args.skip_collect:
             run(

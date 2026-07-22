@@ -15,13 +15,13 @@ cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
 
 PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python visualize_mp.py \
-  --problem_dictionary nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
+  --problem_dictionary nl/benchmark_dualmp_nl_long_slalom_eval_long_slalom.json \
   --scenario_ids 5 \
   --s1 neural \
-  --s2 cbf \
+  --s2 mpc \
   --run_type s2 \
   --out_dir output/visualize_mp \
-  --out_prefix s2_cbf_sc5
+  --out_prefix s2_mpc_sc5
 
 
 
