@@ -32,6 +32,7 @@ from solvers._s2_common import (
     scenario_start,
     scenario_u_max,
 )
+from solvers.S2_cbf import build_global_reference_path
 
 
 AcadosModel = AcadosOcp = AcadosOcpSolver = None
@@ -186,39 +187,57 @@ def _step_state(x, u, dt, scenario):
     )
 
 
-def _nominal_control(x, goal, scenario, u_max):
-    x = np.asarray(x, dtype=float).reshape(2)
-    goal = np.asarray(goal, dtype=float).reshape(2)
-    drift = _nonlinear_drift(x, scenario)
-    u = 1.8 * (goal - x) - drift
-    return np.clip(u, -float(u_max), float(u_max))
+def _point_on_polyline(points: np.ndarray, distance: float) -> np.ndarray:
+    remaining = float(distance)
+    for index in range(len(points) - 1):
+        start, end = points[index], points[index + 1]
+        segment = float(np.linalg.norm(end - start))
+        if segment <= 1e-9:
+            continue
+        if remaining <= segment:
+            return start + (remaining / segment) * (end - start)
+        remaining -= segment
+    return np.asarray(points[-1], dtype=float)
 
 
-def _warm_start_rollout(start, goal, scenario, dt, horizon, u_max):
-    x = np.asarray(start, dtype=float).reshape(2)
-    x_guess = [x.copy()]
-    u_guess = []
-    for _ in range(int(horizon)):
-        u = _nominal_control(x, goal, scenario, u_max)
-        u_guess.append(np.asarray(u, dtype=float).reshape(2))
-        x = _step_state(x, u, dt, scenario)
-        x_guess.append(x.copy())
-    return np.asarray(x_guess, dtype=float), np.asarray(u_guess, dtype=float)
+def _reference_warm_start(
+    z: np.ndarray,
+    path: np.ndarray | None,
+    path_index: int,
+    goal: np.ndarray,
+    scenario,
+    dt: float,
+    horizon: int,
+    u_max: float,
+    du_max: float,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+    """Warm-start the augmented state ``[position, control]`` along a route."""
+    z = np.asarray(z, dtype=float).reshape(4)
+    x = z[:2]
+    u_current = z[2:]
+    if path is None or len(path) == 0:
+        path = np.asarray([x, goal], dtype=float)
+        path_index = 0
 
+    path_index += int(np.argmin(np.linalg.norm(path[path_index:] - x, axis=1)))
+    route = np.vstack([x, path[path_index:]])
+    spacing = max(0.8 * float(u_max) * float(dt), 0.05)
+    refs = np.vstack([x, *[_point_on_polyline(route, k * spacing) for k in range(1, horizon + 1)]])
 
-def _barrier_value(x, obs, robot_radius):
-    x = np.asarray(x, dtype=float).reshape(2)
-    if float(obs[-1]) == 0.0:
-        ox, oy, r_obs = float(obs[0]), float(obs[1]), float(obs[2])
-        d_min = robot_radius + r_obs
-        return (x[0] - ox) ** 2 + (x[1] - oy) ** 2 - d_min**2
-    ox, oy, a, b, e, theta = map(float, obs[:6])
-    ct, st = np.cos(theta), np.sin(theta)
-    px = ct * (x[0] - ox) + st * (x[1] - oy)
-    py = -st * (x[0] - ox) + ct * (x[1] - oy)
-    ax = max(a + robot_radius, 1e-3)
-    ay = max(b + robot_radius, 1e-3)
-    return (px / ax) ** e + (py / ay) ** e - 1.0
+    z_guess = [z.copy()]
+    du_guess = []
+    x_rollout = x.copy()
+    u_rollout = u_current.copy()
+    for target in refs[1:]:
+        desired_u = np.clip((target - x_rollout) / float(dt) - _nonlinear_drift(x_rollout, scenario), -float(u_max), float(u_max))
+        du = np.clip((desired_u - u_rollout) / float(dt), -float(du_max), float(du_max))
+        # The augmented continuous model ramps the control over the interval.
+        u_mid = u_rollout + 0.5 * float(dt) * du
+        x_rollout = _step_state(x_rollout, u_mid, dt, scenario)
+        u_rollout = np.clip(u_rollout + float(dt) * du, -float(u_max), float(u_max))
+        du_guess.append(du)
+        z_guess.append(np.r_[x_rollout, u_rollout])
+    return np.asarray(z_guess, dtype=float), np.asarray(du_guess, dtype=float), refs, path_index
 
 
 def _build_solver(start, goal, rects, bounds, dt, horizon, u_max, scenario):
@@ -226,30 +245,31 @@ def _build_solver(start, goal, rects, bounds, dt, horizon, u_max, scenario):
         return None, None
 
     AcadosModel, AcadosOcp, AcadosOcpSolver = _load_acados_template()
-    nx = 2
+    nx = 4
     nu = 2
     x = ca.MX.sym("x", nx)
-    u = ca.MX.sym("u", nu)
+    du = ca.MX.sym("du", nu)
     xdot = ca.MX.sym("xdot", nx)
 
     model = AcadosModel()
     model.name = "sofai_s2_mpc_nl_2d"
     model.x = x
-    model.u = u
+    model.u = du
     model.xdot = xdot
-    drift = _nonlinear_drift_expr(x, scenario)
-    model.f_expl_expr = ca.vertcat(drift[0] + u[0], drift[1] + u[1])
+    drift = _nonlinear_drift_expr(x[:2], scenario)
+    model.f_expl_expr = ca.vertcat(drift[0] + x[2], drift[1] + x[3], du[0], du[1])
     model.f_impl_expr = xdot - model.f_expl_expr
 
     q_pos = float(env_float("SOFAI_MPC_Q_POS", 50.0))
     r_u = float(env_float("SOFAI_MPC_R_U", 0.05))
+    r_du = float(env_float("SOFAI_MPC_R_DU", 0.50))
     # Slightly less conservative default safety geometry for accuracy-first MPC.
     robot_radius = float(env_float("SOFAI_MPC_RADIUS", 0.22))
     obstacle_margin = float(env_float("SOFAI_MPC_MARGIN", 0.10))
     exponent = float(env_float("SOFAI_MPC_RECT_EXPONENT", 10.0))
     obstacle_buffer = float(env_float("SOFAI_MPC_CONSTRAINT_BUFFER", 0.0))
 
-    model.cost_y_expr = ca.vertcat(x[0], x[1], u[0], u[1])
+    model.cost_y_expr = ca.vertcat(x[0], x[1], x[2], x[3], du[0], du[1])
     model.cost_y_expr_e = ca.vertcat(x[0], x[1])
 
     if rects:
@@ -262,12 +282,15 @@ def _build_solver(start, goal, rects, bounds, dt, horizon, u_max, scenario):
                 exponent=exponent,
             )
             cx, cy, ax, ay, e, _, _ = obs
-            h_expr.append(((x[0] - cx) / ax) ** e + ((x[1] - cy) / ay) ** e - 1.0)
+            level = ((x[0] - cx) / ax) ** e + ((x[1] - cy) / ay) ** e
+            # Keep the same safe set (level >= 1) without feeding enormous
+            # e=10 values from distant obstacles into the acados QP.
+            h_expr.append((level - 1.0) / (level + 1.0))
         model.con_h_expr = ca.vertcat(*h_expr)
         model.con_h_expr_e = model.con_h_expr
 
     goal_x, goal_y = float(goal[0]), float(goal[1])
-    x0 = np.array([float(start[0]), float(start[1])], dtype=float)
+    z0 = np.array([float(start[0]), float(start[1]), 0.0, 0.0], dtype=float)
 
     ocp = AcadosOcp()
     ocp.model = model
@@ -285,18 +308,19 @@ def _build_solver(start, goal, rects, bounds, dt, horizon, u_max, scenario):
 
     ocp.cost.cost_type = "NONLINEAR_LS"
     ocp.cost.cost_type_e = "NONLINEAR_LS"
-    ocp.cost.W = np.diag([q_pos, q_pos, r_u, r_u])
+    ocp.cost.W = np.diag([q_pos, q_pos, r_u, r_u, r_du, r_du])
     ocp.cost.W_e = np.diag([2.0 * q_pos, 2.0 * q_pos])
-    ocp.cost.yref = np.array([goal_x, goal_y, 0.0, 0.0], dtype=float)
+    ocp.cost.yref = np.array([goal_x, goal_y, 0.0, 0.0, 0.0, 0.0], dtype=float)
     ocp.cost.yref_e = np.array([goal_x, goal_y], dtype=float)
 
     xmin, ymin, xmax, ymax = bounds
-    ocp.constraints.x0 = x0
-    ocp.constraints.lbx = np.array([xmin, ymin], dtype=float)
-    ocp.constraints.ubx = np.array([xmax, ymax], dtype=float)
-    ocp.constraints.idxbx = np.array([0, 1], dtype=int)
-    ocp.constraints.lbu = np.array([-u_max, -u_max], dtype=float)
-    ocp.constraints.ubu = np.array([u_max, u_max], dtype=float)
+    du_max = float(env_float("SOFAI_MPC_DU_MAX", 12.0))
+    ocp.constraints.x0 = z0
+    ocp.constraints.lbx = np.array([xmin, ymin, -u_max, -u_max], dtype=float)
+    ocp.constraints.ubx = np.array([xmax, ymax, u_max, u_max], dtype=float)
+    ocp.constraints.idxbx = np.array([0, 1, 2, 3], dtype=int)
+    ocp.constraints.lbu = np.array([-du_max, -du_max], dtype=float)
+    ocp.constraints.ubu = np.array([du_max, du_max], dtype=float)
     ocp.constraints.idxbu = np.array([0, 1], dtype=int)
 
     if rects:
@@ -307,7 +331,7 @@ def _build_solver(start, goal, rects, bounds, dt, horizon, u_max, scenario):
         ocp.constraints.uh_e = np.full(n_obs, 1e8, dtype=float)
 
     solver = AcadosOcpSolver(ocp, json_file=str(Path(ocp.code_export_directory) / "acados_ocp.json"), verbose=False)
-    return solver, x0
+    return solver, z0
 
 
 def _solve_mpc_fallback(*args, **kwargs):
@@ -328,42 +352,67 @@ def solve_MPC_with_info(scenario):
         n_steps = env_int("SOFAI_MPC_STEPS", 600)
         goal_tol = scenario_goal_tol(scenario, env_float("SOFAI_MPC_GOAL_TOL", 0.5))
         u_max = scenario_u_max(scenario)
+        du_max = float(env_float("SOFAI_MPC_DU_MAX", 12.0))
+        robot_radius = float(env_float("SOFAI_MPC_RADIUS", 0.22))
+        obstacle_margin = float(env_float("SOFAI_MPC_MARGIN", 0.10))
+        reference_path = None
+        if os.environ.get("SOFAI_MPC_GLOBAL_REFERENCE", "1").strip().lower() not in {"0", "false", "no", "off"}:
+            reference_path = build_global_reference_path(
+                start,
+                goal,
+                rects,
+                bounds,
+                clearance=robot_radius + obstacle_margin,
+                resolution=env_float("SOFAI_MPC_REFERENCE_GRID", 0.35),
+            )
+        reference_index = 0
 
         with _suppress_fd_output(enabled=bool(env_int("SOFAI_MPC_SILENCE_ACADOS", 1))):
-            solver, x = _build_solver(start, goal, rects, bounds, dt, horizon, u_max, scenario)
+            solver, z = _build_solver(start, goal, rects, bounds, dt, horizon, u_max, scenario)
             if solver is None:
                 raise RuntimeError("S2 MPC could not initialize acados.")
 
-            states = [x.copy()]
+            states = [z[:2].copy()]
             inputs = []
             t0 = time.perf_counter()
 
-            x_guess, u_guess = _warm_start_rollout(x, goal, scenario, dt, horizon, u_max)
+            z_guess, du_guess, reference_states, reference_index = _reference_warm_start(
+                z, reference_path, reference_index, goal, scenario, dt, horizon, u_max, du_max
+            )
 
             for _ in range(int(n_steps)):
                 if goal_reached(np.asarray(states, dtype=float), goal, goal_tol):
                     break
 
                 for k in range(horizon + 1):
-                    solver.set(k, "x", x_guess[k])
+                    solver.set(k, "x", z_guess[k])
                 for k in range(horizon):
-                    solver.set(k, "u", u_guess[k])
+                    solver.set(k, "u", du_guess[k])
+                    solver.set(k, "yref", np.r_[reference_states[k + 1], 0.0, 0.0, 0.0, 0.0])
+                solver.set(horizon, "yref", reference_states[-1])
 
-                solver.set(0, "lbx", x)
-                solver.set(0, "ubx", x)
-                solver.solve()
+                solver.set(0, "lbx", z)
+                solver.set(0, "ubx", z)
+                status = int(solver.solve())
+                if status != 0:
+                    print(f"[solve_MPC] acados failed with status={status}; stopping rollout before applying a stale control.", flush=True)
+                    break
                 try:
-                    u = np.asarray(solver.get(0, "u"), dtype=float).reshape(-1)
+                    du = np.asarray(solver.get(0, "u"), dtype=float).reshape(-1)
                 except Exception:
                     break
-                if not np.all(np.isfinite(u)):
+                if not np.all(np.isfinite(du)):
                     break
 
-                x = _step_state(x, u, dt, scenario)
-                states.append(x.copy())
-                inputs.append(np.asarray(u, dtype=float).copy())
+                u_mid = z[2:] + 0.5 * float(dt) * du
+                z[:2] = _step_state(z[:2], u_mid, dt, scenario)
+                z[2:] = np.clip(z[2:] + float(dt) * du, -float(u_max), float(u_max))
+                states.append(z[:2].copy())
+                inputs.append(u_mid.copy())
 
-                x_guess, u_guess = _warm_start_rollout(x, goal, scenario, dt, horizon, u_max)
+                z_guess, du_guess, reference_states, reference_index = _reference_warm_start(
+                    z, reference_path, reference_index, goal, scenario, dt, horizon, u_max, du_max
+                )
 
             runtime = float(time.perf_counter() - t0)
             X = maybe_patch_goal_trajectory(
@@ -377,10 +426,12 @@ def solve_MPC_with_info(scenario):
             return {
                 "states": X,
                 "inputs": U,
+                "dt": float(dt),
                 "runtime_sec": runtime,
                 "success": bool(collision_free_rectangles(X, rects) and goal_reached(X, goal, goal_tol)),
                 "collision_free": bool(collision_free_rectangles(X, rects)),
                 "goal_reached": bool(goal_reached(X, goal, goal_tol)),
+                "reference_path": reference_path,
             }
     except Exception as e:
         print(f"[solve_MPC] Exception occurred: {e}", flush=True)

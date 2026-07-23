@@ -39,17 +39,20 @@ python script/prepare_environment_assets.py \
 
 all the families:
 
-cd <repo-root>
-PYTHONDONTWRITEBYTECODE=1 \
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python script/prepare_environment_assets.py \
-  --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap \
+  --families small_open large_sparse wall_gap serial_walls maze_branching \
   --s2_solver cbf
+
+
+new family: long_slalom
 
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -65,6 +68,7 @@ FAMILY_CHOICES = [
     "serial_walls",
     "maze_branching",
     "bugtrap",
+    "long_slalom",
 ]
 
 
@@ -74,8 +78,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--python", default=sys.executable)
     p.add_argument("--family", choices=FAMILY_CHOICES, default="dense_clutter", help="Single family to process.")
     p.add_argument("--families", nargs="+", default=[], help="Optional list of families to process in one run.")
-    p.add_argument("--train_n_per_family", type=int, default=100) ## size of the base model 
-    p.add_argument("--eval_n_per_family", type=int, default=500) ## size of the benchmarks 
+    p.add_argument("--train_n_per_family", type=int, default=2000, help="Candidate S2 scenarios used to collect bootstrap demonstrations.")
+    p.add_argument("--bootstrap_target_successes", type=int, default=500, help="Successful S2 trajectories retained for the base S1 model; 0 keeps all.")
+    p.add_argument("--eval_n_per_family", type=int, default=10000, help="Held-out benchmark scenarios per family.")
     p.add_argument("--train_seed", type=int, default=7)
     p.add_argument("--eval_seed", type=int, default=8)
     p.add_argument("--s2_solver", choices=["cbf", "mpc"], default="cbf")
@@ -118,6 +123,16 @@ def resolve_path(root: Path, spec: str, *, family: str) -> Path:
     return path
 
 
+def successful_trajectory_count(path: Path) -> int:
+    count = 0
+    for line in path.read_text().splitlines():
+        if not line.strip():
+            continue
+        if bool(json.loads(line).get("success")):
+            count += 1
+    return count
+
+
 def main() -> None:
     args = parse_args()
     root = Path(args.root).expanduser().resolve()
@@ -140,52 +155,50 @@ def main() -> None:
         eval_dict_path = out_dir / f"benchmark_dualmp_nl_{family}_eval_{family}.json"
         model_path = assets_dir / "s1_policy_nonlinear.pth"
         dataset_path = assets_dir / "s1_nonlinear_dataset.npz"
+        target_successes = max(0, int(args.bootstrap_target_successes))
 
         if not args.skip_generate:
-            run(
-                [
-                    python,
-                    "input/generate_nl_dict.py",
-                    "--root",
-                    str(root),
-                    "--output_dir",
-                    str(out_dir),
-                    "--prefix",
-                    f"benchmark_dualmp_nl_{family}_train",
-                    "--n_per_family",
-                    str(args.train_n_per_family),
-                    "--seed",
-                    str(args.train_seed),
-                    "--families",
-                    family,
-                ],
-                cwd=root,
-                dry_run=args.dry_run,
-            )
-            run(
-                [
-                    python,
-                    "input/generate_nl_dict.py",
-                    "--root",
-                    str(root),
-                    "--output_dir",
-                    str(out_dir),
-                    "--prefix",
-                    f"benchmark_dualmp_nl_{family}_eval",
-                    "--n_per_family",
-                    str(args.eval_n_per_family),
-                    "--seed",
-                    str(args.eval_seed),
-                    "--families",
-                    family,
-                ],
-                cwd=root,
-                dry_run=args.dry_run,
-            )
+            for split, count, seed in (
+                ("train", args.train_n_per_family, args.train_seed),
+                ("eval", args.eval_n_per_family, args.eval_seed),
+            ):
+                prefix = f"benchmark_dualmp_nl_{family}_{split}_{family}"
+                if family == "long_slalom":
+                    cmd = [
+                        python,
+                        "input/generate_long_slalom.py",
+                        "--root",
+                        str(root),
+                        "--output_dir",
+                        str(out_dir),
+                        "--prefix",
+                        prefix,
+                        "--n_scenarios",
+                        str(count),
+                        "--seed",
+                        str(seed),
+                    ]
+                else:
+                    cmd = [
+                        python,
+                        "input/generate_nl_dict.py",
+                        "--root",
+                        str(root),
+                        "--output_dir",
+                        str(out_dir),
+                        "--prefix",
+                        f"benchmark_dualmp_nl_{family}_{split}",
+                        "--n_per_family",
+                        str(count),
+                        "--seed",
+                        str(seed),
+                        "--families",
+                        family,
+                    ]
+                run(cmd, cwd=root, dry_run=args.dry_run)
 
         if not args.skip_collect:
-            run(
-                [
+            collect_cmd = [
                     python,
                     "run_motion_planning_benchmarks.py",
                     "--root",
@@ -208,13 +221,20 @@ def main() -> None:
                     str(results_dir),
                     "--out_prefix",
                     f"{train_dict_path.stem}_{args.s2_solver}_bootstrap",
-                ],
-                cwd=root,
-                dry_run=args.dry_run,
-            )
+            ]
+            if target_successes:
+                collect_cmd.extend(["--stop_after_successes", str(target_successes)])
+            run(collect_cmd, cwd=root, dry_run=args.dry_run)
 
         if not args.skip_train:
             jsonl = results_dir / f"{train_dict_path.stem}_{args.s2_solver}_bootstrap_runs.jsonl"
+            if not args.dry_run and target_successes:
+                successful = successful_trajectory_count(jsonl)
+                if successful < target_successes:
+                    print(
+                        f"[warn] {family} collected {successful}/{target_successes} successful "
+                        f"{args.s2_solver.upper()} bootstrap trajectories; training on all available successes."
+                    )
             run(
                 [
                     python,
@@ -232,7 +252,7 @@ def main() -> None:
                     "--source",
                     args.train_source,
                     "--max_trajectories",
-                    str(args.train_trajectories),
+                    str(target_successes or args.train_trajectories),
                     "--epochs",
                     str(args.train_epochs),
                     "--batch",

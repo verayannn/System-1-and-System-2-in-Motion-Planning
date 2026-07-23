@@ -245,8 +245,9 @@ For a single family:
 ```bash
 python script/prepare_environment_assets.py \
   --family dense_clutter \
-  --train_n_per_family 100 \
-  --eval_n_per_family 500 \
+  --train_n_per_family 2000 \
+  --bootstrap_target_successes 500 \
+  --eval_n_per_family 10000 \
   --s2_solver cbf
 ```
 
@@ -256,12 +257,25 @@ For all the families:
 PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/private/tmp/mpl \
 python script/prepare_environment_assets.py \
   --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap \
-  --train_n_per_family 500 \
-  --eval_n_per_family 2500 \
+  --train_n_per_family 2000 \
+  --bootstrap_target_successes 500 \
+  --eval_n_per_family 10000 \
   --s2_solver cbf
 ```
 
 The script writes benchmark dictionaries to `input/nl/` and assets to `db/by_env/<family>_nl/`.
+`--train_n_per_family` is the candidate pool. The script keeps exactly
+`--bootstrap_target_successes` successful S2 trajectories and stops if the pool
+is too small, so the base S1 dataset has auditable provenance.
+
+Generate a separate fixed probe set before any continual-learning run:
+
+```bash
+python script/generate_probe_assets.py \
+  --families dense_clutter \
+  --n_per_family 200 \
+  --seed 700
+```
 
 ### 2. Run the full benchmark set
 
@@ -286,8 +300,21 @@ python script/run_suite.py \
   --scenario_ids 0-2499 \
   --block_size 500 \
   --workers 6 \
+  --block_order shuffled \
+  --block_seed 42 \
+  --cl_init base \
+  --train_source all_success \
+  --fallback_success_weight 5.0 \
+  --probe_dictionary input/nl/benchmark_dualmp_nl_dense_clutter_probe_dense_clutter.json \
+  --probe_scenario_ids 0-199 \
   --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl
 ```
+
+SOFAI always runs S1 first and invokes S2 only after a failed S1 rollout. Each
+CL checkpoint is retrained from the frozen base model using the successful base
+and completed benchmark trajectories only. Probe JSONLs are never training
+inputs. Report `planning_runtime_sec`, which is S1 plus S2 when a fallback is
+needed, rather than `selected_runtime_sec`.
 
 For all the families:
 

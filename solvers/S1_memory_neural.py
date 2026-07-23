@@ -9,6 +9,7 @@ from System 2 and rolls out a nonlinear point-robot model.
 from __future__ import annotations
 
 import os
+import threading
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
@@ -19,6 +20,7 @@ from solvers import s1_nonlinear as nl
 SOLVER_DIR = Path(__file__).resolve().parent
 
 _CACHE: Optional[Dict[str, Any]] = None
+_CACHE_LOCK = threading.Lock()
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -72,6 +74,9 @@ def _default_model_path() -> Path:
 def _make_args() -> Dict[str, Any]:
     return {
         "total_steps": _env_int("SOFAI_NEW_S1_STEPS", 120),
+        # Reuse a policy prediction briefly. This keeps S1 an approximate,
+        # low-latency controller without changing the checkpoint format.
+        "action_hold": _env_int("SOFAI_NEW_S1_ACTION_HOLD", 4),
         "dt_nom": _env_float("SOFAI_NEW_S1_DT", 0.05),
         "u_max_nom": _env_float("SOFAI_NEW_S1_U_MAX", 3.0),
         "goal_tol": _env_float("SOFAI_NEW_S1_GOAL_TOL", 0.6),
@@ -89,27 +94,40 @@ def _init():
     if _CACHE is not None:
         return _CACHE
 
-    import torch
+    with _CACHE_LOCK:
+        if _CACHE is not None:
+            return _CACHE
 
-    requested_device = os.environ.get("SOFAI_NEW_S1_DEVICE", "").strip().lower()
-    if requested_device:
-        device = torch.device(requested_device)
-    else:
-        # S1 is a tiny policy network; on Apple Silicon the CPU path is usually
-        # faster than paying MPS transfer overhead for these small tensors.
-        device = torch.device("cpu")
+        import torch
 
-    model_path = _default_model_path()
-    model, norm, meta = nl.load_s1_checkpoint(model_path, device)
-    _CACHE = {
-        "model": model,
-        "norm": norm,
-        "meta": meta,
-        "device": device,
-        "model_path": model_path,
-        "args": _make_args(),
-    }
-    print(f"[S1_nonlinear] ready: model={model_path} device={device}")
+        requested_device = os.environ.get("SOFAI_NEW_S1_DEVICE", "").strip().lower()
+        if requested_device:
+            device = torch.device(requested_device)
+        else:
+            # S1 is a tiny policy network; on Apple Silicon the CPU path is usually
+            # faster than paying MPS transfer overhead for these small tensors.
+            device = torch.device("cpu")
+
+        if device.type == "cpu":
+            # The policy uses tiny single-item convolutions. Let the benchmark
+            # workers provide parallelism instead of oversubscribing CPU cores.
+            torch.set_num_threads(max(1, _env_int("SOFAI_NEW_S1_TORCH_THREADS", 1)))
+            try:
+                torch.set_num_interop_threads(1)
+            except RuntimeError:
+                pass
+
+        model_path = _default_model_path()
+        model, norm, meta = nl.load_s1_checkpoint(model_path, device)
+        _CACHE = {
+            "model": model,
+            "norm": norm,
+            "meta": meta,
+            "device": device,
+            "model_path": model_path,
+            "args": _make_args(),
+        }
+        print(f"[S1_nonlinear] ready: model={model_path} device={device}")
     return _CACHE
 
 
@@ -144,6 +162,7 @@ def solveMemoryNeural(
         norm,
         device,
         total_steps=int(args["total_steps"]),
+        action_hold=int(args["action_hold"]),
         dt_nom=float(args["dt_nom"]),
         u_max_nom=float(args["u_max_nom"]),
         collision_margin=float(args["collision_margin"]),
@@ -178,6 +197,7 @@ def solveMemoryNeural(
         "goal_reached": bool(info.get("solved", False)),
         "states": traj.tolist(),
         "inputs": controls.tolist(),
+        "dt": float(args["dt_nom"]),
         "confidence": confidence,
         "final_dist": float(info.get("final_dist", float("inf"))),
         "runtime_sec": None,

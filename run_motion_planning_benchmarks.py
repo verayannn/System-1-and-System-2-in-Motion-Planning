@@ -39,6 +39,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
+import numpy as np
+
 
 DEFAULT_PATTERNS = [
     "benchmark_dualmp_small_open.json",
@@ -53,7 +55,7 @@ DEFAULT_PATTERNS = [
 CSV_FIELDS = [
     "dictionary", "scenario_index", "scenario_id", "run_type", "s1", "s2", "status", "timed_out",
     "selected_attempt", "success", "collision_free", "goal_reached",
-    "final_goal_error", "path_length", "num_states", "runtime_sec",
+    "final_goal_error", "path_length", "num_states", "runtime_sec", "planning_runtime_sec",
     "selected_runtime_sec", "wall_runtime_sec",
     "quality_path_length", "quality_control_effort", "quality_smoothness",
     "quality_j", "quality_score",
@@ -164,6 +166,7 @@ def error_result(exc: BaseException, opts: Dict[str, Any], runtime: float = 0.0)
         "path_length": None,
         "num_states": 0,
         "selected_runtime_sec": None,
+        "planning_runtime_sec": runtime,
         "runtime_sec": runtime,
         "running_time": runtime,
         "timed_out": False,
@@ -249,6 +252,7 @@ def run_case_timed(opts: Dict[str, Any], timeout_sec: float, same_process: bool)
             "path_length": None,
             "num_states": 0,
             "selected_runtime_sec": None,
+            "planning_runtime_sec": wall,
             "runtime_sec": wall,
             "running_time": wall,
             "wall_runtime_sec": wall,
@@ -309,6 +313,7 @@ def flat(result: Dict[str, Any]) -> Dict[str, Any]:
         "path_length": "" if result.get("path_length") is None else result.get("path_length"),
         "num_states": result.get("num_states", 0),
         "runtime_sec": result.get("runtime_sec", ""),
+        "planning_runtime_sec": result.get("planning_runtime_sec", ""),
         "selected_runtime_sec": "" if result.get("selected_runtime_sec") is None else result.get("selected_runtime_sec"),
         "wall_runtime_sec": result.get("wall_runtime_sec", result.get("runtime_sec", "")),
         "quality_path_length": "" if result.get("quality_path_length") is None else result.get("quality_path_length"),
@@ -422,6 +427,17 @@ def print_aggregate(results: List[Dict[str, Any]]) -> None:
     def rate(num: int) -> float:
         return num / len(ok) if ok else 0.0
 
+    runtimes = [float(r["planning_runtime_sec"]) for r in ok if r.get("planning_runtime_sec") is not None]
+    qualities = [float(r["quality_score"]) for r in ok if r.get("success") and r.get("quality_score") is not None]
+    s1_success = 0
+    s2_only_success = 0
+    for result in ok:
+        attempts = result.get("attempts", []) or []
+        if any(a.get("system") == "s1" and a.get("success") for a in attempts):
+            s1_success += 1
+        elif any(a.get("system") == "s2" and a.get("success") for a in attempts):
+            s2_only_success += 1
+
     print(
         "[aggregate] "
         f"cases={len(results)} ok={len(ok)} "
@@ -429,7 +445,10 @@ def print_aggregate(results: List[Dict[str, Any]]) -> None:
         f"error={sum(r.get('status') == 'error' for r in results)} "
         f"success_rate={rate(count('success')):.3f} "
         f"collision_free_rate={rate(count('collision_free')):.3f} "
-        f"goal_reach_rate={rate(count('goal_reached')):.3f}"
+        f"goal_reach_rate={rate(count('goal_reached')):.3f} "
+        f"mean_planning_runtime_sec={float(np.mean(runtimes)) if runtimes else float('nan'):.3f} "
+        f"mean_quality={float(np.mean(qualities)) if qualities else float('nan'):.3f} "
+        f"s1_success={s1_success} s2_only_success={s2_only_success}"
     )
 
 
@@ -440,6 +459,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--patterns", nargs="+", default=DEFAULT_PATTERNS)
     p.add_argument("--scenario_ids", default="all")
     p.add_argument("--limit_per_dictionary", type=int, default=0)
+    p.add_argument("--stop_after_successes", type=int, default=0, help="Stop sequential execution after this many successful cases; 0 runs every selected case.")
     p.add_argument("--s1", choices=["neural", "primitives"], default="primitives")
     p.add_argument("--s2", choices=["cbf", "mpc"], default="mpc")
     p.add_argument("--run_type", choices=["sofai", "s1", "s2"], default="sofai")
@@ -483,6 +503,9 @@ def main() -> None:
         print(f"[dry_run] total_cases={len(planned)}")
         return
 
+    if args.stop_after_successes > 0 and int(args.workers) > 1:
+        raise SystemExit("--stop_after_successes requires --workers 1 so no extra cases are submitted.")
+
     def make_opts(dictionary: Path, sid: int) -> Dict[str, Any]:
         return {
             "root": str(root),
@@ -524,6 +547,9 @@ def main() -> None:
             result = run_case_timed(make_opts(dictionary, sid), args.timeout_sec, args.same_process)
             results.append(result)
             print_result(result, i)
+            if args.stop_after_successes > 0 and sum(bool(row.get("success")) for row in results) >= args.stop_after_successes:
+                print(f"[stop] reached {args.stop_after_successes} successful cases after {i} attempted cases")
+                break
     else:
         print(f"[parallel] workers={args.workers} cases={len(planned)}")
         with ThreadPoolExecutor(max_workers=int(args.workers)) as pool:

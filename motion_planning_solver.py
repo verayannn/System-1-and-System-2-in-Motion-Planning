@@ -22,7 +22,7 @@ from sofai_tool.solvers import system2 as sofai2
 from sofai_tool.metacognition import metacognition_module as meta
 
 from input.input_handler import load_scenarios
-from solvers.S2_cbf import solve_CBF
+from solvers.S2_cbf import solve_CBF_with_info
 from solvers._s2_common import collision_free_rectangles, goal_reached
 
 PATH_TO_INPUT = "input/"
@@ -109,6 +109,8 @@ class CustomSystem1Solver(sofai1.System1Solver):
         self.solution_raw = None
         self.solution = "noSolution"
         self.confidence = 0.0
+        self.inputs = None
+        self.dt = None
 
         try:
             _, scenario_id, scenario = load_problem_scenario(problem_id)
@@ -116,7 +118,9 @@ class CustomSystem1Solver(sofai1.System1Solver):
             if S1_MODE == "neural":
                 from solvers.S1_memory_neural import solveMemoryNeural
 
-                states, confidence = solveMemoryNeural(scenario, return_info=False)
+                states, confidence, info = solveMemoryNeural(scenario, return_info=True)
+                self.inputs = info.get("inputs")
+                self.dt = info.get("dt")
             else:
                 from solvers.S1_motion_primitives import solveMotionPrimitives
 
@@ -185,24 +189,28 @@ class CustomSystem2Solver(sofai2.System2Solver):
         self.solution_raw = None
         self.solution = "noSolution"
         self.confidence = 0.0
+        self.inputs = None
+        self.dt = None
 
         try:
             _, scenario_id, scenario = load_problem_scenario(problem_id)
 
             if S2_MODE == "cbf":
-                solve_fn = solve_CBF
+                solve_fn = solve_CBF_with_info
             else:
-                from solvers.S2_mpc import solve_MPC
+                from solvers.S2_mpc import solve_MPC_with_info
 
-                solve_fn = solve_MPC
+                solve_fn = solve_MPC_with_info
 
             with ThreadPoolExecutor(max_workers=1) as executor: 
                 future = executor.submit(solve_fn, scenario) ## each executor get a different bck
 
                 try:
                     result = future.result(timeout=time_limit)
-                    self.solution_raw = result
-                    self.solution = "noSolution" if result is None else result.tolist()
+                    self.solution_raw = result.get("states") if isinstance(result, dict) else None
+                    self.inputs = result.get("inputs") if isinstance(result, dict) else None
+                    self.dt = result.get("dt") if isinstance(result, dict) else None
+                    self.solution = "noSolution" if self.solution_raw is None else self.solution_raw.tolist()
                 except TimeoutError:
                     logging.warning("timeout")
                     self.solution = "noSolution"
@@ -380,6 +388,8 @@ def _attempt_record(name: str, system: str, mode: str, solver, scenario) -> Dict
             "system": system,
             "mode": mode,
             "states": None if solver.solution_raw is None else np.asarray(solver.solution_raw).tolist(),
+            "inputs": None if getattr(solver, "inputs", None) is None else np.asarray(solver.inputs).tolist(),
+            "dt": getattr(solver, "dt", None),
             "confidence": float(getattr(solver, "confidence", 0.0)),
             "runtime_sec": float(getattr(solver, "running_time", 0.0)),
             "correctness": float(getattr(solver, "correctness", 0.0)),
@@ -454,6 +464,7 @@ def solve_benchmark_case(
 
     selected = attempts[0] if run_type in {"s1", "s2"} else next((a for a in attempts if a.get("success")), attempts[-1] if attempts else None)
     running_time = time.time() - timer
+    planning_runtime = float(sum(float(attempt.get("runtime_sec", 0.0) or 0.0) for attempt in attempts))
     selected_states = None if selected is None else selected.get("states")
 
     return {
@@ -478,6 +489,7 @@ def solve_benchmark_case(
         "path_length": None if selected is None else selected.get("path_length"),
         "num_states": 0 if selected is None else int(selected.get("num_states", 0)),
         "selected_runtime_sec": None if selected is None else selected.get("runtime_sec"),
+        "planning_runtime_sec": planning_runtime,
         "runtime_sec": running_time,
         "running_time": running_time,
         "timed_out": False,

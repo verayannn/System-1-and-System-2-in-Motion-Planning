@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import heapq
 import time
 import traceback
 from typing import Any
@@ -9,11 +10,12 @@ import numpy as np
 from safe_control.position_control.cbf_qp import CBFQP
 from solvers._s2_common import (
     collision_free_rectangles,
+    env_bool,
     env_float,
     env_int,
     goal_reached,
     maybe_patch_goal_trajectory,
-    rect_to_superellipse,
+    scenario_bounds,
     scenario_goal,
     scenario_goal_tol,
     scenario_rects,
@@ -128,6 +130,120 @@ def _build_robot(start: np.ndarray, dt: float, u_max: float, scenario: Any, n_ob
     return robot, robot.robot_spec
 
 
+def _rect_to_cbf_obstacle(rect, *, margin: float, exponent: float) -> np.ndarray:
+    """Convert a rectangle to a conservatively inflated superellipse."""
+    xmin, ymin, xmax, ymax = map(float, rect)
+    return np.array(
+        [
+            0.5 * (xmin + xmax),
+            0.5 * (ymin + ymax),
+            max(0.5 * (xmax - xmin) + float(margin), 1e-3),
+            max(0.5 * (ymax - ymin) + float(margin), 1e-3),
+            float(exponent),
+            0.0,
+            1.0,
+        ],
+        dtype=float,
+    )
+
+
+def _nearest_free_cell(blocked: np.ndarray, row: int, col: int) -> tuple[int, int] | None:
+    rows, cols = blocked.shape
+    if 0 <= row < rows and 0 <= col < cols and not blocked[row, col]:
+        return row, col
+    for radius in range(1, max(rows, cols)):
+        r0, r1 = max(0, row - radius), min(rows, row + radius + 1)
+        c0, c1 = max(0, col - radius), min(cols, col + radius + 1)
+        candidates = np.argwhere(~blocked[r0:r1, c0:c1])
+        if candidates.size:
+            distances = np.sum(np.square(candidates - np.array([row - r0, col - c0])), axis=1)
+            best = candidates[int(np.argmin(distances))]
+            return int(best[0] + r0), int(best[1] + c0)
+    return None
+
+
+def build_global_reference_path(start: np.ndarray, goal: np.ndarray, rects, bounds, *, clearance: float, resolution: float) -> np.ndarray | None:
+    """Plan a static 8-connected reference path around inflated rectangles."""
+    xmin, ymin, xmax, ymax = map(float, bounds)
+    resolution = max(float(resolution), 0.1)
+    xs = np.arange(xmin, xmax + 0.5 * resolution, resolution)
+    ys = np.arange(ymin, ymax + 0.5 * resolution, resolution)
+    xx, yy = np.meshgrid(xs, ys)
+    blocked = np.zeros_like(xx, dtype=bool)
+    for rx1, ry1, rx2, ry2 in rects:
+        blocked |= (
+            (xx >= float(rx1) - clearance)
+            & (xx <= float(rx2) + clearance)
+            & (yy >= float(ry1) - clearance)
+            & (yy <= float(ry2) + clearance)
+        )
+
+    start_cell = _nearest_free_cell(blocked, int(np.argmin(np.abs(ys - start[1]))), int(np.argmin(np.abs(xs - start[0]))))
+    goal_cell = _nearest_free_cell(blocked, int(np.argmin(np.abs(ys - goal[1]))), int(np.argmin(np.abs(xs - goal[0]))))
+    if start_cell is None or goal_cell is None:
+        return None
+
+    rows, cols = blocked.shape
+    costs = np.full((rows, cols), np.inf, dtype=float)
+    parent = np.full((rows, cols, 2), -1, dtype=np.int32)
+    costs[start_cell] = 0.0
+    queue: list[tuple[float, float, int, int]] = [(0.0, 0.0, *start_cell)]
+    neighbors = [(dr, dc, float(np.hypot(dr, dc))) for dr in (-1, 0, 1) for dc in (-1, 0, 1) if dr or dc]
+
+    while queue:
+        _, current_cost, row, col = heapq.heappop(queue)
+        if current_cost != costs[row, col]:
+            continue
+        if (row, col) == goal_cell:
+            break
+        for dr, dc, step_cost in neighbors:
+            nr, nc = row + dr, col + dc
+            if nr < 0 or nr >= rows or nc < 0 or nc >= cols or blocked[nr, nc]:
+                continue
+            if dr and dc and (blocked[row + dr, col] or blocked[row, col + dc]):
+                continue
+            next_cost = current_cost + step_cost
+            if next_cost >= costs[nr, nc]:
+                continue
+            costs[nr, nc] = next_cost
+            parent[nr, nc] = (row, col)
+            heuristic = float(np.hypot(goal_cell[0] - nr, goal_cell[1] - nc))
+            heapq.heappush(queue, (next_cost + heuristic, next_cost, nr, nc))
+
+    if not np.isfinite(costs[goal_cell]):
+        return None
+    cells = [goal_cell]
+    while cells[-1] != start_cell:
+        row, col = cells[-1]
+        previous = tuple(parent[row, col])
+        if previous[0] < 0:
+            return None
+        cells.append(previous)
+    cells.reverse()
+    raw = np.asarray([[xs[col], ys[row]] for row, col in cells], dtype=float)
+    raw[0] = np.asarray(start, dtype=float)[:2]
+    raw[-1] = np.asarray(goal, dtype=float)[:2]
+
+    # Keep the full grid route. Long line-of-sight shortcuts can cut too close
+    # to a rectangle and leave a local CBF at a barrier boundary.
+    return raw
+
+
+def _reference_target(path: np.ndarray, index: int, x: np.ndarray, *, waypoint_tol: float, lookahead: float) -> tuple[np.ndarray, int]:
+    # Look-ahead can intentionally skip grid points. Re-anchor progress on the
+    # closest remaining path point so the target never stays behind the robot.
+    remaining_distances = np.linalg.norm(path[index:] - x[:2], axis=1)
+    index += int(np.argmin(remaining_distances))
+    while index < len(path) - 1 and np.linalg.norm(x[:2] - path[index]) <= waypoint_tol:
+        index += 1
+    target = index
+    remaining = 0.0
+    while target < len(path) - 1 and remaining < lookahead:
+        remaining += float(np.linalg.norm(path[target + 1] - path[target]))
+        target += 1
+    return path[target], index
+
+
 def _rotate(vec: np.ndarray, angle: float) -> np.ndarray:
     c, s = np.cos(angle), np.sin(angle)
     R = np.array([[c, -s], [s, c]], dtype=float)
@@ -141,7 +257,8 @@ def _choose_reference_control(robot: _NonlinearPointCBFRobot, goal: np.ndarray, 
     if np.linalg.norm(goal_vec) < 1e-8:
         goal_vec = np.array([1.0, 0.0], dtype=float)
 
-    base = np.clip(1.8 * goal_vec - drift, -robot.robot_spec["v_max"], robot.robot_spec["v_max"])
+    gain = env_float("SOFAI_CBF_REFERENCE_GAIN", 2.5)
+    base = np.clip(gain * goal_vec - drift, -robot.robot_spec["v_max"], robot.robot_spec["v_max"])
     candidates = [
         base,
         robot.last_u.reshape(-1),
@@ -153,7 +270,7 @@ def _choose_reference_control(robot: _NonlinearPointCBFRobot, goal: np.ndarray, 
     ]
 
     for angle in (np.pi / 6.0, -np.pi / 6.0, np.pi / 4.0, -np.pi / 4.0, np.pi / 2.0, -np.pi / 2.0):
-        cand = 1.8 * _rotate(goal_vec, angle) - drift
+        cand = gain * _rotate(goal_vec, angle) - drift
         candidates.append(cand)
 
     best_u = None
@@ -182,8 +299,8 @@ def solve_CBF_with_info(scenario):
         rects = scenario_rects(scenario)
         start = scenario_start(scenario)
         goal = scenario_goal(scenario)
-        dt = env_float("SOFAI_CBF_DT", 0.04)
-        n_steps = env_int("SOFAI_CBF_STEPS", 600)
+        dt = env_float("SOFAI_CBF_DT", 0.02)
+        n_steps = env_int("SOFAI_CBF_STEPS", 1200)
         goal_tol = scenario_goal_tol(scenario, env_float("SOFAI_CBF_GOAL_TOL", 0.5))
         margin = env_float("SOFAI_CBF_MARGIN", 0.20)
         exponent = env_float("SOFAI_CBF_RECT_EXPONENT", 10.0)
@@ -192,26 +309,51 @@ def solve_CBF_with_info(scenario):
         robot, robot_spec = _build_robot(start, dt, u_max, scenario, len(rects))
         controller = CBFQP(robot, robot_spec, num_obs=max(1, len(rects)))
         obstacles = [
-            rect_to_superellipse(r, robot_radius=robot.robot_radius, margin=margin, exponent=exponent)
+            _rect_to_cbf_obstacle(r, margin=margin, exponent=exponent)
             for r in rects
         ]
+        reference_path = None
+        if env_bool("SOFAI_CBF_GLOBAL_REFERENCE", True):
+            reference_path = build_global_reference_path(
+                start,
+                goal,
+                rects,
+                scenario_bounds(scenario),
+                clearance=robot.robot_radius + margin,
+                resolution=env_float("SOFAI_CBF_REFERENCE_GRID", 0.35),
+            )
+        reference_index = 0
 
         states = [robot.X.reshape(-1).copy()]
         inputs = []
+        qp_failed = False
         t0 = time.perf_counter()
 
         for _ in range(int(n_steps)):
             if goal_reached(np.asarray(states, dtype=float), goal, goal_tol):
                 break
 
-            u_ref = _choose_reference_control(robot, goal, rects, goal_tol)
+            reference_goal = goal
+            if reference_path is not None:
+                reference_goal, reference_index = _reference_target(
+                    reference_path,
+                    reference_index,
+                    robot.X.reshape(-1),
+                    waypoint_tol=env_float("SOFAI_CBF_WAYPOINT_TOL", 0.55),
+                    lookahead=env_float("SOFAI_CBF_REFERENCE_LOOKAHEAD", 1.4),
+                )
+            u_ref = _choose_reference_control(robot, reference_goal, rects, goal_tol)
             u = controller.solve_control_problem(
                 robot.X,
                 {"u_ref": u_ref},
                 obstacles if obstacles else None,
             )
             if u is None:
-                u = u_ref
+                # Do not silently execute an unconstrained nominal command when
+                # the safety QP fails. Returning an unsuccessful rollout is
+                # preferable to reporting an unsafe S2 solution as valid.
+                qp_failed = True
+                break
 
             u = np.asarray(u, dtype=float).reshape(-1, 1)
             robot.step(u)
@@ -230,10 +372,12 @@ def solve_CBF_with_info(scenario):
         return {
             "states": X,
             "inputs": np.asarray(inputs, dtype=float),
+            "dt": float(dt),
             "collision_free": bool(collision_free),
             "solved": bool(solved),
             "runtime": runtime,
-            "message": "success" if solved else "failed_to_reach_goal",
+            "message": ("safety_qp_failed" if qp_failed else ("success" if solved else "failed_to_reach_goal")) + (";global_reference" if reference_path is not None else ";local_reference"),
+            "reference_path": reference_path,
         }
     except Exception as e:
         print(f"[solve_CBF] Exception occurred: {e}", flush=True)

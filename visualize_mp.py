@@ -15,13 +15,13 @@ cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
 
 PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python visualize_mp.py \
-  --problem_dictionary nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
+  --problem_dictionary nl/benchmark_dualmp_nl_long_slalom_eval_long_slalom.json \
   --scenario_ids 5 \
   --s1 neural \
-  --s2 cbf \
+  --s2 mpc \
   --run_type s2 \
   --out_dir output/visualize_mp \
-  --out_prefix s2_cbf_sc5
+  --out_prefix s2_mpc_sc5
 
 
 
@@ -152,6 +152,7 @@ def add_metrics(attempt: Dict[str, Any], scenario: Any) -> Dict[str, Any]:
 def add_quality(result: Dict[str, Any]) -> Dict[str, Any]:
     from solvers._s2_common import (
         benchmark_family_from_dictionary,
+        quality_refs_for_result,
         quality_score,
         quality_weights_for_family,
         selected_success_attempt,
@@ -197,34 +198,12 @@ def add_quality(result: Dict[str, Any]) -> Dict[str, Any]:
         )
         return result
 
-    scenario = result["scenario"]
-    states = np.asarray(selected.get("states", []), dtype=float)
-    if states.ndim != 2 or states.shape[0] == 0:
-        result.update(
-            {
-                "quality_path_length": None,
-                "quality_control_effort": None,
-                "quality_smoothness": None,
-                "quality_j": None,
-                "quality_score": None,
-                "quality_path_length_ref": None,
-                "quality_control_effort_ref": None,
-                "quality_smoothness_ref": None,
-            }
-        )
-        return result
-
-    start = np.asarray(scenario["start"], dtype=float).reshape(-1)[:2]
-    goal = np.asarray(scenario["goal"], dtype=float).reshape(-1)[:2]
-    path_ref = max(float(np.linalg.norm(goal - start)), 1e-6)
-    u_max = float(scenario.get("u_max", 3.0))
-    effort_ref = max(path_ref * max(int(states.shape[0]) - 1, 1) * (u_max**2), 1e-6)
-    smooth_ref = 1.0
+    refs = quality_refs_for_result(result)
 
     j = (
-        weights["path_length"] * float(sample["path_length"]) / path_ref
-        + weights["control_effort"] * float(sample["control_effort"]) / effort_ref
-        + weights["smoothness"] * float(sample["smoothness"]) / smooth_ref
+        weights["path_length"] * float(sample["path_length"]) / refs["path_length"]
+        + weights["control_effort"] * float(sample["control_effort"]) / refs["control_effort"]
+        + weights["smoothness"] * float(sample["smoothness"]) / refs["smoothness"]
     )
 
     result.update(
@@ -235,16 +214,12 @@ def add_quality(result: Dict[str, Any]) -> Dict[str, Any]:
             "quality_j": float(j),
             "quality_score": float(quality_score(
                 sample,
-                {
-                    "path_length": path_ref,
-                    "control_effort": effort_ref,
-                    "smoothness": smooth_ref,
-                },
+                refs,
                 weights,
             )),
-            "quality_path_length_ref": path_ref,
-            "quality_control_effort_ref": effort_ref,
-            "quality_smoothness_ref": smooth_ref,
+            "quality_path_length_ref": refs["path_length"],
+            "quality_control_effort_ref": refs["control_effort"],
+            "quality_smoothness_ref": refs["smoothness"],
         }
     )
     return result
@@ -255,17 +230,22 @@ def run_s1(scenario: Any, mode: str) -> Dict[str, Any]:
     if mode == "neural":
         from solvers.S1_memory_neural import solveMemoryNeural
 
-        states, confidence = solveMemoryNeural(scenario, return_info=False)
+        states, confidence, info = solveMemoryNeural(scenario, return_info=True)
+        inputs = info.get("inputs")
+        dt = info.get("dt")
     else:
         from solvers.S1_motion_primitives import solveMotionPrimitives
 
         states, confidence = solveMotionPrimitives(scenario)
+        inputs, dt = None, None
 
     return {
         "name": f"s1_{mode}",
         "system": "s1",
         "mode": mode,
         "states": None if states is None else states.tolist(),
+        "inputs": inputs,
+        "dt": dt,
         "confidence": float(confidence),
         "runtime_sec": time.perf_counter() - t0,
     }
@@ -274,19 +254,22 @@ def run_s1(scenario: Any, mode: str) -> Dict[str, Any]:
 def run_s2(scenario: Any, mode: str) -> Dict[str, Any]:
     t0 = time.perf_counter()
     if mode == "cbf":
-        from solvers.S2_cbf import solve_CBF
+        from solvers.S2_cbf import solve_CBF_with_info
 
-        states = solve_CBF(scenario)
+        info = solve_CBF_with_info(scenario)
     else:
-        from solvers.S2_mpc import solve_MPC
+        from solvers.S2_mpc import solve_MPC_with_info
 
-        states = solve_MPC(scenario)
+        info = solve_MPC_with_info(scenario)
+    states = info.get("states") if isinstance(info, dict) else None
 
     return {
         "name": f"s2_{mode}",
         "system": "s2",
         "mode": mode,
         "states": None if states is None else states.tolist(),
+        "inputs": None if not isinstance(info, dict) or info.get("inputs") is None else np.asarray(info["inputs"]).tolist(),
+        "dt": None if not isinstance(info, dict) else info.get("dt"),
         "confidence": 1.0 if states is not None else 0.0,
         "runtime_sec": time.perf_counter() - t0,
     }
@@ -356,6 +339,8 @@ def run_case(args: argparse.Namespace) -> Dict[str, Any]:
         "attempts": attempts,
         "selected_attempt": None if selected is None else selected["name"],
         "success": bool(selected and selected.get("success", False)),
+        "selected_runtime_sec": None if selected is None else selected.get("runtime_sec"),
+        "planning_runtime_sec": float(sum(float(attempt.get("runtime_sec", 0.0) or 0.0) for attempt in attempts)),
         "runtime_sec": time.perf_counter() - t0,
     }
     return add_quality(result)

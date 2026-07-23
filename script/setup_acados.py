@@ -81,7 +81,7 @@ def write_env_file(repo_root: Path, acados_root: Path) -> Path:
         "# Source this file before running S2 MPC benchmarks.",
         f'export ACADOS_SOURCE_DIR="{acados_root}"',
         f'export ACADOS_INSTALL_DIR="{acados_root}"',
-        f'export ACADOS_PYTHON_INTERFACE_PATH="$ACADOS_SOURCE_DIR/interfaces/acados_template/acados_template"',
+        f'export ACADOS_PYTHON_INTERFACE_PATH="$ACADOS_SOURCE_DIR/interfaces/acados_template"',
         f'export {lib_var}="$ACADOS_SOURCE_DIR/lib:${{{lib_var}:-}}"',
     ]
     if platform.system().lower() == "darwin":
