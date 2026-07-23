@@ -111,6 +111,8 @@ def maybe_patch_goal_trajectory(
         return X
 
     tol = float(patch_tol if patch_tol is not None else max(float(goal_tol), 0.75))
+    if tol <= 0.0:
+        return X
     goal_xy = np.asarray(goal, dtype=float).reshape(-1)[:2]
     if np.linalg.norm(X[-1, :2] - goal_xy) > tol:
         return X
@@ -241,10 +243,27 @@ def _controls_from_attempt(
         return np.zeros((0, 2), dtype=float)
 
     scenario = result.get("scenario")
+    dt = float(attempt.get("dt", dt))
     A = _scenario_matrix(scenario, "A_query", "A")
     B = _scenario_matrix(scenario, "B_query", "B")
     if A is None or B is None:
-        return np.diff(states[:, :2], axis=0) / max(float(dt), 1e-6)
+        xy = states[:, :2]
+        drift = np.zeros_like(xy[:-1])
+        payload = scenario.get("nonlinear_dynamics", {}) if isinstance(scenario, dict) else {}
+        if isinstance(payload, dict) and payload.get("model") == "control_affine_tanh_trig_2d":
+            params = dict(payload.get("parameters", {}))
+            regime = str(payload.get("regime", ""))
+            x1, x2 = xy[:-1, 0], xy[:-1, 1]
+            if regime == "sink":
+                a, b, shear = float(params.get("a", 0.5)), float(params.get("b", 0.5)), float(params.get("shear", 0.0))
+                drift = np.column_stack((-a * np.tanh(x1) + shear * np.sin(x2), -b * np.tanh(x2) - 0.5 * shear * np.sin(x1)))
+            elif regime == "rotate_cw":
+                damp, omega = float(params.get("damp", 0.5)), float(params.get("omega", 1.0))
+                drift = np.column_stack((-damp * np.tanh(x1) + omega * np.sin(x2), -damp * np.tanh(x2) - omega * np.sin(x1)))
+            elif regime == "rotate_ccw":
+                damp, omega = float(params.get("damp", 0.5)), float(params.get("omega", 1.0))
+                drift = np.column_stack((-damp * np.tanh(x1) - omega * np.sin(x2), -damp * np.tanh(x2) + omega * np.sin(x1)))
+        return np.diff(xy, axis=0) / max(dt, 1e-6) - drift
 
     xy = states[:, :2]
     dx = (xy[1:] - xy[:-1]) / max(float(dt), 1e-6)
@@ -268,11 +287,13 @@ def trajectory_quality_components(result: Dict[str, Any], *, dt: float = 0.05) -
 
     xy = states[:, :2]
     path_length = float(np.linalg.norm(xy[1:] - xy[:-1], axis=1).sum()) if xy.shape[0] > 1 else 0.0
-    controls = _controls_from_attempt(result, attempt, dt=dt)
-    control_effort = float(np.sum(np.sum(np.square(controls), axis=1))) if controls.size else 0.0
-    smoothness = _turning_smoothness(xy)
-    if smoothness <= 0.0 and controls.shape[0] > 1:
-        smoothness = float(np.sum(np.sum(np.square(np.diff(controls, axis=0)), axis=1)))
+    sample_dt = float(attempt.get("dt", dt))
+    controls = _controls_from_attempt(result, attempt, dt=sample_dt)
+    control_effort = float(sample_dt * np.sum(np.sum(np.square(controls), axis=1))) if controls.size else 0.0
+    # Use executed-control variation rather than geometric turning. This makes
+    # smoothness comparable across different integration rates and rewards the
+    # MPC's explicit control-increment objective.
+    smoothness = float(np.mean(np.sum(np.square(np.diff(controls, axis=0)), axis=1))) if controls.shape[0] > 1 else 0.0
 
     return {
         "path_length": path_length,
@@ -311,19 +332,18 @@ def quality_refs_for_result(result: Dict[str, Any]) -> Dict[str, float]:
     if selected is None or not isinstance(scenario, dict):
         return {"path_length": 1.0, "control_effort": 1.0, "smoothness": 1.0}
 
-    states = np.asarray(selected.get("states", []), dtype=float)
-    if states.ndim != 2 or states.shape[0] == 0:
-        return {"path_length": 1.0, "control_effort": 1.0, "smoothness": 1.0}
-
     start = np.asarray(scenario.get("start", (0.0, 0.0)), dtype=float).reshape(-1)[:2]
     goal = np.asarray(scenario.get("goal", (0.0, 0.0)), dtype=float).reshape(-1)[:2]
     path_ref = max(float(np.linalg.norm(goal - start)), 1e-6)
     u_max = float(scenario.get("u_max", 3.0))
-    effort_ref = max(path_ref * max(int(states.shape[0]) - 1, 1) * (u_max**2), 1e-6)
+    # Scenario-only references are shared by every solver on the same task.
+    # They avoid the old self-normalization that made incomparable trajectories
+    # all cluster around the same quality score.
+    effort_ref = max(path_ref * u_max, 1e-6)
     return {
         "path_length": path_ref,
         "control_effort": effort_ref,
-        "smoothness": 1.0,
+        "smoothness": max(u_max**2, 1e-6),
     }
 
 

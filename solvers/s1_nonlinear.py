@@ -538,8 +538,10 @@ def rollout_policy(
             print("DEBUG u_safe_local =", u_safe_local)
             print("DEBUG x_next =", x_next)
 
-        controls_out.append(u_safe_local.copy())
         held_u_global = nonlinear_local_control_to_global(u_safe_local, heading)
+        # Store physical world-frame controls. These are used by trajectory
+        # quality and continual-learning labels after the rollout is saved.
+        controls_out.append(held_u_global.copy())
         traj_out.append(x_next.copy())
         ctx = np.concatenate([ctx, x_next[None, :]], axis=0)[-ctx.shape[0]:]
         x_curr = x_next

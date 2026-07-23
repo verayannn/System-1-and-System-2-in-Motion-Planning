@@ -326,6 +326,7 @@ def solve_CBF_with_info(scenario):
 
         states = [robot.X.reshape(-1).copy()]
         inputs = []
+        qp_failed = False
         t0 = time.perf_counter()
 
         for _ in range(int(n_steps)):
@@ -348,7 +349,11 @@ def solve_CBF_with_info(scenario):
                 obstacles if obstacles else None,
             )
             if u is None:
-                u = u_ref
+                # Do not silently execute an unconstrained nominal command when
+                # the safety QP fails. Returning an unsuccessful rollout is
+                # preferable to reporting an unsafe S2 solution as valid.
+                qp_failed = True
+                break
 
             u = np.asarray(u, dtype=float).reshape(-1, 1)
             robot.step(u)
@@ -367,10 +372,11 @@ def solve_CBF_with_info(scenario):
         return {
             "states": X,
             "inputs": np.asarray(inputs, dtype=float),
+            "dt": float(dt),
             "collision_free": bool(collision_free),
             "solved": bool(solved),
             "runtime": runtime,
-            "message": ("success" if solved else "failed_to_reach_goal") + (";global_reference" if reference_path is not None else ";local_reference"),
+            "message": ("safety_qp_failed" if qp_failed else ("success" if solved else "failed_to_reach_goal")) + (";global_reference" if reference_path is not None else ";local_reference"),
             "reference_path": reference_path,
         }
     except Exception as e:

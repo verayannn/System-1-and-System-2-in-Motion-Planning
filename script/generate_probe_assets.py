@@ -32,7 +32,7 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", default=Path(__file__).resolve().parents[1])
     p.add_argument("--families", nargs="+", default=list(DEFAULT_FAMILIES))
-    p.add_argument("--n_per_family", type=int, default=50)
+    p.add_argument("--n_per_family", type=int, default=200, help="Fixed held-out S1-only evaluation scenarios per family.")
     p.add_argument("--seed", type=int, default=700)
     p.add_argument("--output_dir", default="input/nl")
     p.add_argument("--write_combined", action="store_true")

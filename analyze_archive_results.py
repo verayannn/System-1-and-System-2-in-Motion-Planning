@@ -3,7 +3,7 @@
 
 Example:
   python analyze_archive_results.py \
-    --suite_dir output/benchmark_runs/nl_bugtrap_suite
+    --suite_dir output/benchmark_runs/nl_dense_clutter_suite
 """
 
 from __future__ import annotations
@@ -25,18 +25,22 @@ LABELS = {
     "s1_neural": "S1 neural",
     "s2_cbf": "S2 CBF",
     "s2_mpc": "S2 MPC",
-    "sofai_cbf_cl": "SOFAI CBF CL",
     "sofai_mpc_cl": "SOFAI MPC CL",
 }
 COLORS = ["#1f77b4", "#d62728", "#9467bd", "#2ca02c", "#ff7f0e"]
+DEFAULT_CONFIGS = ["s1_neural", "s2_mpc", "sofai_mpc_cl"]
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite_dir", default="output/benchmark_runs/nl_bugtrap_suite")
-    parser.add_argument("--configs", nargs="+", default=[], help="Defaults to every config in the manifest.")
+    parser.add_argument("--configs", nargs="+", default=DEFAULT_CONFIGS, help="Defaults to S1 neural, S2 MPC, and SOFAI MPC CL.")
     parser.add_argument("--split_config", default="", help="Config for the S1/S2 success split panel.")
-    parser.add_argument("--runtime_field", default="selected_runtime_sec")
+    parser.add_argument(
+        "--runtime_field",
+        default="planning_runtime_sec",
+        help="End-to-end planner time: S1 plus S2 when strict fallback is used.",
+    )
     parser.add_argument("--out_dir", default="", help="Defaults to <suite_dir>/analysis.")
     return parser.parse_args()
 
@@ -81,6 +85,23 @@ def local_jsonl(suite_dir: Path, config: str, run: dict[str, Any]) -> Path:
     raise FileNotFoundError(f"No JSONL found for {config}/{prefix or raw}")
 
 
+def local_probe_jsonl(suite_dir: Path, config: str, run: dict[str, Any]) -> Path:
+    """Resolve a probe JSONL even when a suite directory was moved."""
+    prefix = str(run.get("probe_prefix", "")).strip()
+    candidates = [suite_dir / config / "probe" / f"{prefix}_runs.jsonl"] if prefix else []
+    raw = str(run.get("probe_jsonl", "")).strip()
+    if raw:
+        path = Path(raw).expanduser()
+        candidates.append(path)
+        if suite_dir.name in path.parts:
+            index = path.parts.index(suite_dir.name)
+            candidates.append(suite_dir.joinpath(*path.parts[index + 1 :]))
+    for path in candidates:
+        if path.is_file():
+            return path
+    raise FileNotFoundError(f"No probe JSONL found for {config}/{prefix or raw}")
+
+
 def block_lookup(manifest: dict[str, Any]) -> dict[int, int]:
     lookup: dict[int, int] = {}
     for block, scenario_ids in enumerate(manifest.get("blocks", [])):
@@ -106,6 +127,19 @@ def rows_by_block(suite_dir: Path, manifest: dict[str, Any], config: str) -> lis
             else:
                 scenario_id = int(row.get("scenario_index", row.get("scenario_id", -1)))
                 block = lookup.get(scenario_id, explicit_block)
+            rows.append((block, row))
+    return rows
+
+
+def probe_rows_by_block(suite_dir: Path, manifest: dict[str, Any], config: str) -> list[tuple[int, dict[str, Any]]]:
+    """Return the S1-only fixed-probe evaluation after each CL retraining step."""
+    runs = manifest.get("configs", {}).get(config, {}).get("runs", [])
+    rows: list[tuple[int, dict[str, Any]]] = []
+    for default_block, run in enumerate(runs):
+        if not run.get("probe_jsonl") and not run.get("probe_prefix"):
+            continue
+        block = block_index(run, default_block)
+        for row in read_jsonl(local_probe_jsonl(suite_dir, config, run)):
             rows.append((block, row))
     return rows
 
@@ -137,7 +171,7 @@ def aggregate(rows: Iterable[tuple[int, dict[str, Any]]], n_blocks: int, runtime
 
     summary = []
     for block, bucket in enumerate(buckets):
-        runtimes = [runtime for row in bucket if (runtime := value(row, runtime_field, "runtime_sec", "wall_runtime_sec")) is not None]
+        runtimes = [runtime for row in bucket if (runtime := value(row, runtime_field, "selected_runtime_sec", "runtime_sec", "wall_runtime_sec")) is not None]
         qualities = [score for row in bucket if bool(row.get("success")) and (score := quality(row)) is not None]
         successes = sum(bool(row.get("success")) for row in bucket)
         summary.append(
@@ -211,24 +245,29 @@ def write_markdown(path: Path, rows: list[dict[str, Any]]) -> None:
     print(f"[write] {path}")
 
 
-def plot(metrics: dict[str, list[dict[str, Any]]], split: list[dict[str, Any]], split_config: str, out: Path) -> None:
+def plot(
+    metrics: dict[str, list[dict[str, Any]]],
+    split: list[dict[str, Any]],
+    split_config: str,
+    probes: dict[str, list[dict[str, Any]]],
+    out: Path,
+) -> None:
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    figure, axes = plt.subplots(2, 2, figsize=(11, 7.5))
+    figure, axes = plt.subplots(3, 2, figsize=(11, 10))
     axes = axes.ravel()
     for color, (config, rows) in zip(COLORS, metrics.items()):
         blocks = [row["block"] + 1 for row in rows]
         label = LABELS.get(config, config)
         axes[0].plot(blocks, [row["success_rate"] for row in rows], "o-", color=color, label=label)
         axes[1].plot(blocks, [row["mean_runtime_sec"] for row in rows], "o-", color=color, label=f"{label} mean")
-        axes[1].plot(blocks, [row["p90_runtime_sec"] for row in rows], "--", color=color, alpha=0.65, label=f"{label} p90")
         axes[2].plot(blocks, [row["mean_quality"] for row in rows], "o-", color=color, label=label)
 
     axes[0].set(title="Success rate", ylabel="Rate", ylim=(0.0, 1.05))
-    axes[1].set(title="Selected solver runtime", ylabel="Seconds")
+    axes[1].set(title="End-to-end planner runtime", ylabel="Seconds")
     axes[2].set(title="Successful-trajectory quality", xlabel="Block", ylabel="Q", ylim=(0.0, 1.05))
     for axis in axes[:3]:
         axis.grid(alpha=0.3)
@@ -247,6 +286,22 @@ def plot(metrics: dict[str, list[dict[str, Any]]], split: list[dict[str, Any]], 
     handles2, labels2 = fraction_axis.get_legend_handles_labels()
     axes[3].legend(handles + handles2, labels + labels2, frameon=False, fontsize=8)
     axes[3].grid(axis="y", alpha=0.3)
+
+    if probes:
+        for color, (config, rows) in zip(COLORS, probes.items()):
+            blocks = [row["block"] + 1 for row in rows]
+            label = LABELS.get(config, config)
+            axes[4].plot(blocks, [row["success_rate"] for row in rows], "o-", color=color, label=label)
+            axes[5].plot(blocks, [row["mean_quality"] for row in rows], "o-", color=color, label=label)
+        axes[4].set(title="Fixed-probe S1 success after retraining", xlabel="Block", ylabel="Rate", ylim=(0.0, 1.05))
+        axes[5].set(title="Fixed-probe successful-trajectory quality", xlabel="Block", ylabel="Q", ylim=(0.0, 1.05))
+        for axis in axes[4:]:
+            axis.grid(alpha=0.3)
+            axis.legend(frameon=False, fontsize=8)
+    else:
+        for axis in axes[4:]:
+            axis.text(0.5, 0.5, "No probe runs recorded", ha="center", va="center")
+            axis.set_axis_off()
 
     figure.tight_layout()
     figure.savefig(out, dpi=200)
@@ -267,6 +322,7 @@ def main() -> None:
     all_rows: list[dict[str, Any]] = []
     metrics: dict[str, list[dict[str, Any]]] = {}
     raw_rows: dict[str, list[tuple[int, dict[str, Any]]]] = {}
+    probe_metrics: dict[str, list[dict[str, Any]]] = {}
     for config in configs:
         try:
             raw_rows[config] = rows_by_block(suite_dir, manifest, config)
@@ -275,6 +331,13 @@ def main() -> None:
             continue
         metrics[config] = aggregate(raw_rows[config], n_blocks, args.runtime_field)
         all_rows.extend({"family": family_name(suite_dir), "config": config, **row} for row in metrics[config])
+        try:
+            probe_rows = probe_rows_by_block(suite_dir, manifest, config)
+        except FileNotFoundError as error:
+            print(f"[warn] {error}; skipping probe plot for {config}")
+            continue
+        if probe_rows:
+            probe_metrics[config] = aggregate(probe_rows, n_blocks, args.runtime_field)
 
     if not metrics:
         raise SystemExit("No result JSONLs were found.")
@@ -283,8 +346,18 @@ def main() -> None:
 
     write_csv(out_dir / "metrics_by_block.csv", all_rows)
     write_csv(out_dir / "s1_s2_split_by_block.csv", split)
+    probe_output = [
+        {"family": family_name(suite_dir), "config": config, **row}
+        for config, rows in probe_metrics.items()
+        for row in rows
+        if row["scenarios"]
+    ]
+    if probe_output:
+        write_csv(out_dir / "probe_metrics_by_block.csv", probe_output)
+    else:
+        print("[info] No fixed-probe JSONLs found in this suite manifest.")
     write_markdown(out_dir / "metrics_by_block.md", all_rows)
-    plot(metrics, split, split_config, out_dir / "suite_metrics.png")
+    plot(metrics, split, split_config, probe_metrics, out_dir / "suite_metrics.png")
 
 
 if __name__ == "__main__":

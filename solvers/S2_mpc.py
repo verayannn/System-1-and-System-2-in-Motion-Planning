@@ -426,6 +426,7 @@ def solve_MPC_with_info(scenario):
             return {
                 "states": X,
                 "inputs": U,
+                "dt": float(dt),
                 "runtime_sec": runtime,
                 "success": bool(collision_free_rectangles(X, rects) and goal_reached(X, goal, goal_tol)),
                 "collision_free": bool(collision_free_rectangles(X, rects)),

@@ -20,32 +20,39 @@ for family in dense_clutter small_open large_sparse wall_gap serial_walls maze_b
     --bootstrap_results_dir "output/bootstrap_${family}_nl" \
     --assets_dir "db/by_env/${family}_nl" \
     --out_dir "output/benchmark_runs/nl_${family}_suite" \
-    --scenario_ids 0-99 \
+    --scenario_ids 0-199 \
     --block_size 50 \
     --workers 3 \
-    --configs s2_mpc sofai_mpc_cl \
+    --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl \
     --block_order shuffled \
     --block_seed 42 \
     --cl_init base \
     --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-    --probe_scenario_ids 0-99 \
+    --probe_scenario_ids 0-49 \
     --train_source all_success \
     --fallback_success_weight 5.0
 done
 
 
-for family in bugtrap; do
+7.23 try:
+
+
+for family in dense_clutter; do
  PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR="${TMPDIR:-/tmp}/mpl" \
  python script/run_suite.py \
    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
    --assets_dir "db/by_env/${family}_nl" \
    --out_dir "output/benchmark_runs/nl_${family}_suite" \
-   --scenario_ids 0-19 \
+   --scenario_ids 0-79 \
+   --block_size 20 \
    --workers 3 \
    --block_order shuffled \
+   --configs s1_neural s2_mpc sofai_mpc_cl  \
    --block_seed 42 \
    --cl_init base \
+   --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
+   --probe_scenario_ids 0-49 \
    --train_source all_success \
    --fallback_success_weight 5.0
 done
@@ -65,7 +72,7 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
 
 
-## MODES = ("s1_neural", "s2_cbf", "s2_mpc")
+
 
 ## MODES = ("s1_neural",) 
 
@@ -79,12 +86,6 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--python", default=sys.executable)
     p.add_argument("--dictionary", default="input/nl/benchmark_dualmp_nl_bugtrap_eval_bugtrap.json")
     p.add_argument("--bootstrap_results_dir", default="output/bootstrap_bugtrap_nl")
-    p.add_argument(
-        "--cl_bootstrap_solver",
-        choices=["cbf", "mpc"],
-        default="cbf",
-        help="System 2 source for the shared initial S1 training trajectories.",
-    )
     p.add_argument("--scenario_ids", default="0-499")
     p.add_argument("--block_size", type=int, default=100) ## block size for continual learning: continual learning happens after a block finishes
     p.add_argument("--configs", nargs="+", default=list(MODES))
@@ -370,7 +371,6 @@ def main() -> None:
         "block_size": block_size,
         "block_order": args.block_order,
         "block_seed": int(args.block_seed),
-        "cl_bootstrap_solver": args.cl_bootstrap_solver,
         "blocks": blocks,
         "probe_dictionary": str(probe_dictionary) if probe_ids else "",
         "probe_scenario_ids": probe_ids,
@@ -449,11 +449,9 @@ def main() -> None:
             solver = "cbf" if "cbf" in cfg else "mpc" ## continual learning happens here automatically
             current_model = init_model
             bootstrap_stem = dictionary.stem.replace("_eval_", "_train_")
-            bootstrap_jsonl = bootstrap_results_dir / f"{bootstrap_stem}_{args.cl_bootstrap_solver}_bootstrap_runs.jsonl"
+            bootstrap_jsonl = bootstrap_results_dir / f"{bootstrap_stem}_{solver}_bootstrap_runs.jsonl"
             if not bootstrap_jsonl.is_file() and not args.dry_run:
-                raise FileNotFoundError(
-                    f"Missing {args.cl_bootstrap_solver.upper()} base successful-trajectory JSONL: {bootstrap_jsonl}"
-                )
+                raise FileNotFoundError(f"Missing base successful-trajectory JSONL: {bootstrap_jsonl}")
             cumulative_jsonls: List[Path] = [bootstrap_jsonl]
             previous_trajectory_count = 0
             for block_idx, block_ids in enumerate(blocks):
@@ -510,8 +508,6 @@ def main() -> None:
                     "jsonl": str(block_jsonl),
                     "model": str(current_model),
                     "train_init_model": str(train_init_model),
-                    "bootstrap_solver": args.cl_bootstrap_solver,
-                    "bootstrap_jsonl": str(bootstrap_jsonl),
                     "block_ids": block_ids,
                     "training_jsonls": [str(path) for path in cumulative_jsonls],
                     "training_audit": str(training_audit),

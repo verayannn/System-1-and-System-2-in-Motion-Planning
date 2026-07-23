@@ -197,6 +197,7 @@ def solveMemoryNeural(
         "goal_reached": bool(info.get("solved", False)),
         "states": traj.tolist(),
         "inputs": controls.tolist(),
+        "dt": float(args["dt_nom"]),
         "confidence": confidence,
         "final_dist": float(info.get("final_dist", float("inf"))),
         "runtime_sec": None,
