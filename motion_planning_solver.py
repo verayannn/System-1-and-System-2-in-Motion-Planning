@@ -209,6 +209,15 @@ class CustomSystem2Solver(sofai2.System2Solver):
                     "s1_inputs": None if s1_guidance is None else s1_guidance.get("inputs"),
                     "s1_dt": None if s1_guidance is None else s1_guidance.get("dt"),
                 }
+            elif S2_MODE == "mpc_warm":
+                from solvers.S2_mpc_warm import solve_MPC_warm_with_info
+
+                solve_fn = solve_MPC_warm_with_info
+                solve_kwargs = {
+                    "s1_states": None if s1_guidance is None else s1_guidance.get("states"),
+                    "s1_inputs": None if s1_guidance is None else s1_guidance.get("inputs"),
+                    "s1_dt": None if s1_guidance is None else s1_guidance.get("dt"),
+                }
             else:
                 from solvers.S2_mpc import solve_MPC_with_info
 
@@ -554,7 +563,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--s1", choices=["neural", "primitives"], default="primitives")
-    parser.add_argument("--s2", choices=["cbf", "mpc", "mpc_do"], default="mpc")
+    parser.add_argument("--s2", choices=["cbf", "mpc", "mpc_warm", "mpc_do"], default="mpc")
     parser.add_argument("--problem_dictionary", default="benchmark_scenarios_maze.json")
     parser.add_argument("--scenario_id", type=int, default=1)
     parser.add_argument("--run_type", choices=["sofai", "s1", "s2"], default="sofai")

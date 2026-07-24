@@ -461,7 +461,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--limit_per_dictionary", type=int, default=0)
     p.add_argument("--stop_after_successes", type=int, default=0, help="Stop sequential execution after this many successful cases; 0 runs every selected case.")
     p.add_argument("--s1", choices=["neural", "primitives"], default="primitives")
-    p.add_argument("--s2", choices=["cbf", "mpc", "mpc_do"], default="mpc")
+    p.add_argument("--s2", choices=["cbf", "mpc", "mpc_warm", "mpc_do"], default="mpc")
     p.add_argument("--run_type", choices=["sofai", "s1", "s2"], default="sofai")
     p.add_argument("--run_all_attempts", action="store_true")
     p.add_argument("--timeout_sec", type=float, default=300.0)

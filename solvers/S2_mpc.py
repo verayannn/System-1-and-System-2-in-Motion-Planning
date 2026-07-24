@@ -441,7 +441,9 @@ def solve_MPC_with_info(
     s1_states: np.ndarray | None = None,
     s1_inputs: np.ndarray | None = None,
     s1_dt: float | None = None,
+    use_s1_warm_start: bool = False,
 ):
+    """Solve MPC without using S1 guidance unless explicitly requested."""
     try:
         if ca is None or not _acados_backend_ready():
             raise RuntimeError("S2 MPC requires a working acados backend. Set ACADOS_SOURCE_DIR to the built acados install.")
@@ -458,14 +460,13 @@ def solve_MPC_with_info(
         du_max = float(env_float("SOFAI_MPC_DU_MAX", 12.0))
         robot_radius = float(env_float("SOFAI_MPC_RADIUS", 0.22))
         obstacle_margin = float(env_float("SOFAI_MPC_MARGIN", 0.10))
-        use_s1_warm_start = os.environ.get("SOFAI_MPC_USE_S1_WARM_START", "0").strip().lower() in {"1", "true", "yes", "on"}
         warm_states, warm_start_status = _usable_s1_warm_start(
             scenario,
             s1_states,
             start=start,
             rects=rects,
             margin=robot_radius + obstacle_margin,
-        ) if use_s1_warm_start else (None, "disabled")
+        ) if bool(use_s1_warm_start) else (None, "disabled")
         warm_inputs = None if warm_states is None or s1_inputs is None else np.asarray(s1_inputs, dtype=float)
         warm_dt = float(s1_dt) if s1_dt is not None else dt
         reference_path = None

@@ -7,25 +7,26 @@ Modes:
   - s2_mpc
   - sofai_cbf_cl
   - sofai_mpc_cl
+  - sofai_mpc_warm_cl
 
 The continual-learning modes run SOFAI in strict fallback mode:
 S1 is attempted first, S2 is only attempted when S1 fails, and retraining uses
 successful trajectories accumulated from bootstrap plus completed blocks.
+``sofai_mpc_warm_cl`` uses the failed S1 trajectory to warm-start S2 MPC;
+``sofai_mpc_cl`` does not.
 
 
 for the server:
 
-
-for family in small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap long_slalom; do
-  SOFAI_MPC_USE_S1_WARM_START=0 \
+for family in large_sparse dense_clutter serial_walls maze_branching bugtrap long_slalom; do
   PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python script/run_suite.py \
     --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
     --bootstrap_results_dir "output/bootstrap_${family}_nl" \
     --assets_dir "db/by_env/${family}_nl" \
-    --out_dir "output/benchmark_runs/submission_mpc_${family}_suite" \
-    --scenario_ids 0-1499 \
-    --block_size 300 \
+    --out_dir "output/benchmark_runs/nl_${family}_suite" \
+    --scenario_ids 0-99 \
+    --block_size 50 \
     --workers 3 \
     --block_order shuffled \
     --block_seed 42 \
@@ -36,8 +37,8 @@ for family in small_open large_sparse dense_clutter wall_gap serial_walls maze_b
     --s1_success_weight 1.0 \
     --dagger_states_per_scenario 0 \
     --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-    --probe_scenario_ids 0-199 \
-    --configs s1_neural s2_mpc sofai_mpc_cl \
+    --probe_scenario_ids 0-149 \
+    --configs sofai_mpc_warm_cl sofai_mpc_cl \
     --train_epochs 35 \
     --train_batch 64 \
     --train_lr 0.0003
@@ -45,63 +46,12 @@ done
 
 
 
-current try:
-
-
-try the base model:
-
-for family in dense_clutter; do
-  PYTHONDONTWRITEBYTECODE=1 \
-  python script/run_suite.py \
-  --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
-  --bootstrap_results_dir "output/bootstrap_${family}_nl" \
-  --assets_dir "db/by_env/${family}_nl" \
-  --out_dir "output/benchmark_runs/nl_${family}_suite" \
-  --scenario_ids 0-49 \
-  --workers 3 \
-  --configs s2_mpc s2_mpc_do
-done
-
-
-
-try the continual learning etc.:
-
-for family in dense_clutter; do
-  PYTHONDONTWRITEBYTECODE=1 \
-  python script/run_suite.py \
-  --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
-  --bootstrap_results_dir "output/bootstrap_${family}_nl" \
-  --assets_dir "db/by_env/${family}_nl" \
-  --out_dir "output/benchmark_runs/nl_${family}_suite_rerun" \
-  --scenario_ids 0-199 \
-  --block_size 50 \
-  --workers 3 \
-  --block_order shuffled \
-  --block_seed 42 \
-  --cl_bootstrap_solver mpc \
-  --train_source all_success \
-  --fallback_success_weight 10.0 \
-  --s1_success_weight 1.0 \
-  --bootstrap_success_weight 5.0 \
-  --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-  --probe_scenario_ids 0-49 \
-  --configs sofai_mpc_cl \
-  --train_epochs 30 \
-  --train_batch 64 \
-  --train_lr 0.0003
-done
-
-
-
-analyze results:
 
 
 PYTHONDONTWRITEBYTECODE=1 \
 python analyze_archive_results.py \
   --suite_dir output/benchmark_runs/nl_dense_clutter_suite \
-  --configs s2_mpc s2_mpc_do
-
-
+  --configs sofai_mpc_cl sofai_mpc_warm_cl
 
 """
 
@@ -118,9 +68,9 @@ from typing import Dict, Iterable, List, Sequence
 
 
 
-MODES = ("s1_neural", "s2_mpc", "s2_mpc_do", "sofai_mpc_cl", "sofai_mpc_do_cl", "s2_mpc_do_cl")
+MODES = ("s1_neural", "s2_mpc",  "sofai_mpc_cl", "sofai_mpc_warm_cl")
 
-
+## "s2_mpc_do",
 
 
 def parse_args() -> argparse.Namespace:
@@ -548,7 +498,7 @@ def main() -> None:
             cfg_manifest["runs"].append({"prefix": cfg})
 
         else:
-            solver = "mpc_do" if "mpc_do" in cfg else "mpc"
+            solver = "mpc_warm" if cfg == "sofai_mpc_warm_cl" else "mpc_do" if "mpc_do" in cfg else "mpc"
             current_model = init_model
             bootstrap_stem = dictionary.stem.replace("_eval_", "_train_")
             bootstrap_jsonl = bootstrap_results_dir / f"{bootstrap_stem}_{args.cl_bootstrap_solver}_bootstrap_runs.jsonl"
