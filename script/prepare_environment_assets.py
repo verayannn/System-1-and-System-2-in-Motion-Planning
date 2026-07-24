@@ -253,7 +253,7 @@ def main() -> None:
                     "--timeout_sec",
                     "300",
                     "--workers",
-                    "1",
+                    "16",
                     "--out_dir",
                     str(results_dir),
                     "--out_prefix",
