@@ -15,54 +15,92 @@ successful trajectories accumulated from bootstrap plus completed blocks.
 
 for the server:
 
-for family in dense_clutter small_open large_sparse wall_gap serial_walls maze_branching bugtrap; do
+
+for family in small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap long_slalom; do
+  SOFAI_MPC_USE_S1_WARM_START=0 \
   PYTHONDONTWRITEBYTECODE=1 \
-  python script/run_suite.py \
-  --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
-  --bootstrap_results_dir "output/bootstrap_${family}_nl" \
-  --assets_dir "db/by_env/${family}_nl" \
-  --out_dir "output/benchmark_runs/nl_${family}_suite" \
-  --scenario_ids 5000-6499 \
-  --block_size 300 \
-  --workers 12 \
-  --block_order shuffled \
-  --block_seed 42 \
-  --cl_init base \
-  --train_source all_success \
-  --fallback_success_weight 5.0 \
-  --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-  --probe_scenario_ids 0-199 \
-  --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl \
-  --train_epochs 30 \
-  --train_batch 64 \
-  --train_lr 0.0003
+  .venv/bin/python script/run_suite.py \
+    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
+    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
+    --assets_dir "db/by_env/${family}_nl" \
+    --out_dir "output/benchmark_runs/submission_mpc_${family}_suite" \
+    --scenario_ids 0-1499 \
+    --block_size 300 \
+    --workers 3 \
+    --block_order shuffled \
+    --block_seed 42 \
+    --cl_bootstrap_solver mpc \
+    --train_source all_success \
+    --bootstrap_success_weight 5.0 \
+    --fallback_success_weight 10.0 \
+    --s1_success_weight 1.0 \
+    --dagger_states_per_scenario 0 \
+    --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
+    --probe_scenario_ids 0-199 \
+    --configs s1_neural s2_mpc sofai_mpc_cl \
+    --train_epochs 35 \
+    --train_batch 64 \
+    --train_lr 0.0003
 done
+
 
 
 current try:
 
-for family in dense_clutter small_open large_sparse wall_gap serial_walls maze_branching bugtrap; do
+
+try the base model:
+
+for family in dense_clutter; do
   PYTHONDONTWRITEBYTECODE=1 \
   python script/run_suite.py \
   --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
   --bootstrap_results_dir "output/bootstrap_${family}_nl" \
   --assets_dir "db/by_env/${family}_nl" \
   --out_dir "output/benchmark_runs/nl_${family}_suite" \
-  --scenario_ids 50-99 \
-  --block_size 30 \
+  --scenario_ids 0-49 \
+  --workers 3 \
+  --configs s2_mpc s2_mpc_do
+done
+
+
+
+try the continual learning etc.:
+
+for family in dense_clutter; do
+  PYTHONDONTWRITEBYTECODE=1 \
+  python script/run_suite.py \
+  --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
+  --bootstrap_results_dir "output/bootstrap_${family}_nl" \
+  --assets_dir "db/by_env/${family}_nl" \
+  --out_dir "output/benchmark_runs/nl_${family}_suite_rerun" \
+  --scenario_ids 0-199 \
+  --block_size 50 \
   --workers 3 \
   --block_order shuffled \
   --block_seed 42 \
-  --cl_init base \
+  --cl_bootstrap_solver mpc \
   --train_source all_success \
-  --fallback_success_weight 5.0 \
+  --fallback_success_weight 10.0 \
+  --s1_success_weight 1.0 \
+  --bootstrap_success_weight 5.0 \
   --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-  --probe_scenario_ids 0-19 \
-  --configs sofai_cbf_cl \
+  --probe_scenario_ids 0-49 \
+  --configs sofai_mpc_cl \
   --train_epochs 30 \
   --train_batch 64 \
   --train_lr 0.0003
 done
+
+
+
+analyze results:
+
+
+PYTHONDONTWRITEBYTECODE=1 \
+python analyze_archive_results.py \
+  --suite_dir output/benchmark_runs/nl_dense_clutter_suite \
+  --configs s2_mpc s2_mpc_do
+
 
 
 """
@@ -80,10 +118,8 @@ from typing import Dict, Iterable, List, Sequence
 
 
 
+MODES = ("s1_neural", "s2_mpc", "s2_mpc_do", "sofai_mpc_cl", "sofai_mpc_do_cl", "s2_mpc_do_cl")
 
-## MODES = ("s1_neural",) 
-
-MODES = ( "s1_neural", "s2_mpc", "s2_cbf", "sofai_cbf_cl", "sofai_mpc_cl")
 
 
 
@@ -95,8 +131,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--bootstrap_results_dir", default="output/bootstrap_bugtrap_nl")
     p.add_argument(
         "--cl_bootstrap_solver",
-        choices=["cbf", "mpc"],
-        default="cbf",
+        choices=["mpc", "mpc_do"],
+        default="mpc",
         help="System 2 source for the shared initial S1 training trajectories.",
     )
     p.add_argument("--scenario_ids", default="0-499")
@@ -114,7 +150,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--fallback_success_weight", type=float, default=5.0)
     p.add_argument("--s1_success_weight", type=float, default=1.0)
     p.add_argument("--bootstrap_success_weight", type=float, default=1.0)
-    p.add_argument("--cl_init", choices=["base", "previous"], default="base")
+    p.add_argument("--dagger_states_per_scenario", type=int, default=0)
+    p.add_argument("--dagger_success_weight", type=float, default=10.0)
     p.add_argument("--block_order", choices=["shuffled", "sequential"], default="shuffled")
     p.add_argument("--block_seed", type=int, default=42)
     p.add_argument("--probe_dictionary", default="")
@@ -137,6 +174,26 @@ def read_count(path: Path) -> int:
     if not isinstance(data, list):
         raise TypeError(f"{path} does not contain a scenario list")
     return len(data)
+
+
+def validate_bootstrap_scenarios(bootstrap_jsonl: Path, train_dictionary: Path) -> None:
+    """Reject stale bootstrap results before a suite spends time on block zero."""
+    train_count = read_count(train_dictionary)
+    indices: List[int] = []
+    with bootstrap_jsonl.open() as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            indices.append(int(row.get("scenario_index", row.get("scenario_id", -1))))
+    invalid = [index for index in indices if index < 0 or index >= train_count]
+    if invalid:
+        raise RuntimeError(
+            "Bootstrap/train dictionary mismatch: "
+            f"{bootstrap_jsonl.name} contains scenario IDs through {max(indices)}, but "
+            f"{train_dictionary.name} has only {train_count} scenarios. "
+            "Regenerate the train dictionary and its bootstrap results together."
+        )
 
 
 def parse_ids(raw: str, count: int) -> List[int]:
@@ -251,6 +308,7 @@ def train_model(
     fallback_success_weight: float,
     s1_success_weight: float,
     bootstrap_success_weight: float,
+    dagger_success_weight: float,
     audit_json: Path,
     env: Dict[str, str],
     dry_run: bool,
@@ -291,11 +349,45 @@ def train_model(
         str(s1_success_weight),
         "--bootstrap_success_weight",
         str(bootstrap_success_weight),
+        "--dagger_success_weight",
+        str(dagger_success_weight),
         "--audit_json",
         str(audit_json),
     ])
     run(cmd, cwd=root, env=env, dry_run=dry_run)
     return out_model
+
+
+def collect_mpc_dagger(
+    *,
+    root: Path,
+    python: str,
+    dictionary: Path,
+    model: Path,
+    scenario_ids: Sequence[int],
+    states_per_scenario: int,
+    out_jsonl: Path,
+    env: Dict[str, str],
+    dry_run: bool,
+) -> Path:
+    cmd = [
+        python,
+        "script/collect_mpc_dagger.py",
+        "--root",
+        str(root),
+        "--dictionary",
+        str(dictionary),
+        "--s1_model",
+        str(model),
+        "--scenario_ids",
+        ",".join(str(index) for index in scenario_ids),
+        "--states_per_scenario",
+        str(states_per_scenario),
+        "--out_jsonl",
+        str(out_jsonl),
+    ]
+    run(cmd, cwd=root, env=env, dry_run=dry_run)
+    return out_jsonl
 
 
 def verify_cumulative_training_audit(audit_json: Path, expected_jsonls: Sequence[Path], previous_count: int) -> int:
@@ -438,14 +530,14 @@ def main() -> None:
             )
             cfg_manifest["runs"].append({"prefix": cfg})
 
-        elif cfg == "s2_mpc":
+        elif cfg in {"s2_mpc", "s2_mpc_do"}:
             run_benchmark(
                 root=root,
                 python=python,
                 dictionary=dictionary,
                 scenario_ids=scenario_ids,
                 run_type="s2",
-                s2="mpc",
+                s2="mpc_do" if cfg == "s2_mpc_do" else "mpc",
                 out_dir=cfg_dir,
                 out_prefix=cfg,
                 env=env,
@@ -456,7 +548,7 @@ def main() -> None:
             cfg_manifest["runs"].append({"prefix": cfg})
 
         else:
-            solver = "cbf" if "cbf" in cfg else "mpc" ## continual learning happens here automatically
+            solver = "mpc_do" if "mpc_do" in cfg else "mpc"
             current_model = init_model
             bootstrap_stem = dictionary.stem.replace("_eval_", "_train_")
             bootstrap_jsonl = bootstrap_results_dir / f"{bootstrap_stem}_{args.cl_bootstrap_solver}_bootstrap_runs.jsonl"
@@ -464,8 +556,36 @@ def main() -> None:
                 raise FileNotFoundError(
                     f"Missing {args.cl_bootstrap_solver.upper()} base successful-trajectory JSONL: {bootstrap_jsonl}"
                 )
+            train_dictionary = dictionary.with_name(bootstrap_stem + ".json")
+            if not args.dry_run and not train_dictionary.is_file():
+                raise FileNotFoundError(f"Missing base training dictionary: {train_dictionary}")
+            if not args.dry_run:
+                validate_bootstrap_scenarios(bootstrap_jsonl, train_dictionary)
             cumulative_jsonls: List[Path] = [bootstrap_jsonl]
             previous_trajectory_count = 0
+            if probe_ids:
+                # Establish a fixed S1-only baseline before any CL block is used.
+                probe_dir = cfg_dir / "probe"
+                base_probe_prefix = f"{cfg}_base_probe_s1"
+                base_probe_jsonl = run_benchmark(
+                    root=root,
+                    python=python,
+                    dictionary=probe_dictionary,
+                    scenario_ids=probe_ids,
+                    run_type="s1",
+                    s2=solver,
+                    out_dir=probe_dir,
+                    out_prefix=base_probe_prefix,
+                    env={**env, "SOFAI_NEW_S1_MODEL": str(init_model)},
+                    timeout_sec=args.timeout_sec,
+                    workers=probe_workers,
+                    dry_run=args.dry_run,
+                )
+                cfg_manifest["base_probe"] = {
+                    "prefix": base_probe_prefix,
+                    "jsonl": str(base_probe_jsonl),
+                    "model": str(init_model),
+                }
             for block_idx, block_ids in enumerate(blocks):
                 prefix = f"{cfg}_block{block_idx:02d}"
                 block_run_dir = cfg_dir / "runs"
@@ -484,17 +604,33 @@ def main() -> None:
                     dry_run=args.dry_run,
                 )
                 cumulative_jsonls.append(block_jsonl)
+                dagger_jsonl = None
+                if solver == "mpc" and int(args.dagger_states_per_scenario) > 0:
+                    dagger_jsonl = cfg_dir / "dagger" / f"{prefix}_mpc_recoveries.jsonl"
+                    collect_mpc_dagger(
+                        root=root,
+                        python=python,
+                        dictionary=dictionary,
+                        model=current_model,
+                        scenario_ids=block_ids,
+                        states_per_scenario=int(args.dagger_states_per_scenario),
+                        out_jsonl=dagger_jsonl,
+                        env=env,
+                        dry_run=args.dry_run,
+                    )
+                    cumulative_jsonls.append(dagger_jsonl)
                 next_model = cfg_dir / "models" / f"{prefix}_s1_policy_nonlinear.pth"
                 next_dataset = cfg_dir / "datasets" / f"{prefix}_s1_nonlinear_dataset.npz"
                 training_audit = cfg_dir / "audits" / f"{prefix}_training_audit.json"
-                train_init_model = init_model if args.cl_init == "base" else current_model
+                # Fully retrain from the same frozen base checkpoint on all
+                # successful trajectories observed through this block.
                 if not args.dry_run: ### retraining happens here
                     train_model(
                         root=root,
                         python=python,
                         dictionary=dictionary,
                         results_jsonl=cumulative_jsonls,
-                        init_model=train_init_model,
+                        init_model=init_model,
                         out_model=next_model,
                         out_dataset=next_dataset,
                         source=args.train_source,
@@ -505,6 +641,7 @@ def main() -> None:
                         fallback_success_weight=args.fallback_success_weight,
                         s1_success_weight=args.s1_success_weight,
                         bootstrap_success_weight=args.bootstrap_success_weight,
+                        dagger_success_weight=args.dagger_success_weight,
                         audit_json=training_audit,
                         env=env,
                         dry_run=False,
@@ -519,10 +656,12 @@ def main() -> None:
                     "prefix": prefix,
                     "jsonl": str(block_jsonl),
                     "model": str(current_model),
-                    "train_init_model": str(train_init_model),
+                    "training_initialization": "base_checkpoint",
+                    "training_init_model": str(init_model),
                     "bootstrap_solver": args.cl_bootstrap_solver,
                     "bootstrap_jsonl": str(bootstrap_jsonl),
                     "block_ids": block_ids,
+                    "dagger_jsonl": "" if dagger_jsonl is None else str(dagger_jsonl),
                     "training_jsonls": [str(path) for path in cumulative_jsonls],
                     "training_audit": str(training_audit),
                     "training_trajectory_count": previous_trajectory_count,

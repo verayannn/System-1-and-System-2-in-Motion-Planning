@@ -13,6 +13,14 @@ Example:
 
 cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
 
+
+SOFAI_MPC_HORIZON=200 \
+SOFAI_MPC_DT=0.01 \
+SOFAI_MPC_STEPS=5000 \
+SOFAI_MPC_MAX_ITER=500 \
+SOFAI_MPC_REFERENCE_GRID=0.20 \
+SOFAI_MPC_Q_POS=75 \
+SOFAI_MPC_R_DU=0.75 \
 PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python visualize_mp.py \
   --problem_dictionary nl/benchmark_dualmp_nl_long_slalom_eval_long_slalom.json \
@@ -21,10 +29,20 @@ python visualize_mp.py \
   --s2 mpc \
   --run_type s2 \
   --out_dir output/visualize_mp \
+  --out_prefix s2_mpc_sc5_ls
+
+
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
+python visualize_mp.py \
+  --problem_dictionary nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
+  --scenario_ids 5 \
+  --s1 neural \
+  --s2 mpc \
+  --run_type s2 \
+  --out_dir output/visualize_mp \
   --out_prefix s2_mpc_sc5
 
-
-
+mpc_do
 
 """
 
@@ -251,16 +269,30 @@ def run_s1(scenario: Any, mode: str) -> Dict[str, Any]:
     }
 
 
-def run_s2(scenario: Any, mode: str) -> Dict[str, Any]:
+def run_s2(scenario: Any, mode: str, *, s1_guidance: Dict[str, Any] | None = None) -> Dict[str, Any]:
     t0 = time.perf_counter()
     if mode == "cbf":
         from solvers.S2_cbf import solve_CBF_with_info
 
         info = solve_CBF_with_info(scenario)
+    elif mode == "mpc_do":
+        from solvers.S2_mpc_do import solve_MPC_DO_with_info
+
+        info = solve_MPC_DO_with_info(
+            scenario,
+            s1_states=None if s1_guidance is None else s1_guidance.get("states"),
+            s1_inputs=None if s1_guidance is None else s1_guidance.get("inputs"),
+            s1_dt=None if s1_guidance is None else s1_guidance.get("dt"),
+        )
     else:
         from solvers.S2_mpc import solve_MPC_with_info
 
-        info = solve_MPC_with_info(scenario)
+        info = solve_MPC_with_info(
+            scenario,
+            s1_states=None if s1_guidance is None else s1_guidance.get("states"),
+            s1_inputs=None if s1_guidance is None else s1_guidance.get("inputs"),
+            s1_dt=None if s1_guidance is None else s1_guidance.get("dt"),
+        )
     states = info.get("states") if isinstance(info, dict) else None
 
     return {
@@ -272,6 +304,8 @@ def run_s2(scenario: Any, mode: str) -> Dict[str, Any]:
         "dt": None if not isinstance(info, dict) else info.get("dt"),
         "confidence": 1.0 if states is not None else 0.0,
         "runtime_sec": time.perf_counter() - t0,
+        "mpc_s1_warm_start": None if not isinstance(info, dict) else info.get("s1_warm_start"),
+        "mpc_solver_status": None if not isinstance(info, dict) else info.get("solver_status"),
     }
 
 
@@ -325,7 +359,7 @@ def run_case(args: argparse.Namespace) -> Dict[str, Any]:
         s1_attempt = add_metrics(run_s1(scenario, args.s1), scenario)
         attempts.append(s1_attempt)
         if args.run_all_attempts or not s1_attempt.get("success", False):
-            attempts.append(add_metrics(run_s2(scenario, args.s2), scenario))
+            attempts.append(add_metrics(run_s2(scenario, args.s2, s1_guidance=s1_attempt), scenario))
 
     selected = choose_selected(attempts, args.run_type)
     result = {
@@ -424,7 +458,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--problem_dictionary", default="benchmark_dualmp_wall_gap.json")
     parser.add_argument("--scenario_ids", required=True, help="Exactly one scenario id, e.g. 1")
     parser.add_argument("--s1", choices=["neural", "primitives"], default="primitives")
-    parser.add_argument("--s2", choices=["cbf", "mpc"], default="mpc")
+    parser.add_argument("--s2", choices=["cbf", "mpc", "mpc_do"], default="mpc")
     parser.add_argument("--run_type", choices=["sofai", "s1", "s2"], default="sofai")
     parser.add_argument("--run_all_attempts", action="store_true")
     parser.add_argument("--plot_all_attempts", action="store_true")

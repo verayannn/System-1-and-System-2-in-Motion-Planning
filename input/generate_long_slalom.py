@@ -20,9 +20,9 @@ from typing import Dict, List, Tuple
 from generate_nl_dict import make_nonlinear_dynamics
 
 Rect = Tuple[float, float, float, float]
-BOUNDS = (-20.0, -20.0, 20.0, 20.0)
-START = (16.0, 15.0)
-GOAL = (-16.0, -15.0)
+BOUNDS = (-30.0, -30.0, 30.0, 30.0)
+START = (25.0, 24.0)
+GOAL = (-25.0, -24.0)
 
 
 def _round_rect(rect: Rect) -> List[float]:
@@ -30,20 +30,34 @@ def _round_rect(rect: Rect) -> List[float]:
 
 
 def build_long_slalom(rng: random.Random) -> List[Rect]:
-    """Create staggered finite blocks with a locally visible S-shaped route."""
+    """Create a long, constrained alternating slalom."""
     rects: List[Rect] = []
-    for index, y in enumerate(range(11, -13, -4)):
-        side = -1.0 if index % 2 == 0 else 1.0
-        center_x = side * rng.uniform(3.8, 5.2)
-        width = rng.uniform(8.0, 9.5)
-        height = rng.uniform(1.4, 1.9)
-        rects.append((center_x - width / 2.0, y - height / 2.0, center_x + width / 2.0, y + height / 2.0))
 
-        # A nearby offset block prevents a straight shortcut but leaves broad
-        # clearance around either end of the primary obstacle.
-        offset_x = -side * rng.uniform(8.5, 10.5)
-        offset_y = y - rng.uniform(1.3, 2.0)
-        rects.append((offset_x - 1.2, offset_y - 1.0, offset_x + 1.2, offset_y + 1.0))
+    # Ten alternating barrier rows: 18, 14, ..., -18.
+    for index, y in enumerate(range(18, -19, -4)):
+        side = -1.0 if index % 2 == 0 else 1.0
+
+        # Wider primary barriers force alternating detours.
+        center_x = side * rng.uniform(5.5, 7.0)
+        width = rng.uniform(12.0, 13.5)
+        height = rng.uniform(1.8, 2.2)
+        rects.append((
+            center_x - width / 2.0,
+            y - height / 2.0,
+            center_x + width / 2.0,
+            y + height / 2.0,
+        ))
+
+        # Opposite-side blocker removes an easy straight shortcut.
+        offset_x = -side * rng.uniform(13.0, 15.0)
+        offset_y = y - rng.uniform(1.5, 2.2)
+        rects.append((
+            offset_x - 1.5,
+            offset_y - 1.2,
+            offset_x + 1.5,
+            offset_y + 1.2,
+        ))
+
     return rects
 
 

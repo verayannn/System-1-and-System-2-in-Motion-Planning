@@ -1,51 +1,48 @@
 #!/usr/bin/env python3
 """Prepare nonlinear benchmark assets for one or more map families.
 
-This script does three things:
-1. Generate the nonlinear benchmark dictionary.
+This script prepares all assets for a nonlinear benchmark family:
+1. Generate separate training, evaluation, and fixed-probe dictionaries.
 2. Collect successful System 2 trajectories rollouts for training.
 3. Train the initial neural System 1 checkpoint from all successful bootstrap trajectories.
 
 
-cd <repo-root>
+cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
+source .env.acados
+
 PYTHONDONTWRITEBYTECODE=1 \
 python script/prepare_environment_assets.py \
-  --family bugtrap \
-  --s2_solver cbf
+  --families dense_clutter \
+  --s2_solver mpc \
+  --train_n_per_family 50 \
+  --eval_n_per_family 200 \
+  --probe_n_per_family 50 \
+ 
   
+  
+--bootstrap_target_successes 300
+--probe_n_per_family 200
+--probe_seed 700
+--skip_probe_generate
+
+
+
+bck runs:
 
 PYTHONDONTWRITEBYTECODE=1 \
-python script/prepare_environment_assets.py \
-  --families dense_clutter bugtrap \
-  --s2_solver cbf
-
-
-cd <repo-root>
-PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
-python script/prepare_environment_assets.py \
-  --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap \
+.venv/bin/python script/prepare_environment_assets.py \
+  --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap long_slalom \
+  --s2_solver mpc \
   --train_n_per_family 500 \
-  --eval_n_per_family 10000 \
-  --s2_solver cbf
+  --eval_n_per_family 1500 \
+  --probe_n_per_family 200 \
+  --probe_seed 700 \
+  --train_epochs 50 \
+  --train_batch 64 \
+  --train_lr 0.0003
 
 
-Jul 18th using:
-cd <repo-root>
-PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
-python script/prepare_environment_assets.py \
-  --families small_open large_sparse wall_gap serial_walls maze_branching \
-  --s2_solver cbf
 
-
-all the families:
-
-PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
-python script/prepare_environment_assets.py \
-  --families small_open large_sparse wall_gap serial_walls maze_branching \
-  --s2_solver cbf
-
-
-new family: long_slalom
 
 """
 
@@ -78,12 +75,14 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--python", default=sys.executable)
     p.add_argument("--family", choices=FAMILY_CHOICES, default="dense_clutter", help="Single family to process.")
     p.add_argument("--families", nargs="+", default=[], help="Optional list of families to process in one run.")
-    p.add_argument("--train_n_per_family", type=int, default=2000, help="Candidate S2 scenarios used to collect bootstrap demonstrations.")
-    p.add_argument("--bootstrap_target_successes", type=int, default=500, help="Successful S2 trajectories retained for the base S1 model; 0 keeps all.")
-    p.add_argument("--eval_n_per_family", type=int, default=10000, help="Held-out benchmark scenarios per family.")
+    p.add_argument("--train_n_per_family", type=int, default=50, help="Candidate S2 scenarios used to collect bootstrap demonstrations.")
+    p.add_argument("--bootstrap_target_successes", type=int, default=0, help="Successful S2 trajectories retained for the base S1 model; 0 keeps all.")
+    p.add_argument("--eval_n_per_family", type=int, default=200, help="Held-out benchmark scenarios per family.")
+    p.add_argument("--probe_n_per_family", type=int, default=200, help="Fixed held-out S1-only probe scenarios per family.")
     p.add_argument("--train_seed", type=int, default=7)
     p.add_argument("--eval_seed", type=int, default=8)
-    p.add_argument("--s2_solver", choices=["cbf", "mpc"], default="cbf")
+    p.add_argument("--probe_seed", type=int, default=700)
+    p.add_argument("--s2_solver", choices=["cbf", "mpc", "mpc_do"], default="mpc")
     p.add_argument("--train_source", choices=["s2", "selected", "all_success"], default="all_success")
     p.add_argument("--train_trajectories", type=int, default=0)
     p.add_argument("--train_epochs", type=int, default=40)
@@ -93,6 +92,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--assets_dir", default="db/by_env/{family}_nl")
     p.add_argument("--results_dir", default="output/bootstrap_{family}_nl")
     p.add_argument("--skip_generate", action="store_true")
+    p.add_argument("--skip_probe_generate", action="store_true")
     p.add_argument("--skip_collect", action="store_true")
     p.add_argument("--skip_train", action="store_true")
     p.add_argument("--dry_run", action="store_true")
@@ -144,7 +144,7 @@ def main() -> None:
         out_dir.mkdir(parents=True, exist_ok=True)
     families: Sequence[str] = args.families or [args.family]
 
-    for family in families:
+    for family_index, family in enumerate(families):
         assets_dir = resolve_path(root, args.assets_dir, family=family)
         results_dir = resolve_path(root, args.results_dir, family=family)
         if not args.dry_run:
@@ -153,6 +153,7 @@ def main() -> None:
 
         train_dict_path = out_dir / f"benchmark_dualmp_nl_{family}_train_{family}.json"
         eval_dict_path = out_dir / f"benchmark_dualmp_nl_{family}_eval_{family}.json"
+        probe_dict_path = out_dir / f"benchmark_dualmp_nl_{family}_probe_{family}.json"
         model_path = assets_dir / "s1_policy_nonlinear.pth"
         dataset_path = assets_dir / "s1_nonlinear_dataset.npz"
         target_successes = max(0, int(args.bootstrap_target_successes))
@@ -196,6 +197,42 @@ def main() -> None:
                         family,
                     ]
                 run(cmd, cwd=root, dry_run=args.dry_run)
+
+        if not args.skip_probe_generate:
+            probe_prefix = f"benchmark_dualmp_nl_{family}_probe_{family}"
+            if family == "long_slalom":
+                probe_cmd = [
+                    python,
+                    "input/generate_long_slalom.py",
+                    "--root",
+                    str(root),
+                    "--output_dir",
+                    str(out_dir),
+                    "--prefix",
+                    probe_prefix,
+                    "--n_scenarios",
+                    str(args.probe_n_per_family),
+                    "--seed",
+                    str(int(args.probe_seed) + family_index),
+                ]
+            else:
+                probe_cmd = [
+                    python,
+                    "input/generate_nl_dict.py",
+                    "--root",
+                    str(root),
+                    "--output_dir",
+                    str(out_dir),
+                    "--prefix",
+                    f"benchmark_dualmp_nl_{family}_probe",
+                    "--n_per_family",
+                    str(args.probe_n_per_family),
+                    "--seed",
+                    str(int(args.probe_seed) + family_index),
+                    "--families",
+                    family,
+                ]
+            run(probe_cmd, cwd=root, dry_run=args.dry_run)
 
         if not args.skip_collect:
             collect_cmd = [
@@ -268,6 +305,7 @@ def main() -> None:
         print(f"[family] {family}")
         print(f"[train_dictionary] {train_dict_path}")
         print(f"[eval_dictionary] {eval_dict_path}")
+        print(f"[probe_dictionary] {probe_dict_path}")
         print(f"[model] {model_path}")
         print(f"[dataset] {dataset_path}")
         print(f"[results] {results_dir}")

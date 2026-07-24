@@ -481,6 +481,8 @@ def rollout_policy(
     controls_out: List[np.ndarray] = []
     action_hold = max(1, int(action_hold))
     held_u_global: Optional[np.ndarray] = None
+    previous_u_global = np.zeros(2, dtype=np.float32)
+    action_mode = "delta_u" if "du_mean" in norm and "du_std" in norm else "absolute_u"
 
     # These inputs do not depend on the current rollout state. Keeping them on
     # the model device removes repeated NumPy-to-Torch transfers in S1.
@@ -494,19 +496,26 @@ def rollout_policy(
 
         ctx_local, goal_local, origin, heading = transform_to_local(ctx, goal[:2])
         dyn_feat = nonlinear_dynamics_features(scenario, x_curr, heading)
+        previous_u_local = rotation_from_heading(heading) @ previous_u_global
+        if action_mode == "delta_u":
+            dyn_feat = np.concatenate([dyn_feat, previous_u_local], axis=0).astype(np.float32)
 
         if held_u_global is None or k % action_hold == 0:
             ctx_in = _normalize(ctx_local[None, :, :], norm["ctx_mean"][None, :, :], norm["ctx_std"][None, :, :]).astype(np.float32)
             dyn_in = _normalize(dyn_feat[None, :], norm["dyn_mean"][None, :], norm["dyn_std"][None, :]).astype(np.float32)
             goal_in = _normalize(goal_local[None, :], norm["goal_mean"][None, :], norm["goal_std"][None, :]).astype(np.float32)
             with torch.inference_mode():
-                u_local_norm = model(
+                action_norm = model(
                     torch.from_numpy(ctx_in).to(device),
                     t_sit,
                     torch.from_numpy(dyn_in).to(device),
                     torch.from_numpy(goal_in).to(device),
                 ).cpu().numpy()
-            u_local = (u_local_norm * norm["u_std"][None, :] + norm["u_mean"][None, :]).squeeze(0)
+            if action_mode == "delta_u":
+                delta_u_local = (action_norm * norm["du_std"][None, :] + norm["du_mean"][None, :]).squeeze(0)
+                u_local = previous_u_local + delta_u_local
+            else:
+                u_local = (action_norm * norm["u_std"][None, :] + norm["u_mean"][None, :]).squeeze(0)
             held_u_global = nonlinear_local_control_to_global(u_local, heading)
         else:
             # Keep the held action in world coordinates as the local frame
@@ -539,6 +548,7 @@ def rollout_policy(
             print("DEBUG x_next =", x_next)
 
         held_u_global = nonlinear_local_control_to_global(u_safe_local, heading)
+        previous_u_global = held_u_global.copy()
         # Store physical world-frame controls. These are used by trajectory
         # quality and continual-learning labels after the rollout is saved.
         controls_out.append(held_u_global.copy())

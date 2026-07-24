@@ -183,7 +183,7 @@ class CustomSystem1Solver(sofai1.System1Solver):
 
 class CustomSystem2Solver(sofai2.System2Solver):
 
-    def solve(self, problem_id, time_limit):
+    def solve(self, problem_id, time_limit, *, s1_guidance: Optional[Dict[str, Any]] = None):
         timer = time.time()
 
         self.solution_raw = None
@@ -191,25 +191,44 @@ class CustomSystem2Solver(sofai2.System2Solver):
         self.confidence = 0.0
         self.inputs = None
         self.dt = None
+        self.mpc_s1_warm_start = None
+        self.mpc_solver_status = None
 
         try:
             _, scenario_id, scenario = load_problem_scenario(problem_id)
 
             if S2_MODE == "cbf":
                 solve_fn = solve_CBF_with_info
+                solve_kwargs = {}
+            elif S2_MODE == "mpc_do":
+                from solvers.S2_mpc_do import solve_MPC_DO_with_info
+
+                solve_fn = solve_MPC_DO_with_info
+                solve_kwargs = {
+                    "s1_states": None if s1_guidance is None else s1_guidance.get("states"),
+                    "s1_inputs": None if s1_guidance is None else s1_guidance.get("inputs"),
+                    "s1_dt": None if s1_guidance is None else s1_guidance.get("dt"),
+                }
             else:
                 from solvers.S2_mpc import solve_MPC_with_info
 
                 solve_fn = solve_MPC_with_info
+                solve_kwargs = {
+                    "s1_states": None if s1_guidance is None else s1_guidance.get("states"),
+                    "s1_inputs": None if s1_guidance is None else s1_guidance.get("inputs"),
+                    "s1_dt": None if s1_guidance is None else s1_guidance.get("dt"),
+                }
 
             with ThreadPoolExecutor(max_workers=1) as executor: 
-                future = executor.submit(solve_fn, scenario) ## each executor get a different bck
+                future = executor.submit(solve_fn, scenario, **solve_kwargs) ## each executor get a different bck
 
                 try:
                     result = future.result(timeout=time_limit)
                     self.solution_raw = result.get("states") if isinstance(result, dict) else None
                     self.inputs = result.get("inputs") if isinstance(result, dict) else None
                     self.dt = result.get("dt") if isinstance(result, dict) else None
+                    self.mpc_s1_warm_start = result.get("s1_warm_start") if isinstance(result, dict) else None
+                    self.mpc_solver_status = result.get("solver_status") if isinstance(result, dict) else None
                     self.solution = "noSolution" if self.solution_raw is None else self.solution_raw.tolist()
                 except TimeoutError:
                     logging.warning("timeout")
@@ -393,6 +412,8 @@ def _attempt_record(name: str, system: str, mode: str, solver, scenario) -> Dict
             "confidence": float(getattr(solver, "confidence", 0.0)),
             "runtime_sec": float(getattr(solver, "running_time", 0.0)),
             "correctness": float(getattr(solver, "correctness", 0.0)),
+            "mpc_s1_warm_start": getattr(solver, "mpc_s1_warm_start", None),
+            "mpc_solver_status": getattr(solver, "mpc_solver_status", None),
         },
         scenario,
     )
@@ -455,7 +476,7 @@ def solve_benchmark_case(
     elif run_type == "sofai":
         need_s2 = run_all_attempts or not attempts or not attempts[0].get("success", False)
         if need_s2:
-            s2_solver.solve(problem_name, 10**9)
+            s2_solver.solve(problem_name, 10**9, s1_guidance=attempts[0] if attempts else None)
             s2_solver.calculate_correctness(problem_name)
             attempts.append(_attempt_record(f"s2_{s2}", "s2", s2, s2_solver, scenario))
             s2_attempted = True
@@ -533,7 +554,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--s1", choices=["neural", "primitives"], default="primitives")
-    parser.add_argument("--s2", choices=["cbf", "mpc"], default="mpc")
+    parser.add_argument("--s2", choices=["cbf", "mpc", "mpc_do"], default="mpc")
     parser.add_argument("--problem_dictionary", default="benchmark_scenarios_maze.json")
     parser.add_argument("--scenario_id", type=int, default=1)
     parser.add_argument("--run_type", choices=["sofai", "s1", "s2"], default="sofai")

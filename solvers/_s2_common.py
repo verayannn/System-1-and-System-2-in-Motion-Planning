@@ -287,13 +287,13 @@ def trajectory_quality_components(result: Dict[str, Any], *, dt: float = 0.05) -
 
     xy = states[:, :2]
     path_length = float(np.linalg.norm(xy[1:] - xy[:-1], axis=1).sum()) if xy.shape[0] > 1 else 0.0
-    sample_dt = float(attempt.get("dt", dt))
-    controls = _controls_from_attempt(result, attempt, dt=sample_dt)
-    control_effort = float(sample_dt * np.sum(np.sum(np.square(controls), axis=1))) if controls.size else 0.0
-    # Use executed-control variation rather than geometric turning. This makes
-    # smoothness comparable across different integration rates and rewards the
-    # MPC's explicit control-increment objective.
-    smoothness = float(np.mean(np.sum(np.square(np.diff(controls, axis=0)), axis=1))) if controls.shape[0] > 1 else 0.0
+    controls = _controls_from_attempt(result, attempt, dt=dt)
+    control_effort = float(np.sum(np.sum(np.square(controls), axis=1))) if controls.size else 0.0
+    # Quality is defined from the executed path shape. Control variation is
+    # used only when the trajectory is locally straight.
+    smoothness = _turning_smoothness(xy)
+    if smoothness <= 0.0 and controls.shape[0] > 1:
+        smoothness = float(np.sum(np.sum(np.square(np.diff(controls, axis=0)), axis=1)))
 
     return {
         "path_length": path_length,
@@ -336,14 +336,15 @@ def quality_refs_for_result(result: Dict[str, Any]) -> Dict[str, float]:
     goal = np.asarray(scenario.get("goal", (0.0, 0.0)), dtype=float).reshape(-1)[:2]
     path_ref = max(float(np.linalg.norm(goal - start)), 1e-6)
     u_max = float(scenario.get("u_max", 3.0))
-    # Scenario-only references are shared by every solver on the same task.
-    # They avoid the old self-normalization that made incomparable trajectories
-    # all cluster around the same quality score.
-    effort_ref = max(path_ref * u_max, 1e-6)
+    states = np.asarray(selected.get("states", []), dtype=float)
+    if states.ndim != 2 or states.shape[0] == 0:
+        return {"path_length": 1.0, "control_effort": 1.0, "smoothness": 1.0}
+
+    effort_ref = max(path_ref * max(int(states.shape[0]) - 1, 1) * (u_max**2), 1e-6)
     return {
         "path_length": path_ref,
         "control_effort": effort_ref,
-        "smoothness": max(u_max**2, 1e-6),
+        "smoothness": 1.0,
     }
 
 
