@@ -18,7 +18,7 @@ successful trajectories accumulated from bootstrap plus completed blocks.
 
 for the server:
 
-for family in large_sparse dense_clutter serial_walls maze_branching bugtrap long_slalom; do
+for family in long_slalom; do
   PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python script/run_suite.py \
     --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
@@ -26,7 +26,7 @@ for family in large_sparse dense_clutter serial_walls maze_branching bugtrap lon
     --assets_dir "db/by_env/${family}_nl" \
     --out_dir "output/benchmark_runs/nl_${family}_suite" \
     --scenario_ids 0-99 \
-    --block_size 50 \
+    --block_size 30 \
     --workers 3 \
     --block_order shuffled \
     --block_seed 42 \
@@ -37,13 +37,12 @@ for family in large_sparse dense_clutter serial_walls maze_branching bugtrap lon
     --s1_success_weight 1.0 \
     --dagger_states_per_scenario 0 \
     --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-    --probe_scenario_ids 0-149 \
+    --probe_scenario_ids 0-49 \
     --configs sofai_mpc_warm_cl sofai_mpc_cl \
-    --train_epochs 35 \
+    --train_epochs 15 \
     --train_batch 64 \
     --train_lr 0.0003
 done
-
 
 
 
@@ -67,8 +66,9 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
 
 
+MODES = ("sofai_mpc_cl", "sofai_mpc_warm_cl")
 
-MODES = ("s1_neural", "s2_mpc",  "sofai_mpc_cl", "sofai_mpc_warm_cl")
+## MODES = ("s1_neural", "s2_mpc",  "sofai_mpc_cl", "sofai_mpc_warm_cl")
 
 ## "s2_mpc_do",
 
@@ -96,6 +96,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--train_epochs", type=int, default=30)
     p.add_argument("--train_batch", type=int, default=64)
     p.add_argument("--train_lr", type=float, default=3e-4)
+    p.add_argument(
+        "--train_device",
+        default="cpu",
+        help="PyTorch device passed to continual S1 training, e.g. cuda or cuda:0.",
+    )
     p.add_argument("--train_source", choices=["s2", "selected", "all_success", "fallback_success"], default="all_success")
     p.add_argument("--fallback_success_weight", type=float, default=5.0)
     p.add_argument("--s1_success_weight", type=float, default=1.0)
@@ -255,6 +260,7 @@ def train_model(
     train_epochs: int,
     train_batch: int,
     train_lr: float,
+    train_device: str,
     fallback_success_weight: float,
     s1_success_weight: float,
     bootstrap_success_weight: float,
@@ -293,6 +299,8 @@ def train_model(
         str(train_batch),
         "--lr",
         str(train_lr),
+        "--device",
+        str(train_device),
         "--fallback_success_weight",
         str(fallback_success_weight),
         "--s1_success_weight",
@@ -426,6 +434,7 @@ def main() -> None:
         "block_size": block_size,
         "block_order": args.block_order,
         "block_seed": int(args.block_seed),
+        "train_device": str(args.train_device),
         "blocks": blocks,
         "probe_dictionary": str(probe_dictionary) if probe_ids else "",
         "probe_scenario_ids": probe_ids,
@@ -588,6 +597,7 @@ def main() -> None:
                         train_epochs=args.train_epochs,
                         train_batch=args.train_batch,
                         train_lr=args.train_lr,
+                        train_device=args.train_device,
                         fallback_success_weight=args.fallback_success_weight,
                         s1_success_weight=args.s1_success_weight,
                         bootstrap_success_weight=args.bootstrap_success_weight,

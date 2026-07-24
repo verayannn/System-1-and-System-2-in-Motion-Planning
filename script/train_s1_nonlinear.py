@@ -48,6 +48,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--epochs", type=int, default=40)
     p.add_argument("--batch", type=int, default=64)
     p.add_argument("--lr", type=float, default=3e-4)
+    p.add_argument(
+        "--device",
+        default="cpu",
+        help="PyTorch training device, for example cpu, cuda, cuda:0, or mps.",
+    )
     p.add_argument("--weight_decay", type=float, default=1e-5)
     p.add_argument("--hidden", type=int, default=256)
     p.add_argument("--cnn_channels", type=int, default=128)
@@ -75,7 +80,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--dagger_success_weight", type=float, default=10.0)
     p.add_argument("--max_sample_weight", type=float, default=25.0)
     p.add_argument("--action_mode", choices=["delta_u", "absolute_u"], default="delta_u")
-    p.add_argument("--rollout_horizon", type=int, default=16)
+    p.add_argument("--rollout_horizon", type=int, default=8)
     p.add_argument("--rollout_stride", type=int, default=4)
     p.add_argument("--rollout_every", type=int, default=4)
     p.add_argument("--rollout_collision_margin", type=float, default=0.25)
@@ -600,7 +605,20 @@ def main() -> None:
 
     train_mask, val_mask = grouped_train_val_split(traj_ids, args.val_frac, seed=42)
 
-    device = torch.device("cpu")
+    try:
+        device = torch.device(str(args.device))
+    except (TypeError, RuntimeError) as exc:
+        raise ValueError(f"Invalid training device {args.device!r}") from exc
+    if device.type == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError(
+            f"Requested training device {device}, but CUDA is unavailable in this PyTorch environment."
+        )
+    mps_backend = getattr(torch.backends, "mps", None)
+    if device.type == "mps" and (mps_backend is None or not mps_backend.is_available()):
+        raise RuntimeError(
+            f"Requested training device {device}, but MPS is unavailable in this PyTorch environment."
+        )
+    print(f"[train] device={device}")
 
     #### training model 
     model = nl.NeuralSystem1ControlPolicyCNN(
