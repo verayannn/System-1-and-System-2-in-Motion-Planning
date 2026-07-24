@@ -66,9 +66,16 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
 
 
-MODES = ("sofai_mpc_cl", "sofai_mpc_warm_cl")
+## MODES = ("sofai_mpc_cl", "sofai_mpc_warm_cl")
 
-## MODES = ("s1_neural", "s2_mpc",  "sofai_mpc_cl", "sofai_mpc_warm_cl")
+MODES = (
+    "s1_neural",
+    "s2_cbf",
+    "s2_mpc",
+    "sofai_cbf_cl",
+    "sofai_mpc_cl",
+    "sofai_mpc_warm_cl",
+)
 
 ## "s2_mpc_do",
 
@@ -507,7 +514,17 @@ def main() -> None:
             cfg_manifest["runs"].append({"prefix": cfg})
 
         else:
-            solver = "mpc_warm" if cfg == "sofai_mpc_warm_cl" else "mpc_do" if "mpc_do" in cfg else "mpc"
+            ##solver = "mpc_warm" if cfg == "sofai_mpc_warm_cl" else "mpc_do" if "mpc_do" in cfg else "mpc"
+
+            if cfg == "sofai_cbf_cl":
+                solver = "cbf"
+            elif cfg == "sofai_mpc_warm_cl":
+                solver = "mpc_warm"
+            elif "mpc_do" in cfg:
+                solver = "mpc_do"
+            else:
+                solver = "mpc"
+
             current_model = init_model
             bootstrap_stem = dictionary.stem.replace("_eval_", "_train_")
             bootstrap_jsonl = bootstrap_results_dir / f"{bootstrap_stem}_{args.cl_bootstrap_solver}_bootstrap_runs.jsonl"
