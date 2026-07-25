@@ -12,12 +12,11 @@ source .env.acados
 
 PYTHONDONTWRITEBYTECODE=1 \
 python script/prepare_environment_assets.py \
-  --families dense_clutter \
+  --families bugtrap \
   --s2_solver mpc \
-  --train_n_per_family 50 \
+  --train_n_per_family 30 \
   --eval_n_per_family 200 \
-  --probe_n_per_family 50 \
- 
+  --probe_n_per_family 50 
   
   
 --bootstrap_target_successes 300
@@ -88,6 +87,18 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--train_epochs", type=int, default=40)
     p.add_argument("--train_batch", type=int, default=64)
     p.add_argument("--train_lr", type=float, default=3e-4)
+    p.add_argument(
+        "--train_dt_nom",
+        type=float,
+        default=0.075,
+        help="Integrator step the base S1 checkpoint is trained at; must match run_suite.py --train_dt_nom.",
+    )
+    p.add_argument(
+        "--train_n_steps_nom",
+        type=int,
+        default=900,
+        help="Nominal rollout steps for the situation vector; must match run_suite.py --train_n_steps_nom.",
+    )
     p.add_argument("--output_dir", default="input/nl")
     p.add_argument("--assets_dir", default="db/by_env/{family}_nl")
     p.add_argument("--results_dir", default="output/bootstrap_{family}_nl")
@@ -296,6 +307,10 @@ def main() -> None:
                     str(args.train_batch),
                     "--lr",
                     str(args.train_lr),
+                    "--dt_nom",
+                    str(args.train_dt_nom),
+                    "--n_steps_nom",
+                    str(args.train_n_steps_nom),
                 ],
                 cwd=root,
                 dry_run=args.dry_run,

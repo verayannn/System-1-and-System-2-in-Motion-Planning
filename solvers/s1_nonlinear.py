@@ -469,6 +469,8 @@ def rollout_policy(
     buffer_cells: int,
     stop_tol: float,
     action_hold: int = 1,
+    stall_patience: int = 0,
+    stall_tol: float = 0.05,
     debug: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
     rects = scenario_rects(scenario)
@@ -480,6 +482,13 @@ def rollout_policy(
     traj_out: List[np.ndarray] = [x_curr.copy()]
     controls_out: List[np.ndarray] = []
     action_hold = max(1, int(action_hold))
+    # A rollout that has boxed itself in keeps returning the zero control for the
+    # rest of its budget. Give up once the robot stops covering ground so a large
+    # budget only costs time on attempts that are still moving.
+    stall_patience = max(0, int(stall_patience))
+    stall_anchor = x_curr.copy()
+    stall_anchor_step = 0
+    stalled = False
     held_u_global: Optional[np.ndarray] = None
     previous_u_global = np.zeros(2, dtype=np.float32)
     action_mode = "delta_u" if "du_mean" in norm and "du_std" in norm else "absolute_u"
@@ -556,12 +565,21 @@ def rollout_policy(
         ctx = np.concatenate([ctx, x_next[None, :]], axis=0)[-ctx.shape[0]:]
         x_curr = x_next
 
+        if stall_patience and (k + 1 - stall_anchor_step) >= stall_patience:
+            if float(np.linalg.norm(x_curr - stall_anchor)) <= float(stall_tol):
+                stalled = True
+                break
+            stall_anchor = x_curr.copy()
+            stall_anchor_step = k + 1
+
     traj = np.stack(traj_out, axis=0).astype(np.float32)
     controls = np.stack(controls_out, axis=0).astype(np.float32) if controls_out else np.zeros((0, 2), dtype=np.float32)
     info = {
         "collision_free": bool(collision_free_rectangles(traj[:, :2], rects, margin=float(collision_margin))),
         "solved": bool(goal_reached(traj[:, :2], goal, float(goal_tol))),
         "final_dist": float(np.linalg.norm(traj[-1, :2] - goal[:2])) if len(traj) else float("inf"),
+        "steps": int(max(len(traj) - 1, 0)),
+        "stalled": bool(stalled),
     }
     return traj, controls, info
 
