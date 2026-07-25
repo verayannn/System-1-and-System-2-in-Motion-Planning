@@ -5,10 +5,6 @@ Example:
 
 
 
-PYTHONDONTWRITEBYTECODE=1 \
-python analyze_archive_results.py \
-  --suite_dir output/benchmark_runs/nl_dense_clutter_suite \
-  --configs s1_neural s2_mpc sofai_mpc_cl
 
   
 PYTHONDONTWRITEBYTECODE=1 \

@@ -71,20 +71,37 @@ def _default_model_path() -> Path:
     )
 
 
-def _make_args() -> Dict[str, Any]:
+def _make_args(meta: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    # The integrator step and the situation-vector geometry are properties of the
+    # trained policy: rolling out with different values than training used makes
+    # the learned controls mean something else. Take them from the checkpoint and
+    # let the environment override only when set explicitly.
+    trained = dict((meta or {}).get("dataset_meta", {}) or {})
+
+    def trained_float(env_name: str, key: str, default: float) -> float:
+        return _env_float(env_name, float(trained.get(key, default)))
+
+    def trained_int(env_name: str, key: str, default: int) -> int:
+        return _env_int(env_name, int(trained.get(key, default)))
+
     return {
-        "total_steps": _env_int("SOFAI_NEW_S1_STEPS", 120),
+        # Same closed-loop budget as the S2 solvers (SOFAI_MPC_STEPS and
+        # SOFAI_CBF_STEPS), so S1 is allowed to reach as far as its teachers
+        # rather than being cut off part-way through a long corridor.
+        "total_steps": _env_int("SOFAI_NEW_S1_STEPS", 900),
+        "stall_patience": _env_int("SOFAI_NEW_S1_STALL_PATIENCE", 40),
+        "stall_tol": _env_float("SOFAI_NEW_S1_STALL_TOL", 0.05),
         # Reuse a policy prediction briefly. This keeps S1 an approximate,
         # low-latency controller without changing the checkpoint format.
         "action_hold": _env_int("SOFAI_NEW_S1_ACTION_HOLD", 4),
-        "dt_nom": _env_float("SOFAI_NEW_S1_DT", 0.05),
-        "u_max_nom": _env_float("SOFAI_NEW_S1_U_MAX", 3.0),
+        "dt_nom": trained_float("SOFAI_NEW_S1_DT", "dt_nom", 0.075),
+        "u_max_nom": trained_float("SOFAI_NEW_S1_U_MAX", "u_max_nom", 3.0),
         "goal_tol": _env_float("SOFAI_NEW_S1_GOAL_TOL", 0.6),
         "collision_margin": _env_float("SOFAI_NEW_S1_COLLISION_MARGIN", 0.05),
-        "grid_n": _env_int("SOFAI_NEW_S1_GRID_N", 25),
-        "n_steps_nom": _env_int("SOFAI_NEW_S1_N_STEPS_NOM", 200),
-        "buffer_cells": _env_int("SOFAI_NEW_S1_BUFFER_CELLS", 2),
-        "stop_tol": _env_float("SOFAI_NEW_S1_STOP_TOL", 0.6),
+        "grid_n": trained_int("SOFAI_NEW_S1_GRID_N", "grid_n", 25),
+        "n_steps_nom": trained_int("SOFAI_NEW_S1_N_STEPS_NOM", "n_steps_nom", 900),
+        "buffer_cells": trained_int("SOFAI_NEW_S1_BUFFER_CELLS", "buffer_cells", 2),
+        "stop_tol": trained_float("SOFAI_NEW_S1_STOP_TOL", "stop_tol", 0.6),
         "debug": _env_bool("SOFAI_NEW_S1_DEBUG", False),
     }
 
@@ -119,15 +136,19 @@ def _init():
 
         model_path = _default_model_path()
         model, norm, meta = nl.load_s1_checkpoint(model_path, device)
+        args = _make_args(meta)
         _CACHE = {
             "model": model,
             "norm": norm,
             "meta": meta,
             "device": device,
             "model_path": model_path,
-            "args": _make_args(),
+            "args": args,
         }
-        print(f"[S1_nonlinear] ready: model={model_path} device={device}")
+        print(
+            f"[S1_nonlinear] ready: model={model_path} device={device} "
+            f"dt_nom={args['dt_nom']} total_steps={args['total_steps']}"
+        )
     return _CACHE
 
 
@@ -163,6 +184,8 @@ def solveMemoryNeural(
         device,
         total_steps=int(args["total_steps"]),
         action_hold=int(args["action_hold"]),
+        stall_patience=int(args["stall_patience"]),
+        stall_tol=float(args["stall_tol"]),
         dt_nom=float(args["dt_nom"]),
         u_max_nom=float(args["u_max_nom"]),
         collision_margin=float(args["collision_margin"]),

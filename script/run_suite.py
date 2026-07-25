@@ -52,6 +52,72 @@ python analyze_archive_results.py \
   --suite_dir output/benchmark_runs/nl_dense_clutter_suite \
   --configs sofai_mpc_cl sofai_mpc_warm_cl
 
+
+
+small sample run with training all success:
+
+for family in long_slalom; do
+  PYTHONDONTWRITEBYTECODE=1 \
+  .venv/bin/python script/run_suite.py \
+    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
+    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
+    --assets_dir "db/by_env/${family}_nl" \
+    --out_dir "output/benchmark_runs/nl_${family}_suite" \
+    --scenario_ids 0-44 \
+    --block_size 15 \
+    --workers 3 \
+    --block_order shuffled \
+    --block_seed 42 \
+    --cl_bootstrap_solver mpc \
+    --train_device cpu \
+    --train_source all_success \
+    --bootstrap_success_weight 5.0 \
+    --fallback_success_weight 10.0 \
+    --s1_success_weight 1.0 \
+    --dagger_states_per_scenario 0 \
+    --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
+    --probe_scenario_ids 0-19 \
+    --configs sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl s1_neural s2_mpc s2_cbf   \
+    --train_epochs 15 \
+    --train_batch 64 \
+    --train_rollout_horizon 8 \
+    --train_rollout_every 8 \
+    --train_lr 0.0003
+done
+
+
+small sample run with train only s2 success:
+
+for family in bugtrap; do
+  PYTHONDONTWRITEBYTECODE=1 \
+  .venv/bin/python script/run_suite.py \
+    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
+    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
+    --assets_dir "db/by_env/${family}_nl" \
+    --out_dir "output/benchmark_runs/nl_${family}_suite" \
+    --scenario_ids 0-89 \
+    --block_size 30 \
+    --workers 3 \
+    --block_order shuffled \
+    --block_seed 42 \
+    --cl_bootstrap_solver mpc \
+    --train_device cpu \
+    --train_source s2\
+    --bootstrap_success_weight 5.0 \
+    --fallback_success_weight 10.0 \
+    --dagger_states_per_scenario 0 \
+    --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
+    --probe_scenario_ids 0-49 \
+    --configs sofai_mpc_warm_cl sofai_mpc_cl \
+    --train_epochs 20 \
+    --train_batch 64 \
+    --train_rollout_horizon 8 \
+    --train_rollout_every 8 \
+    --train_lr 0.0003
+done
+
+
+
 """
 
 from __future__ import annotations
@@ -69,15 +135,19 @@ from typing import Dict, Iterable, List, Sequence
 ## MODES = ("sofai_mpc_cl", "sofai_mpc_warm_cl")
 
 MODES = (
-    "s1_neural",
-    "s2_cbf",
-    "s2_mpc",
     "sofai_cbf_cl",
     "sofai_mpc_cl",
     "sofai_mpc_warm_cl",
+    "s1_neural",
+    "s2_cbf",
+    "s2_mpc",
 )
 
 ## "s2_mpc_do",
+
+# ``collect_mpc_dagger.py`` labels states with plain acados MPC, so every MPC
+# fallback variant shares the same recovery demonstrations.
+DAGGER_SOLVERS = frozenset({"mpc", "mpc_warm"})
 
 
 def parse_args() -> argparse.Namespace:
@@ -104,9 +174,40 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--train_batch", type=int, default=64)
     p.add_argument("--train_lr", type=float, default=3e-4)
     p.add_argument(
+        "--train_rollout_horizon",
+        type=int,
+        default=8,
+        help="Differentiable rollout horizon passed to continual S1 training.",
+    )
+    p.add_argument(
+        "--train_rollout_every",
+        type=int,
+        default=8,
+        help="Run the rollout loss once every N supervised training batches.",
+    )
+    p.add_argument(
         "--train_device",
         default="cpu",
         help="PyTorch device passed to continual S1 training, e.g. cuda or cuda:0.",
+    )
+    p.add_argument(
+        "--train_dt_nom",
+        type=float,
+        default=0.075,
+        help=(
+            "Integrator step S1 is trained and executed at. Keep it equal to the step the S2 "
+            "teachers record, and to the step of the base checkpoint in --assets_dir, otherwise "
+            "block 0 is evaluated under a different S1 configuration than later blocks."
+        ),
+    )
+    p.add_argument(
+        "--train_n_steps_nom",
+        type=int,
+        default=900,
+        help=(
+            "Steps of the nominal rollout that paints the corridor in the situation vector. "
+            "Must also match the base checkpoint for the blocks to stay comparable."
+        ),
     )
     p.add_argument("--train_source", choices=["s2", "selected", "all_success", "fallback_success"], default="all_success")
     p.add_argument("--fallback_success_weight", type=float, default=5.0)
@@ -267,7 +368,11 @@ def train_model(
     train_epochs: int,
     train_batch: int,
     train_lr: float,
+    train_rollout_horizon: int,
+    train_rollout_every: int,
     train_device: str,
+    train_dt_nom: float,
+    train_n_steps_nom: int,
     fallback_success_weight: float,
     s1_success_weight: float,
     bootstrap_success_weight: float,
@@ -306,8 +411,16 @@ def train_model(
         str(train_batch),
         "--lr",
         str(train_lr),
+        "--rollout_horizon",
+        str(train_rollout_horizon),
+        "--rollout_every",
+        str(train_rollout_every),
         "--device",
         str(train_device),
+        "--dt_nom",
+        str(train_dt_nom),
+        "--n_steps_nom",
+        str(train_n_steps_nom),
         "--fallback_success_weight",
         str(fallback_success_weight),
         "--s1_success_weight",
@@ -442,6 +555,10 @@ def main() -> None:
         "block_order": args.block_order,
         "block_seed": int(args.block_seed),
         "train_device": str(args.train_device),
+        "train_rollout_horizon": int(args.train_rollout_horizon),
+        "train_rollout_every": int(args.train_rollout_every),
+        "train_dt_nom": float(args.train_dt_nom),
+        "train_n_steps_nom": int(args.train_n_steps_nom),
         "blocks": blocks,
         "probe_dictionary": str(probe_dictionary) if probe_ids else "",
         "probe_scenario_ids": probe_ids,
@@ -581,7 +698,9 @@ def main() -> None:
                 )
                 cumulative_jsonls.append(block_jsonl)
                 dagger_jsonl = None
-                if solver == "mpc" and int(args.dagger_states_per_scenario) > 0:
+                # Both MPC arms must receive identical DAgger supervision, or the
+                # warm-start comparison would differ by training data as well.
+                if solver in DAGGER_SOLVERS and int(args.dagger_states_per_scenario) > 0:
                     dagger_jsonl = cfg_dir / "dagger" / f"{prefix}_mpc_recoveries.jsonl"
                     collect_mpc_dagger(
                         root=root,
@@ -614,7 +733,11 @@ def main() -> None:
                         train_epochs=args.train_epochs,
                         train_batch=args.train_batch,
                         train_lr=args.train_lr,
+                        train_rollout_horizon=args.train_rollout_horizon,
+                        train_rollout_every=args.train_rollout_every,
                         train_device=args.train_device,
+                        train_dt_nom=args.train_dt_nom,
+                        train_n_steps_nom=args.train_n_steps_nom,
                         fallback_success_weight=args.fallback_success_weight,
                         s1_success_weight=args.s1_success_weight,
                         bootstrap_success_weight=args.bootstrap_success_weight,

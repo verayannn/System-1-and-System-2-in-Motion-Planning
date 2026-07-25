@@ -40,8 +40,26 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--max_trajectories", type=int, default=200)
     p.add_argument("--context_len", type=int, default=20)
     p.add_argument("--grid_n", type=int, default=25)
-    p.add_argument("--dt_nom", type=float, default=0.05)
-    p.add_argument("--n_steps_nom", type=int, default=200)
+    p.add_argument(
+        "--dt_nom",
+        type=float,
+        default=0.075,
+        help=(
+            "Integrator step the policy is trained and executed at. Keep this equal to the "
+            "step the S2 teachers record (SOFAI_MPC_DT and SOFAI_CBF_DT), otherwise the "
+            "control and next-state targets disagree by their ratio."
+        ),
+    )
+    p.add_argument(
+        "--n_steps_nom",
+        type=int,
+        default=900,
+        help=(
+            "Steps of the nominal goal-seeking rollout that paints the corridor in the "
+            "situation vector. Too few truncates the corridor before the goal, which "
+            "leaves the policy with no map feature for the far end of long maps."
+        ),
+    )
     p.add_argument("--u_max_nom", type=float, default=3.0)
     p.add_argument("--buffer_cells", type=int, default=2)
     p.add_argument("--stop_tol", type=float, default=0.6)
@@ -82,7 +100,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--action_mode", choices=["delta_u", "absolute_u"], default="delta_u")
     p.add_argument("--rollout_horizon", type=int, default=8)
     p.add_argument("--rollout_stride", type=int, default=4)
-    p.add_argument("--rollout_every", type=int, default=4)
+    p.add_argument("--rollout_every", type=int, default=8)
     p.add_argument("--rollout_collision_margin", type=float, default=0.25)
     p.add_argument("--mplconfigdir", default="")
     return p.parse_args()
@@ -172,6 +190,20 @@ def _xy(x: Any) -> np.ndarray:
     if arr.ndim != 2 or arr.shape[0] == 0:
         return np.zeros((0, 2), dtype=np.float32)
     return arr[:, :2].astype(np.float32)
+
+
+def attempt_dt(attempt: Dict[str, Any], dt_nom: float) -> float:
+    """Integrator step the demonstration was generated with.
+
+    Every solver records its own step, so a mismatch with `dt_nom` is what makes
+    the recorded control and the recorded state delta inconsistent targets.
+    Result files written before the field existed fall back to `dt_nom`.
+    """
+    try:
+        dt = float(attempt.get("dt"))
+    except (TypeError, ValueError):
+        return float(dt_nom)
+    return dt if dt > 1e-9 else float(dt_nom)
 
 
 def make_context_window(xy_prefix: np.ndarray, L_c: int) -> np.ndarray:
@@ -273,6 +305,8 @@ def build_samples(
     skipped_missing_dictionary = 0
     skipped_missing_scenario = 0
     skipped_invalid_states = 0
+    sample_count_by_demo_dt: Dict[str, int] = {}
+    rescaled_dt_trajectories = 0
     for row in result_rows:
         source_file = str(row.get("_training_jsonl", ""))
         row_count_by_jsonl[source_file] = row_count_by_jsonl.get(source_file, 0) + 1
@@ -319,6 +353,16 @@ def build_samples(
             if states.shape[0] < 2:
                 skipped_invalid_states += 1
                 continue
+            # The policy always integrates at dt_nom, so state targets have to be
+            # expressed on that step. Demonstrations recorded at another step are
+            # resampled along each segment, which keeps them consistent with the
+            # recorded control but only reproduces their geometry to first order.
+            demo_dt = attempt_dt(attempt, dt_nom)
+            step_scale = float(dt_nom) / demo_dt
+            dt_key = f"{demo_dt:.6g}"
+            sample_count_by_demo_dt[dt_key] = sample_count_by_demo_dt.get(dt_key, 0) + int(states.shape[0] - 1)
+            if abs(step_scale - 1.0) > 1e-6:
+                rescaled_dt_trajectories += 1
             traj_weight = attempt_weight(
                 row,
                 attempt,
@@ -351,17 +395,18 @@ def build_samples(
                 ctx_global = make_context_window(prefix, L_c)
                 ctx_local, goal_local, origin, heading = nl.transform_to_local(ctx_global, goal)
                 dyn_feat = nl.nonlinear_dynamics_features(scenario, states[t], heading)
-                next_local = (states[t + 1] - origin) @ nl.rotation_from_heading(heading).T
+                next_state = states[t] + step_scale * (states[t + 1] - states[t])
+                next_local = (next_state - origin) @ nl.rotation_from_heading(heading).T
                 if inputs.ndim == 2 and inputs.shape[0] > t and inputs.shape[1] >= 2:
                     u_global = np.asarray(inputs[t, :2], dtype=np.float32)
                 else:
-                    u_global = (states[t + 1] - states[t]) / float(dt_nom) - nl.nonlinear_drift_global(scenario, states[t])
+                    u_global = (states[t + 1] - states[t]) / demo_dt - nl.nonlinear_drift_global(scenario, states[t])
                 if t == 0:
                     prev_u_global = np.zeros(2, dtype=np.float32)
                 elif inputs.ndim == 2 and inputs.shape[0] >= t and inputs.shape[1] >= 2:
                     prev_u_global = np.asarray(inputs[t - 1, :2], dtype=np.float32)
                 else:
-                    prev_u_global = (states[t] - states[t - 1]) / float(dt_nom) - nl.nonlinear_drift_global(scenario, states[t - 1])
+                    prev_u_global = (states[t] - states[t - 1]) / demo_dt - nl.nonlinear_drift_global(scenario, states[t - 1])
                 u_local = np.asarray(u_global, dtype=np.float32) @ nl.rotation_from_heading(heading).T
                 prev_u_local = np.asarray(prev_u_global, dtype=np.float32) @ nl.rotation_from_heading(heading).T
                 du_local = u_local - prev_u_local
@@ -377,7 +422,7 @@ def build_samples(
                 prev_u_list.append(prev_u_local.astype(np.float32))
                 next_list.append(next_local.astype(np.float32))
                 pos_list.append(states[t].astype(np.float32))
-                next_pos_list.append(states[t + 1].astype(np.float32))
+                next_pos_list.append(next_state.astype(np.float32))
                 heading_list.append(float(heading))
                 drift_global_list.append(nl.nonlinear_drift_global(scenario, states[t]).astype(np.float32))
                 rect_list.append(np.asarray(nl.scenario_rects(scenario), dtype=np.float32).reshape(-1, 4))
@@ -386,6 +431,13 @@ def build_samples(
 
     if not ctx_list:
         raise RuntimeError("No successful benchmark trajectories found for S1 training.")
+
+    if rescaled_dt_trajectories:
+        print(
+            f"[warn] {rescaled_dt_trajectories} demonstration trajectories were generated at a timestep "
+            f"other than dt_nom={dt_nom}; samples per demonstration timestep: {sample_count_by_demo_dt}. "
+            "Their state targets were resampled onto dt_nom. Run the S2 teachers at dt_nom to avoid it."
+        )
 
     ctx = np.stack(ctx_list, axis=0).astype(np.float32)
     sit = np.stack(sit_list, axis=0).astype(np.float32)
@@ -447,6 +499,8 @@ def build_samples(
             "input_row_count_by_jsonl": row_count_by_jsonl,
             "trajectory_count_by_jsonl": trajectory_count_by_jsonl,
             "trajectory_count_by_type": trajectory_count_by_type,
+            "sample_count_by_demo_dt": sample_count_by_demo_dt,
+            "rescaled_dt_trajectories": int(rescaled_dt_trajectories),
             "selected_success_count": int(selected_success_count),
             "skipped_missing_dictionary": int(skipped_missing_dictionary),
             "skipped_missing_scenario": int(skipped_missing_scenario),
