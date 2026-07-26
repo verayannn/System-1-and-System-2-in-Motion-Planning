@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -283,6 +284,56 @@ def propagate_global_state(
     return (x + float(dt) * (nonlinear_drift_global(scenario, x) + u_global)).astype(np.float32)
 
 
+FILTER_MODE_GREEDY = "greedy"
+FILTER_MODE_POLICY = "policy"
+FILTER_MODES = (FILTER_MODE_GREEDY, FILTER_MODE_POLICY)
+
+
+def default_filter_mode() -> str:
+    """Which safety filter S1 executes under.
+
+    `greedy` ranks candidates by one-step distance to the goal with a penalty on
+    any action that does not strictly close that distance. The penalty (2.0)
+    exceeds the achievable spread of the rest of the score (at most dt*2*u_max*
+    sqrt(2) + 0.01*2*u_max*sqrt(2) < 0.8 at the shipped settings), so it acts as
+    a hard rule: never move away from the goal while some collision-free action
+    moves toward it. Escaping a trap requires a run of exactly those moves, so
+    under `greedy` the policy cannot affect whether a trap is solved.
+
+    `policy` treats the policy action as the command and deviates from it as
+    little as safety allows, which is what makes the success rate a function of
+    what the policy learned.
+    """
+    raw = os.environ.get("SOFAI_S1_FILTER_MODE", FILTER_MODE_POLICY).strip().lower()
+    return raw if raw in FILTER_MODES else FILTER_MODE_POLICY
+
+
+def _rotate_local(u: np.ndarray, angle_rad: float) -> np.ndarray:
+    c, s = math.cos(angle_rad), math.sin(angle_rad)
+    return np.array([c * u[0] - s * u[1], s * u[0] + c * u[1]], dtype=np.float32)
+
+
+# Deviation tiers, most faithful to the policy first. Deflections come before
+# slowing down because sliding along an obstacle keeps the rollout moving whereas
+# a shorter step in the same blocked direction only postpones the contact.
+_DEFLECTION_TIERS_DEG = ((15.0,), (30.0,), (45.0,), (60.0,), (75.0,), (90.0,))
+_WIDE_DEFLECTION_TIERS_DEG = ((105.0, 120.0), (135.0, 150.0))
+
+
+def _policy_first_tiers(u_pred: np.ndarray, u_goal: np.ndarray) -> Iterable[List[np.ndarray]]:
+    yield [u_pred]
+    for tier in _DEFLECTION_TIERS_DEG:
+        yield [_rotate_local(u_pred, math.radians(sign * deg)) for deg in tier for sign in (1.0, -1.0)]
+    yield [0.6 * u_pred, 0.3 * u_pred]
+    for tier in _WIDE_DEFLECTION_TIERS_DEG:
+        yield [_rotate_local(u_pred, math.radians(sign * deg)) for deg in tier for sign in (1.0, -1.0)]
+    yield [u_goal]
+    # Backing out keeps a wedged state recoverable. Without it the filter returns
+    # zero velocity at an unchanged state, which is absorbing: the context history
+    # stops changing, so the policy output stops changing too.
+    yield [-0.5 * u_pred, -1.0 * u_pred]
+
+
 def choose_safe_control(
     *,
     scenario: Any,
@@ -295,9 +346,35 @@ def choose_safe_control(
     goal: np.ndarray,
     u_max: float,
     collision_margin: float,
+    mode: Optional[str] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     u_pred_local = np.asarray(u_pred_local, dtype=np.float32).reshape(2)
     u_goal_local = np.asarray(u_goal_local, dtype=np.float32).reshape(2)
+    mode = (mode or default_filter_mode()).strip().lower()
+
+    def evaluate(u: np.ndarray) -> Optional[Tuple[np.ndarray, np.ndarray, float]]:
+        u = np.clip(u, -float(u_max), float(u_max)).astype(np.float32)
+        x_next = propagate_global_state(scenario, x_curr, u, heading, dt)
+        if not np.isfinite(x_next).all():
+            return None
+        if not collision_free_rectangles(
+            np.vstack([x_curr[:2], x_next[:2]]), rects, margin=float(collision_margin)
+        ):
+            return None
+        return u, x_next, float(np.linalg.norm(x_next - goal[:2]))
+
+    if mode == FILTER_MODE_POLICY:
+        # Lexicographic: minimise deviation from the policy first, and break ties
+        # only inside a deviation tier by progress toward the goal.
+        for tier in _policy_first_tiers(u_pred_local, u_goal_local):
+            best_in_tier: Optional[Tuple[np.ndarray, np.ndarray, float]] = None
+            for u in tier:
+                scored = evaluate(u)
+                if scored is not None and (best_in_tier is None or scored[2] < best_in_tier[2]):
+                    best_in_tier = scored
+            if best_in_tier is not None:
+                return best_in_tier[0], best_in_tier[1]
+        return np.zeros(2, dtype=np.float32), x_curr.copy().astype(np.float32)
 
     candidates = [u_pred_local]
     for a in [0.8, 0.6, 0.4, 0.2]:
@@ -313,13 +390,10 @@ def choose_safe_control(
     dist_curr = float(np.linalg.norm(x_curr - goal[:2]))
 
     for u in candidates:
-        u = np.clip(u, -float(u_max), float(u_max)).astype(np.float32)
-        x_next = propagate_global_state(scenario, x_curr, u, heading, dt)
-        if not np.isfinite(x_next).all():
+        scored = evaluate(u)
+        if scored is None:
             continue
-        if not collision_free_rectangles(np.vstack([x_curr[:2], x_next[:2]]), rects, margin=float(collision_margin)):
-            continue
-        dist_next = float(np.linalg.norm(x_next - goal[:2]))
+        u, x_next, dist_next = scored
         score = dist_next + (0.0 if dist_next < dist_curr else 2.0) + 0.01 * float(np.linalg.norm(u - u_pred_local))
         if score < best_score:
             best_score = score
@@ -473,8 +547,10 @@ def rollout_policy(
     stall_tol: float = 0.05,
     progress_patience: int = 0,
     progress_tol: float = 0.5,
+    filter_mode: Optional[str] = None,
     debug: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    filter_mode = (filter_mode or default_filter_mode()).strip().lower()
     rects = scenario_rects(scenario)
     goal = scenario_goal(scenario)
     ctx = build_initial_history_ending_at_start(scenario, int(norm["ctx_mean"].shape[0]), dt_nom, u_max_nom)
@@ -549,6 +625,7 @@ def rollout_policy(
             goal=goal,
             u_max=u_max_nom,
             collision_margin=collision_margin,
+            mode=filter_mode,
         )
 
         if debug and k == 0:
@@ -591,6 +668,7 @@ def rollout_policy(
         "final_dist": float(np.linalg.norm(traj[-1, :2] - goal[:2])) if len(traj) else float("inf"),
         "steps": int(max(len(traj) - 1, 0)),
         "termination": termination,
+        "filter_mode": filter_mode,
     }
     return traj, controls, info
 

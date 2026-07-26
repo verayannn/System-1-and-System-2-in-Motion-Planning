@@ -5,8 +5,7 @@ Example:
 
 PYTHONDONTWRITEBYTECODE=1 \
 python analyze_suite.py \
-  --archive_dir output/benchmark_runs_current_bs_mpc \
-  --families bugtrap \
+  --archive_dir output/benchmark_runs_v2_ideal \
   --configs s1_neural s2_mpc s2_cbf sofai_mpc_cl sofai_mpc_warm_cl sofai_cbf_cl
 
 The archive must contain one directory per family, conventionally named

@@ -47,11 +47,9 @@ PYTHONDONTWRITEBYTECODE=1 \
 .venv/bin/python script/prepare_environment_assets.py \
   --families dense_clutter \
   --s2_solver cbf \
-  --train_n_per_family 50 \
+  --train_n_per_family 100 \
   --eval_n_per_family 200 \
-  --probe_n_per_family 100 \
-  --probe_seed 700 \
-  --train_epochs 30 \
+  --train_epochs 20 \
   --train_batch 64 \
   --train_lr 0.0003 \
   --workers 3

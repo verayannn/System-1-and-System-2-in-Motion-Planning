@@ -90,21 +90,31 @@ done
 
 current:
 
-for family in bugtrap; do
+for family in dense_clutter; do
   PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python script/run_suite.py \
-    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
+    --dictionary "input/input/nl/benchmark_dualmp_nl_dense_clutter_benchmark100_dense_clutter.json" \
     --bootstrap_results_dir "output/bootstrap_${family}_nl" \
     --assets_dir "db/by_env/${family}_nl" \
     --out_dir "output/benchmark_runs_current_bs_mpc/nl_${family}_suite" \
-    --scenario_ids 0-49 \
+    --scenario_ids 0-99 \
     --workers 3 \
     --block_order shuffled \
     --block_seed 42 \
-    --cl_bootstrap_solver mpc \
-    --configs s1_neural s2_mpc s2_cbf sofai_mpc_cl sofai_mpc_warm_cl sofai_cbf_cl
+    --cl_bootstrap_solver cbf \
+    --configs s1_neural
 done
 
+
+
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python input/generate_nl_dict.py \
+  --output_dir input/nl \
+  --prefix benchmark_dualmp_nl_dense_clutter_benchmark100 \
+  --families dense_clutter \
+  --n_per_family 100 \
+  --seed 20260727 \
+  --u_max 3.0 \
+  --goal_tol 0.5
 
 
 

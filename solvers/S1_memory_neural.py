@@ -98,6 +98,9 @@ def _make_args(meta: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         # Reuse a policy prediction briefly. This keeps S1 an approximate,
         # low-latency controller without changing the checkpoint format.
         "action_hold": _env_int("SOFAI_NEW_S1_ACTION_HOLD", 4),
+        # See nl.default_filter_mode: "greedy" reproduces the original filter,
+        # under which the policy cannot influence trap escape at all.
+        "filter_mode": nl.default_filter_mode(),
         "dt_nom": trained_float("SOFAI_NEW_S1_DT", "dt_nom", 0.075),
         "u_max_nom": trained_float("SOFAI_NEW_S1_U_MAX", "u_max_nom", 3.0),
         "goal_tol": _env_float("SOFAI_NEW_S1_GOAL_TOL", 0.5),
@@ -151,7 +154,8 @@ def _init():
         }
         print(
             f"[S1_nonlinear] ready: model={model_path} device={device} "
-            f"dt_nom={args['dt_nom']} total_steps={args['total_steps']}"
+            f"dt_nom={args['dt_nom']} total_steps={args['total_steps']} "
+            f"filter_mode={args['filter_mode']}"
         )
     return _CACHE
 
@@ -193,6 +197,7 @@ def solveMemoryNeural(
         stall_tol=float(args["stall_tol"]),
         progress_patience=int(args["progress_patience"]),
         progress_tol=float(args["progress_tol"]),
+        filter_mode=str(args["filter_mode"]),
         dt_nom=float(args["dt_nom"]),
         u_max_nom=float(args["u_max_nom"]),
         collision_margin=float(args["collision_margin"]),
@@ -230,6 +235,8 @@ def solveMemoryNeural(
         "confidence": confidence,
         "final_dist": float(info.get("final_dist", float("inf"))),
         "runtime_sec": None,
+        "s1_filter_mode": str(info.get("filter_mode", args["filter_mode"])),
+        "s1_termination": str(info.get("termination", "")),
     }
     return (states, confidence, out) if return_info else (states, confidence)
 
