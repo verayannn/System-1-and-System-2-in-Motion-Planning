@@ -471,6 +471,8 @@ def rollout_policy(
     action_hold: int = 1,
     stall_patience: int = 0,
     stall_tol: float = 0.05,
+    progress_patience: int = 0,
+    progress_tol: float = 0.5,
     debug: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
     rects = scenario_rects(scenario)
@@ -482,13 +484,13 @@ def rollout_policy(
     traj_out: List[np.ndarray] = [x_curr.copy()]
     controls_out: List[np.ndarray] = []
     action_hold = max(1, int(action_hold))
-    # A rollout that has boxed itself in keeps returning the zero control for the
-    # rest of its budget. Give up once the robot stops covering ground so a large
-    # budget only costs time on attempts that are still moving.
     stall_patience = max(0, int(stall_patience))
+    progress_patience = max(0, int(progress_patience))
     stall_anchor = x_curr.copy()
     stall_anchor_step = 0
-    stalled = False
+    best_goal_dist = float(np.linalg.norm(x_curr - goal[:2]))
+    last_progress_step = 0
+    termination = "step_budget"
     held_u_global: Optional[np.ndarray] = None
     previous_u_global = np.zeros(2, dtype=np.float32)
     action_mode = "delta_u" if "du_mean" in norm and "du_std" in norm else "absolute_u"
@@ -501,6 +503,7 @@ def rollout_policy(
 
     for k in range(int(total_steps)):
         if np.linalg.norm(x_curr - goal[:2]) <= float(goal_tol):
+            termination = "goal_reached"
             break
 
         ctx_local, goal_local, origin, heading = transform_to_local(ctx, goal[:2])
@@ -567,10 +570,18 @@ def rollout_policy(
 
         if stall_patience and (k + 1 - stall_anchor_step) >= stall_patience:
             if float(np.linalg.norm(x_curr - stall_anchor)) <= float(stall_tol):
-                stalled = True
+                termination = "stalled"
                 break
             stall_anchor = x_curr.copy()
             stall_anchor_step = k + 1
+
+        current_goal_dist = float(np.linalg.norm(x_curr - goal[:2]))
+        if current_goal_dist <= best_goal_dist - float(progress_tol):
+            best_goal_dist = current_goal_dist
+            last_progress_step = k + 1
+        elif progress_patience and (k + 1 - last_progress_step) >= progress_patience:
+            termination = "no_goal_progress"
+            break
 
     traj = np.stack(traj_out, axis=0).astype(np.float32)
     controls = np.stack(controls_out, axis=0).astype(np.float32) if controls_out else np.zeros((0, 2), dtype=np.float32)
@@ -579,7 +590,7 @@ def rollout_policy(
         "solved": bool(goal_reached(traj[:, :2], goal, float(goal_tol))),
         "final_dist": float(np.linalg.norm(traj[-1, :2] - goal[:2])) if len(traj) else float("inf"),
         "steps": int(max(len(traj) - 1, 0)),
-        "stalled": bool(stalled),
+        "termination": termination,
     }
     return traj, controls, info
 

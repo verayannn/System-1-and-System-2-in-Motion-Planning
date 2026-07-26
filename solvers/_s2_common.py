@@ -276,54 +276,57 @@ def _controls_from_attempt(
     return np.asarray(u, dtype=float)
 
 
-def trajectory_quality_components(result: Dict[str, Any], *, dt: float = 0.05) -> Optional[Dict[str, float]]:
+from .trajectory_quality import QUALITY_DEFINITION_VERSION, evaluate_trajectory
+
+# Superseded by QUALITY_DEFINITION_VERSION; kept so archives written under the
+# integrated-MPC-cost definition remain identifiable.
+MPC_ALIGNED_QUALITY_VERSION = "mpc_aligned_v1"
+
+
+def trajectory_quality_components(result: Dict[str, Any], *, dt: float = 0.075) -> Optional[Dict[str, float]]:
+    """Score a successful executed trajectory on the duration-invariant index.
+
+    Quality here covers only path efficiency, smoothness and clearance. Time to
+    goal and solver runtime are deliberately excluded and reported separately:
+    folding them in lets a controller improve its "quality" simply by driving
+    the actuator harder.
+    """
     attempt = selected_success_attempt(result)
     if attempt is None:
         return None
-
-    states = np.asarray(attempt.get("states", []), dtype=float)
-    if states.ndim != 2 or states.shape[0] == 0:
+    scenario = result.get("scenario")
+    if not isinstance(scenario, dict):
         return None
 
-    xy = states[:, :2]
-    path_length = float(np.linalg.norm(xy[1:] - xy[:-1], axis=1).sum()) if xy.shape[0] > 1 else 0.0
-    controls = _controls_from_attempt(result, attempt, dt=dt)
-    control_effort = float(np.sum(np.sum(np.square(controls), axis=1))) if controls.size else 0.0
-    # Quality is defined from the executed path shape. Control variation is
-    # used only when the trajectory is locally straight.
-    smoothness = _turning_smoothness(xy)
-    if smoothness <= 0.0 and controls.shape[0] > 1:
-        smoothness = float(np.sum(np.sum(np.square(np.diff(controls, axis=0)), axis=1)))
+    sample_dt = float(attempt.get("dt", dt))
+    if not np.isfinite(sample_dt) or sample_dt <= 0.0:
+        return None
 
-    return {
-        "path_length": path_length,
-        "control_effort": control_effort,
-        "smoothness": smoothness,
-    }
+    return evaluate_trajectory(
+        attempt.get("states"),
+        sample_dt,
+        scenario,
+        inputs=attempt.get("inputs"),
+    )
 
 
 def quality_reference_values(samples: Sequence[Dict[str, float]]) -> Dict[str, float]:
-    refs: Dict[str, float] = {}
-    for key in ("path_length", "control_effort", "smoothness"):
-        values = [float(sample[key]) for sample in samples if sample.get(key) is not None and float(sample[key]) > 0.0]
-        refs[key] = float(np.median(values)) if values else 1.0
-        refs[key] = max(refs[key], 1e-9)
-    return refs
+    """Retained for call-site compatibility; the index needs no population reference."""
+    del samples
+    return {}
 
 
-def quality_score(sample: Dict[str, float], refs: Dict[str, float], weights: Optional[Dict[str, float]] = None) -> float:
-    if weights is None:
-        weights = {"path_length": 1.0 / 3.0, "control_effort": 1.0 / 3.0, "smoothness": 1.0 / 3.0}
-    total = float(sum(float(weights.get(key, 0.0)) for key in ("path_length", "control_effort", "smoothness")))
-    if total <= 0.0:
-        weights = {"path_length": 1.0 / 3.0, "control_effort": 1.0 / 3.0, "smoothness": 1.0 / 3.0}
-        total = 1.0
-    j = (
-        float(weights.get("path_length", 0.0)) * float(sample["path_length"]) / float(refs["path_length"])
-        + float(weights.get("control_effort", 0.0)) * float(sample["control_effort"]) / float(refs["control_effort"])
-        + float(weights.get("smoothness", 0.0)) * float(sample["smoothness"]) / float(refs["smoothness"])
-    ) / total
-    return 1.0 / (1.0 + j)
+def quality_score(
+    sample: Dict[str, float],
+    refs: Optional[Dict[str, float]] = None,
+    weights: Optional[Dict[str, float]] = None,
+) -> float:
+    """Return the [0, 1] trajectory quality index for one scored sample."""
+    del refs, weights  # Kept for call-site compatibility during archive migration.
+    value = float(sample.get("quality_score", float("nan")))
+    if not np.isfinite(value):
+        return float("nan")
+    return float(np.clip(value, 0.0, 1.0))
 
 
 def quality_refs_for_result(result: Dict[str, Any]) -> Dict[str, float]:

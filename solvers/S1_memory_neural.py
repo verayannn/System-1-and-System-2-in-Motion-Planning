@@ -89,14 +89,18 @@ def _make_args(meta: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         # SOFAI_CBF_STEPS), so S1 is allowed to reach as far as its teachers
         # rather than being cut off part-way through a long corridor.
         "total_steps": _env_int("SOFAI_NEW_S1_STEPS", 900),
+        # End failed S1 attempts early without limiting trajectories that are
+        # still either moving or making meaningful progress to the goal.
         "stall_patience": _env_int("SOFAI_NEW_S1_STALL_PATIENCE", 40),
         "stall_tol": _env_float("SOFAI_NEW_S1_STALL_TOL", 0.05),
+        "progress_patience": _env_int("SOFAI_NEW_S1_PROGRESS_PATIENCE", 200),
+        "progress_tol": _env_float("SOFAI_NEW_S1_PROGRESS_TOL", 0.5),
         # Reuse a policy prediction briefly. This keeps S1 an approximate,
         # low-latency controller without changing the checkpoint format.
         "action_hold": _env_int("SOFAI_NEW_S1_ACTION_HOLD", 4),
         "dt_nom": trained_float("SOFAI_NEW_S1_DT", "dt_nom", 0.075),
         "u_max_nom": trained_float("SOFAI_NEW_S1_U_MAX", "u_max_nom", 3.0),
-        "goal_tol": _env_float("SOFAI_NEW_S1_GOAL_TOL", 0.6),
+        "goal_tol": _env_float("SOFAI_NEW_S1_GOAL_TOL", 0.5),
         "collision_margin": _env_float("SOFAI_NEW_S1_COLLISION_MARGIN", 0.05),
         "grid_n": trained_int("SOFAI_NEW_S1_GRID_N", "grid_n", 25),
         "n_steps_nom": trained_int("SOFAI_NEW_S1_N_STEPS_NOM", "n_steps_nom", 900),
@@ -176,6 +180,7 @@ def solveMemoryNeural(
     model = bundle["model"]
     norm = bundle["norm"]
     device = bundle["device"]
+    goal_tol = nl.scenario_goal_tol(scenario, float(args["goal_tol"]))
 
     traj, controls, info = nl.rollout_policy(
         model,
@@ -186,10 +191,12 @@ def solveMemoryNeural(
         action_hold=int(args["action_hold"]),
         stall_patience=int(args["stall_patience"]),
         stall_tol=float(args["stall_tol"]),
+        progress_patience=int(args["progress_patience"]),
+        progress_tol=float(args["progress_tol"]),
         dt_nom=float(args["dt_nom"]),
         u_max_nom=float(args["u_max_nom"]),
         collision_margin=float(args["collision_margin"]),
-        goal_tol=float(args["goal_tol"]),
+        goal_tol=goal_tol,
         grid_n=int(args["grid_n"]),
         n_steps_nom=int(args["n_steps_nom"]),
         buffer_cells=int(args["buffer_cells"]),
@@ -198,7 +205,6 @@ def solveMemoryNeural(
     )
 
     goal = nl.scenario_goal(scenario)
-    goal_tol = float(getattr(scenario, "goal_tol", 0.6))
     patch_tol = float(os.environ.get("SOFAI_S1_GOAL_PATCH_TOL", max(goal_tol, 0.75)))
     if traj is not None and len(traj) > 0:
         final_dist = float(np.linalg.norm(traj[-1, :2] - goal[:2]))

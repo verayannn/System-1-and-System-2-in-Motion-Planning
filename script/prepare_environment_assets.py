@@ -26,21 +26,39 @@ python script/prepare_environment_assets.py \
 
 
 
-bck runs:
+current:
 
 PYTHONDONTWRITEBYTECODE=1 \
 .venv/bin/python script/prepare_environment_assets.py \
-  --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap long_slalom \
-  --s2_solver mpc \
-  --train_n_per_family 500 \
-  --eval_n_per_family 1500 \
-  --probe_n_per_family 200 \
+  --families bugtrap \
+  --s2_solver cbf \
+  --train_n_per_family 50 \
+  --eval_n_per_family 200 \
+  --probe_n_per_family 1000 \
   --probe_seed 700 \
-  --train_epochs 50 \
+  --train_epochs 35 \
   --train_batch 64 \
   --train_lr 0.0003
 
 
+
+
+PYTHONDONTWRITEBYTECODE=1 \
+.venv/bin/python script/prepare_environment_assets.py \
+  --families dense_clutter \
+  --s2_solver cbf \
+  --train_n_per_family 50 \
+  --eval_n_per_family 200 \
+  --probe_n_per_family 100 \
+  --probe_seed 700 \
+  --train_epochs 30 \
+  --train_batch 64 \
+  --train_lr 0.0003 \
+  --workers 3
+
+default: 
+--train_dt_nom 0.075
+--train_n_steps_nom 900
 
 
 """
@@ -87,6 +105,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--train_epochs", type=int, default=40)
     p.add_argument("--train_batch", type=int, default=64)
     p.add_argument("--train_lr", type=float, default=3e-4)
+    p.add_argument("--workers", type=int, default=3, help="Parallel S2 bootstrap benchmark workers.")
     p.add_argument(
         "--train_dt_nom",
         type=float,
@@ -264,7 +283,7 @@ def main() -> None:
                     "--timeout_sec",
                     "300",
                     "--workers",
-                    "16",
+                    str(args.workers),
                     "--out_dir",
                     str(results_dir),
                     "--out_prefix",

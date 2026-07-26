@@ -21,26 +21,28 @@ SOFAI_MPC_MAX_ITER=500 \
 SOFAI_MPC_REFERENCE_GRID=0.20 \
 SOFAI_MPC_Q_POS=75 \
 SOFAI_MPC_R_DU=0.75 \
+
+
 PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python visualize_mp.py \
   --problem_dictionary nl/benchmark_dualmp_nl_long_slalom_eval_long_slalom.json \
-  --scenario_ids 5 \
+  --scenario_ids 19 \
   --s1 neural \
   --s2 cbf \
   --run_type s1 \
   --out_dir output/visualize_mp \
-  --out_prefix s1_sc5_ls
+  --out_prefix s1_ls
 
 
 PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python visualize_mp.py \
   --problem_dictionary nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
-  --scenario_ids 6 \
+  --scenario_ids 70 \
   --s1 neural \
   --s2 cbf \
-  --run_type s1 \
+  --run_type s2 \
   --out_dir output/visualize_mp \
-  --out_prefix s1_sc6
+  --out_prefix s2_cbf_sc10
 
 mpc_do
 
@@ -169,77 +171,46 @@ def add_metrics(attempt: Dict[str, Any], scenario: Any) -> Dict[str, Any]:
 
 def add_quality(result: Dict[str, Any]) -> Dict[str, Any]:
     from solvers._s2_common import (
+        QUALITY_DEFINITION_VERSION,
         benchmark_family_from_dictionary,
-        quality_refs_for_result,
         quality_score,
-        quality_weights_for_family,
         selected_success_attempt,
         trajectory_quality_components,
     )
 
+    quality_fields = {
+        "quality_score": None,
+        "quality_path_efficiency": "path_efficiency",
+        "quality_smoothness": "smoothness",
+        "quality_clearance": "clearance_score",
+        "quality_path_length": "path_length",
+        "quality_reference_path_length": "reference_path_length",
+        "quality_min_clearance": "min_clearance",
+        "quality_sparc": "sparc",
+        "quality_ldlj": "ldlj",
+        "quality_smoothness_ldlj": "smoothness_ldlj",
+        "quality_duration_sec": "duration_sec",
+        "quality_mean_speed": "mean_speed",
+        "quality_peak_control_ratio": "peak_control_ratio",
+        "quality_control_saturation_frac": "control_saturation_frac",
+    }
+
     selected = selected_success_attempt(result)
-    family = benchmark_family_from_dictionary(result.get("dictionary", ""))
-    weights = quality_weights_for_family(family)
-    result["quality_family"] = family
-    result["quality_weight_path_length"] = weights["path_length"]
-    result["quality_weight_control_effort"] = weights["control_effort"]
-    result["quality_weight_smoothness"] = weights["smoothness"]
+    result["quality_family"] = benchmark_family_from_dictionary(result.get("dictionary", ""))
+    result["quality_definition"] = QUALITY_DEFINITION_VERSION
 
-    if selected is None or not bool(selected.get("success", False)):
-        result.update(
-            {
-                "quality_path_length": None,
-                "quality_control_effort": None,
-                "quality_smoothness": None,
-                "quality_j": None,
-                "quality_score": None,
-                "quality_path_length_ref": None,
-                "quality_control_effort_ref": None,
-                "quality_smoothness_ref": None,
-            }
-        )
-        return result
+    sample = None
+    if selected is not None and bool(selected.get("success", False)):
+        sample = trajectory_quality_components(result)
 
-    sample = trajectory_quality_components(result)
-    if sample is None:
-        result.update(
-            {
-                "quality_path_length": None,
-                "quality_control_effort": None,
-                "quality_smoothness": None,
-                "quality_j": None,
-                "quality_score": None,
-                "quality_path_length_ref": None,
-                "quality_control_effort_ref": None,
-                "quality_smoothness_ref": None,
-            }
-        )
-        return result
-
-    refs = quality_refs_for_result(result)
-
-    j = (
-        weights["path_length"] * float(sample["path_length"]) / refs["path_length"]
-        + weights["control_effort"] * float(sample["control_effort"]) / refs["control_effort"]
-        + weights["smoothness"] * float(sample["smoothness"]) / refs["smoothness"]
-    )
-
-    result.update(
-        {
-            "quality_path_length": float(sample["path_length"]),
-            "quality_control_effort": float(sample["control_effort"]),
-            "quality_smoothness": float(sample["smoothness"]),
-            "quality_j": float(j),
-            "quality_score": float(quality_score(
-                sample,
-                refs,
-                weights,
-            )),
-            "quality_path_length_ref": refs["path_length"],
-            "quality_control_effort_ref": refs["control_effort"],
-            "quality_smoothness_ref": refs["smoothness"],
-        }
-    )
+    for column, key in quality_fields.items():
+        if sample is None:
+            result[column] = None
+        elif key is None:
+            result[column] = float(quality_score(sample))
+        else:
+            value = sample.get(key)
+            result[column] = None if value is None else float(value)
     return result
 
 

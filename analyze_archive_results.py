@@ -274,6 +274,11 @@ def value(row: dict[str, Any], *keys: str) -> float | None:
 
 def quality(row: dict[str, Any]) -> float | None:
     """Recompute quality using the current definition when raw data is present."""
+    # A versioned score emitted by an archive is authoritative. In particular,
+    # duration_invariant_v1 intentionally omits the control-effort axis, while
+    # the default live evaluator includes it.
+    if str(row.get("quality_definition", "")) == "duration_invariant_v1":
+        return value(row, "quality_score")
     if bool(row.get("success")):
         try:
             from solvers._s2_common import (

@@ -32,12 +32,13 @@ import json
 import math
 import multiprocessing as mp
 import os
+import queue
 import sys
 import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -57,11 +58,12 @@ CSV_FIELDS = [
     "selected_attempt", "success", "collision_free", "goal_reached",
     "final_goal_error", "path_length", "num_states", "runtime_sec", "planning_runtime_sec",
     "selected_runtime_sec", "wall_runtime_sec",
-    "quality_path_length", "quality_control_effort", "quality_smoothness",
-    "quality_j", "quality_score",
-    "quality_path_length_ref", "quality_control_effort_ref", "quality_smoothness_ref",
-    "quality_weight_path_length", "quality_weight_control_effort", "quality_weight_smoothness",
-    "quality_family",
+    "quality_score", "quality_path_efficiency", "quality_smoothness", "quality_clearance",
+    "quality_path_length", "quality_reference_path_length", "quality_min_clearance",
+    "quality_sparc", "quality_ldlj", "quality_smoothness_ldlj",
+    "quality_duration_sec", "quality_mean_speed",
+    "quality_peak_control_ratio", "quality_control_saturation_frac",
+    "quality_definition", "quality_family",
     "s1_attempted", "s1_success", "s1_collision_free", "s1_goal_reached",
     "s1_confidence", "s1_runtime_sec", "s1_final_goal_error",
     "s1_path_length", "s1_num_states",
@@ -211,6 +213,184 @@ def worker(opts: Dict[str, Any], queue: Any) -> None:
         queue.put(error_result(exc, opts))
 
 
+def timeout_result(opts: Dict[str, Any], timeout_sec: float, wall: float) -> Dict[str, Any]:
+    problem_name = f"{Path(opts['dictionary']).stem}_sc_{int(opts['scenario_id'])}"
+    return {
+        "status": "timeout",
+        "problem_name": problem_name,
+        "dictionary": Path(opts["dictionary"]).name,
+        "dictionary_path": str(opts["dictionary"]),
+        "scenario_index": int(opts["scenario_id"]),
+        "scenario_id": int(opts["scenario_id"]),
+        "run_type": str(opts["run_type"]),
+        "s1": str(opts["s1"]),
+        "s2": str(opts["s2"]),
+        "scenario": None,
+        "attempts": [],
+        "selected_attempt": None,
+        "success": False,
+        "collision_free": False,
+        "goal_reached": False,
+        "final_goal_error": None,
+        "path_length": None,
+        "num_states": 0,
+        "selected_runtime_sec": None,
+        "planning_runtime_sec": wall,
+        "runtime_sec": wall,
+        "running_time": wall,
+        "wall_runtime_sec": wall,
+        "timed_out": True,
+        "error_message": f"Timed out after {timeout_sec:.1f}s",
+        "traceback": "",
+        "solution_raw": None,
+        "solution": "noSolution",
+        "confidence": 0.0,
+        "correctness": 0.0,
+        "meta": {
+            "problem_name": problem_name,
+            "scenario": None,
+            "solution_raw": None,
+            "solution": "noSolution",
+            "confidence": 0.0,
+            "correctness": 0.0,
+            "running_time": wall,
+        },
+    }
+
+
+def persistent_worker(worker_id: int, task_queue: Any, result_queue: Any) -> None:
+    """Run benchmark cases serially so solver module caches survive each case."""
+    while True:
+        task = task_queue.get()
+        if task is None:
+            return
+        task_id, opts = task
+        try:
+            result = run_case(opts)
+        except BaseException as exc:
+            result = error_result(exc, opts)
+        result_queue.put((worker_id, task_id, result))
+
+
+def run_cases_persistent(
+    opts_list: Sequence[Dict[str, Any]],
+    *,
+    timeout_sec: float,
+    workers: int,
+    on_result: Callable[[Dict[str, Any], int], None],
+) -> List[Dict[str, Any]]:
+    """Use persistent spawned workers with parent-enforced per-case timeouts.
+
+    Each worker imports and caches the S1 model only once. If a case times out,
+    the parent kills just that worker and starts a replacement, preserving hard
+    timeout semantics while limiting a reload to the replacement worker.
+    """
+    if not opts_list:
+        return []
+
+    ctx = mp.get_context("spawn")
+    result_queue = ctx.Queue()
+    worker_count = min(max(1, int(workers)), len(opts_list))
+    states: List[Dict[str, Any]] = []
+
+    def start_worker(worker_id: int) -> Dict[str, Any]:
+        task_queue = ctx.Queue(maxsize=1)
+        proc = ctx.Process(target=persistent_worker, args=(worker_id, task_queue, result_queue))
+        proc.start()
+        return {"id": worker_id, "process": proc, "task_queue": task_queue, "active": None}
+
+    def stop_worker(state: Dict[str, Any]) -> None:
+        proc = state["process"]
+        if proc.is_alive():
+            proc.terminate()
+        proc.join(timeout=5)
+        state["task_queue"].close()
+
+    states = [start_worker(worker_id) for worker_id in range(worker_count)]
+    next_task_id = 0
+    completed = 0
+    results: List[Dict[str, Any]] = []
+
+    def dispatch(state: Dict[str, Any]) -> bool:
+        nonlocal next_task_id
+        if next_task_id >= len(opts_list):
+            return False
+        task_id = next_task_id
+        opts = opts_list[task_id]
+        state["task_queue"].put((task_id, opts))
+        state["active"] = (task_id, opts, time.perf_counter())
+        next_task_id += 1
+        return True
+
+    for state in states:
+        dispatch(state)
+
+    try:
+        while completed < len(opts_list):
+            now = time.perf_counter()
+            for index, state in enumerate(states):
+                active = state["active"]
+                proc = state["process"]
+                if active is None:
+                    if not proc.is_alive():
+                        states[index] = start_worker(state["id"])
+                    dispatch(states[index])
+                    continue
+
+                task_id, opts, started = active
+                wall = now - started
+                if proc.is_alive() and wall < timeout_sec:
+                    continue
+
+                if proc.is_alive():
+                    stop_worker(state)
+                    result = timeout_result(opts, timeout_sec, wall)
+                else:
+                    state["task_queue"].close()
+                    result = error_result(
+                        RuntimeError(f"persistent worker exited with code {proc.exitcode}"),
+                        opts,
+                        wall,
+                    )
+                result["wall_runtime_sec"] = wall
+                results.append(result)
+                completed += 1
+                on_result(result, completed)
+                states[index] = start_worker(state["id"])
+                dispatch(states[index])
+
+            try:
+                worker_id, task_id, result = result_queue.get(timeout=0.05)
+            except queue.Empty:
+                continue
+
+            state = states[int(worker_id)]
+            active = state["active"]
+            if active is None or int(active[0]) != int(task_id):
+                # Result from a worker that was terminated after its deadline.
+                continue
+            wall = time.perf_counter() - float(active[2])
+            result["wall_runtime_sec"] = wall
+            state["active"] = None
+            results.append(result)
+            completed += 1
+            on_result(result, completed)
+            dispatch(state)
+    finally:
+        for state in states:
+            proc = state["process"]
+            if proc.is_alive():
+                state["task_queue"].put(None)
+                proc.join(timeout=2)
+            if proc.is_alive():
+                proc.terminate()
+                proc.join(timeout=5)
+            state["task_queue"].close()
+        result_queue.close()
+
+    return results
+
+
 def run_case_timed(opts: Dict[str, Any], timeout_sec: float, same_process: bool) -> Dict[str, Any]:
     t0 = time.perf_counter()
     if same_process or timeout_sec <= 0:
@@ -231,48 +411,7 @@ def run_case_timed(opts: Dict[str, Any], timeout_sec: float, same_process: bool)
     if proc.is_alive():
         proc.terminate()
         proc.join(timeout=5)
-        problem_name = f"{Path(opts['dictionary']).stem}_sc_{int(opts['scenario_id'])}"
-        return {
-            "status": "timeout",
-            "problem_name": problem_name,
-            "dictionary": Path(opts["dictionary"]).name,
-            "dictionary_path": str(opts["dictionary"]),
-            "scenario_index": int(opts["scenario_id"]),
-            "scenario_id": int(opts["scenario_id"]),
-            "run_type": str(opts["run_type"]),
-            "s1": str(opts["s1"]),
-            "s2": str(opts["s2"]),
-            "scenario": None,
-            "attempts": [],
-            "selected_attempt": None,
-            "success": False,
-            "collision_free": False,
-            "goal_reached": False,
-            "final_goal_error": None,
-            "path_length": None,
-            "num_states": 0,
-            "selected_runtime_sec": None,
-            "planning_runtime_sec": wall,
-            "runtime_sec": wall,
-            "running_time": wall,
-            "wall_runtime_sec": wall,
-            "timed_out": True,
-            "error_message": f"Timed out after {timeout_sec:.1f}s",
-            "traceback": "",
-            "solution_raw": None,
-            "solution": "noSolution",
-            "confidence": 0.0,
-            "correctness": 0.0,
-            "meta": {
-                "problem_name": problem_name,
-                "scenario": None,
-                "solution_raw": None,
-                "solution": "noSolution",
-                "confidence": 0.0,
-                "correctness": 0.0,
-                "running_time": wall,
-            },
-        }
+        return timeout_result(opts, timeout_sec, wall)
 
     try:
         result = queue.get_nowait()
@@ -316,17 +455,17 @@ def flat(result: Dict[str, Any]) -> Dict[str, Any]:
         "planning_runtime_sec": result.get("planning_runtime_sec", ""),
         "selected_runtime_sec": "" if result.get("selected_runtime_sec") is None else result.get("selected_runtime_sec"),
         "wall_runtime_sec": result.get("wall_runtime_sec", result.get("runtime_sec", "")),
-        "quality_path_length": "" if result.get("quality_path_length") is None else result.get("quality_path_length"),
-        "quality_control_effort": "" if result.get("quality_control_effort") is None else result.get("quality_control_effort"),
-        "quality_smoothness": "" if result.get("quality_smoothness") is None else result.get("quality_smoothness"),
-        "quality_j": "" if result.get("quality_j") is None else result.get("quality_j"),
-        "quality_score": "" if result.get("quality_score") is None else result.get("quality_score"),
-        "quality_path_length_ref": "" if result.get("quality_path_length_ref") is None else result.get("quality_path_length_ref"),
-        "quality_control_effort_ref": "" if result.get("quality_control_effort_ref") is None else result.get("quality_control_effort_ref"),
-        "quality_smoothness_ref": "" if result.get("quality_smoothness_ref") is None else result.get("quality_smoothness_ref"),
-        "quality_weight_path_length": "" if result.get("quality_weight_path_length") is None else result.get("quality_weight_path_length"),
-        "quality_weight_control_effort": "" if result.get("quality_weight_control_effort") is None else result.get("quality_weight_control_effort"),
-        "quality_weight_smoothness": "" if result.get("quality_weight_smoothness") is None else result.get("quality_weight_smoothness"),
+        **{
+            column: "" if result.get(column) is None else result.get(column)
+            for column in (
+                "quality_score", "quality_path_efficiency", "quality_smoothness", "quality_clearance",
+                "quality_path_length", "quality_reference_path_length", "quality_min_clearance",
+                "quality_sparc", "quality_ldlj", "quality_smoothness_ldlj",
+                "quality_duration_sec", "quality_mean_speed",
+                "quality_peak_control_ratio", "quality_control_saturation_frac",
+            )
+        },
+        "quality_definition": result.get("quality_definition", ""),
         "quality_family": result.get("quality_family", ""),
         "s1_attempted": s1 is not None,
         "s1_success": get(s1, "success"),
@@ -370,52 +509,45 @@ def write_outputs(out_dir: Path, prefix: str, results: List[Dict[str, Any]]) -> 
 
 def annotate_quality(results: List[Dict[str, Any]]) -> Dict[str, float]:
     from solvers._s2_common import (
+        QUALITY_DEFINITION_VERSION,
         benchmark_family_from_dictionary,
-        quality_refs_for_result,
         quality_score,
-        quality_weights_for_family,
         trajectory_quality_components,
     )
 
-    per_result: List[Dict[str, float] | None] = []
+    # Index components first, then the diagnostics that stay outside the index.
+    quality_fields = (
+        ("quality_score", None),
+        ("quality_path_efficiency", "path_efficiency"),
+        ("quality_smoothness", "smoothness"),
+        ("quality_clearance", "clearance_score"),
+        ("quality_path_length", "path_length"),
+        ("quality_reference_path_length", "reference_path_length"),
+        ("quality_min_clearance", "min_clearance"),
+        ("quality_sparc", "sparc"),
+        ("quality_ldlj", "ldlj"),
+        ("quality_smoothness_ldlj", "smoothness_ldlj"),
+        ("quality_duration_sec", "duration_sec"),
+        ("quality_mean_speed", "mean_speed"),
+        ("quality_peak_control_ratio", "peak_control_ratio"),
+        ("quality_control_saturation_frac", "control_saturation_frac"),
+    )
+
     family = benchmark_family_from_dictionary(results[0].get("dictionary", "")) if results else ""
-    weights = quality_weights_for_family(family)
     for result in results:
         sample = trajectory_quality_components(result) if bool(result.get("success", False)) else None
-        per_result.append(sample)
-
-    for result, sample in zip(results, per_result):
-        refs = quality_refs_for_result(result)
-        result["quality_path_length_ref"] = refs["path_length"]
-        result["quality_control_effort_ref"] = refs["control_effort"]
-        result["quality_smoothness_ref"] = refs["smoothness"]
-        result["quality_weight_path_length"] = weights["path_length"]
-        result["quality_weight_control_effort"] = weights["control_effort"]
-        result["quality_weight_smoothness"] = weights["smoothness"]
         result["quality_family"] = family
-        if sample is None:
-            result["quality_path_length"] = None
-            result["quality_control_effort"] = None
-            result["quality_smoothness"] = None
-            result["quality_j"] = None
-            result["quality_score"] = None
-            continue
-        j = (
-            weights["path_length"] * float(sample["path_length"]) / float(refs["path_length"])
-            + weights["control_effort"] * float(sample["control_effort"]) / float(refs["control_effort"])
-            + weights["smoothness"] * float(sample["smoothness"]) / float(refs["smoothness"])
-        )
-        result["quality_path_length"] = float(sample["path_length"])
-        result["quality_control_effort"] = float(sample["control_effort"])
-        result["quality_smoothness"] = float(sample["smoothness"])
-        result["quality_j"] = j
-        result["quality_score"] = quality_score(sample, refs, weights)
+        result["quality_definition"] = QUALITY_DEFINITION_VERSION
+        for column, key in quality_fields:
+            if sample is None:
+                result[column] = None
+            elif key is None:
+                result[column] = quality_score(sample)
+            else:
+                value = sample.get(key)
+                result[column] = float(value) if value is not None and math.isfinite(float(value)) else None
 
-    return quality_refs_for_result(results[0]) if results else {
-        "path_length": 1.0,
-        "control_effort": 1.0,
-        "smoothness": 1.0,
-    }
+    return {}
 
 
 def print_aggregate(results: List[Dict[str, Any]]) -> None:
@@ -464,9 +596,18 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--s2", choices=["cbf", "mpc", "mpc_warm", "mpc_do"], default="mpc")
     p.add_argument("--run_type", choices=["sofai", "s1", "s2"], default="sofai")
     p.add_argument("--run_all_attempts", action="store_true")
-    p.add_argument("--timeout_sec", type=float, default=300.0)
-    p.add_argument("--same_process", action="store_true")
-    p.add_argument("--workers", type=int, default=1, help="Number of benchmark cases to run concurrently.")
+    p.add_argument("--timeout_sec", type=float, default=60.0)
+    p.add_argument(
+        "--same_process",
+        action="store_true",
+        help="Run cases directly in this process. This disables hard timeout enforcement; omit it to use cached persistent workers.",
+    )
+    p.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Number of concurrent persistent benchmark workers; each loads and caches solver assets once.",
+    )
     p.add_argument("--mplconfigdir", default="")
     p.add_argument("--out_dir", default="output/benchmark_runs")
     p.add_argument("--out_prefix", default="benchmark_dualmp")
@@ -541,7 +682,20 @@ def main() -> None:
             print(f"[message] {result['error_message']}")
 
     results: List[Dict[str, Any]] = []
-    if int(args.workers) <= 1:
+    use_persistent_workers = not args.same_process and args.timeout_sec > 0 and args.stop_after_successes == 0
+    if use_persistent_workers:
+        worker_count = min(max(1, int(args.workers)), len(planned))
+        print(
+            f"[persistent] workers={worker_count} cases={len(planned)} "
+            f"timeout_sec={args.timeout_sec:g}; solver caches persist per worker"
+        )
+        results = run_cases_persistent(
+            [make_opts(dictionary, sid) for dictionary, sid in planned],
+            timeout_sec=float(args.timeout_sec),
+            workers=worker_count,
+            on_result=print_result,
+        )
+    elif int(args.workers) <= 1:
         for i, (dictionary, sid) in enumerate(planned, start=1):
             print(f"[run {i}/{len(planned)}] {dictionary.name} scenario={sid}")
             result = run_case_timed(make_opts(dictionary, sid), args.timeout_sec, args.same_process)

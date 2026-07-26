@@ -53,38 +53,7 @@ python analyze_archive_results.py \
   --configs sofai_mpc_cl sofai_mpc_warm_cl
 
 
-
-small sample run with training all success:
-
-for family in long_slalom; do
-  PYTHONDONTWRITEBYTECODE=1 \
-  .venv/bin/python script/run_suite.py \
-    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
-    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
-    --assets_dir "db/by_env/${family}_nl" \
-    --out_dir "output/benchmark_runs/nl_${family}_suite" \
-    --scenario_ids 0-44 \
-    --block_size 15 \
-    --workers 3 \
-    --block_order shuffled \
-    --block_seed 42 \
-    --cl_bootstrap_solver mpc \
-    --train_device cpu \
-    --train_source all_success \
-    --bootstrap_success_weight 5.0 \
-    --fallback_success_weight 10.0 \
-    --s1_success_weight 1.0 \
-    --dagger_states_per_scenario 0 \
-    --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-    --probe_scenario_ids 0-19 \
-    --configs sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl s1_neural s2_mpc s2_cbf   \
-    --train_epochs 15 \
-    --train_batch 64 \
-    --train_rollout_horizon 8 \
-    --train_rollout_every 8 \
-    --train_lr 0.0003
-done
-
+  
 
 small sample run with train only s2 success:
 
@@ -95,26 +64,47 @@ for family in bugtrap; do
     --bootstrap_results_dir "output/bootstrap_${family}_nl" \
     --assets_dir "db/by_env/${family}_nl" \
     --out_dir "output/benchmark_runs/nl_${family}_suite" \
-    --scenario_ids 0-89 \
-    --block_size 30 \
+    --scenario_ids 0-199 \
+    --block_size 50 \
     --workers 3 \
     --block_order shuffled \
     --block_seed 42 \
-    --cl_bootstrap_solver mpc \
+    --cl_bootstrap_solver cbf \
     --train_device cpu \
     --train_source s2\
     --bootstrap_success_weight 5.0 \
     --fallback_success_weight 10.0 \
     --dagger_states_per_scenario 0 \
     --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-    --probe_scenario_ids 0-49 \
-    --configs sofai_mpc_warm_cl sofai_mpc_cl \
-    --train_epochs 20 \
+    --probe_scenario_ids 0-499 \
+    --configs sofai_cbf_cl \
+    --dagger_states_per_scenario 4 \
+    --train_epochs 25 \
     --train_batch 64 \
     --train_rollout_horizon 8 \
     --train_rollout_every 8 \
     --train_lr 0.0003
 done
+
+
+
+current:
+
+for family in bugtrap; do
+  PYTHONDONTWRITEBYTECODE=1 \
+  .venv/bin/python script/run_suite.py \
+    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
+    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
+    --assets_dir "db/by_env/${family}_nl" \
+    --out_dir "output/benchmark_runs_current_bs_mpc/nl_${family}_suite" \
+    --scenario_ids 0-49 \
+    --workers 3 \
+    --block_order shuffled \
+    --block_seed 42 \
+    --cl_bootstrap_solver mpc \
+    --configs s1_neural s2_mpc s2_cbf sofai_mpc_cl sofai_mpc_warm_cl sofai_cbf_cl
+done
+
 
 
 
@@ -158,7 +148,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--bootstrap_results_dir", default="output/bootstrap_bugtrap_nl")
     p.add_argument(
         "--cl_bootstrap_solver",
-        choices=["mpc", "mpc_do"],
+        choices=["mpc", "mpc_do", "cbf"],
         default="mpc",
         help="System 2 source for the shared initial S1 training trajectories.",
     )
@@ -237,6 +227,33 @@ def read_count(path: Path) -> int:
     if not isinstance(data, list):
         raise TypeError(f"{path} does not contain a scenario list")
     return len(data)
+
+
+def validate_training_geometry(
+    base_model: Path,
+    *,
+    train_dt_nom: float,
+    train_n_steps_nom: int,
+) -> None:
+    """Keep the base evaluation and every retrained CL block comparable."""
+    import torch
+
+    checkpoint = torch.load(str(base_model), map_location="cpu", weights_only=False)
+    dataset_meta = dict(checkpoint.get("meta", {}).get("dataset_meta", {}) or {})
+    checkpoint_dt = dataset_meta.get("dt_nom")
+    checkpoint_steps = dataset_meta.get("n_steps_nom")
+    if checkpoint_dt is None or checkpoint_steps is None:
+        raise RuntimeError(
+            f"Base checkpoint lacks dt_nom/n_steps_nom metadata: {base_model}. "
+            "Regenerate the base checkpoint before running continual learning."
+        )
+    if abs(float(train_dt_nom) - float(checkpoint_dt)) > 1e-9 or int(train_n_steps_nom) != int(checkpoint_steps):
+        raise RuntimeError(
+            "Training geometry does not match the base checkpoint. "
+            f"base dt_nom={float(checkpoint_dt)}, n_steps_nom={int(checkpoint_steps)}; "
+            f"requested dt_nom={float(train_dt_nom)}, n_steps_nom={int(train_n_steps_nom)}. "
+            "Use the base values for this suite, or regenerate the base checkpoint first."
+        )
 
 
 def validate_bootstrap_scenarios(bootstrap_jsonl: Path, train_dictionary: Path) -> None:
@@ -545,6 +562,12 @@ def main() -> None:
         init_model = root / init_model
     if not init_model.exists() and not args.dry_run:
         raise FileNotFoundError(init_model)
+    if not args.dry_run:
+        validate_training_geometry(
+            init_model,
+            train_dt_nom=args.train_dt_nom,
+            train_n_steps_nom=args.train_n_steps_nom,
+        )
 
     env = base_env(root, init_model, args.mplconfigdir)
     manifest: Dict[str, object] = {
