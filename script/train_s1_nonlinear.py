@@ -17,6 +17,153 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset, TensorDataset, WeightedRandomSampler
 
 
+_POLICY_FILTER_TIERS: tuple[tuple[tuple[float, float], ...], ...] = (
+    ((1.0, 0.0),),
+    ((1.0, 15.0), (1.0, -15.0)),
+    ((1.0, 30.0), (1.0, -30.0)),
+    ((1.0, 45.0), (1.0, -45.0)),
+    ((1.0, 60.0), (1.0, -60.0)),
+    ((1.0, 75.0), (1.0, -75.0)),
+    ((1.0, 90.0), (1.0, -90.0)),
+    ((0.6, 0.0), (0.3, 0.0)),
+    ((1.0, 105.0), (1.0, -105.0), (1.0, 120.0), (1.0, -120.0)),
+    ((1.0, 135.0), (1.0, -135.0), (1.0, 150.0), (1.0, -150.0)),
+)
+
+
+def _torch_rotate_local(control: torch.Tensor, angle_degrees: float) -> torch.Tensor:
+    """Rotate a batch of local-frame controls without leaving Torch."""
+    angle = math.radians(float(angle_degrees))
+    c, s = math.cos(angle), math.sin(angle)
+    return torch.stack(
+        [c * control[..., 0] - s * control[..., 1], s * control[..., 0] + c * control[..., 1]],
+        dim=-1,
+    )
+
+
+def _torch_local_to_global(control: torch.Tensor, heading: torch.Tensor) -> torch.Tensor:
+    """Map local control(s) [..., 2] into the global frame."""
+    cos_h, sin_h = torch.cos(heading), torch.sin(heading)
+    while cos_h.ndim < control.ndim - 1:
+        cos_h = cos_h.unsqueeze(-1)
+        sin_h = sin_h.unsqueeze(-1)
+    return torch.stack(
+        [control[..., 0] * cos_h - control[..., 1] * sin_h, control[..., 0] * sin_h + control[..., 1] * cos_h],
+        dim=-1,
+    )
+
+
+def _torch_point_collides_rectangles(
+    point: torch.Tensor,
+    rects: torch.Tensor,
+    rect_mask: torch.Tensor,
+    margin: float,
+) -> torch.Tensor:
+    """Return collision flags for points shaped ``[batch, candidates, 2]``."""
+    if point.ndim == 2:
+        p = point[:, None, None, :]
+    elif point.ndim == 3:
+        p = point[:, :, None, :]
+    else:
+        raise ValueError(f"Expected [batch, 2] or [batch, candidates, 2], got {tuple(point.shape)}")
+    xmin = rects[:, None, :, 0] - float(margin)
+    ymin = rects[:, None, :, 1] - float(margin)
+    xmax = rects[:, None, :, 2] + float(margin)
+    ymax = rects[:, None, :, 3] + float(margin)
+    inside = (
+        (p[..., 0] >= xmin)
+        & (p[..., 0] <= xmax)
+        & (p[..., 1] >= ymin)
+        & (p[..., 1] <= ymax)
+        & rect_mask[:, None, :].bool()
+    )
+    return inside.any(dim=-1)
+
+
+def policy_first_safe_control_straight_through(
+    *,
+    u_pred_local: torch.Tensor,
+    u_goal_local: torch.Tensor,
+    position: torch.Tensor,
+    heading: torch.Tensor,
+    drift_global: torch.Tensor,
+    goal_global: torch.Tensor,
+    rects: torch.Tensor,
+    rect_mask: torch.Tensor,
+    dt: float,
+    u_max: float,
+    collision_margin: float,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Runtime-policy-equivalent forward safety filter with ST gradients.
+
+    The tier order and within-tier goal-distance tie break reproduce
+    ``s1_nonlinear._policy_first_tiers`` / ``choose_safe_control(mode="policy")``.
+    Candidate validity is deliberately discrete, like runtime collision checking.
+    The returned control takes the selected safe value in the forward pass but
+    differentiates as the raw network control, avoiding a zero-gradient discrete
+    selection operation.
+    """
+    if u_pred_local.ndim != 2 or u_pred_local.shape[-1] != 2:
+        raise ValueError(f"Expected [batch, 2] local controls, got {tuple(u_pred_local.shape)}")
+
+    # Runtime clips the policy command once before constructing rotations and
+    # scaled variants. Preserve that order: clipping only each candidate later
+    # would rotate an out-of-range command differently.
+    policy_input = torch.clamp(u_pred_local, -float(u_max), float(u_max))
+    batch = u_pred_local.shape[0]
+    selected = torch.zeros_like(u_pred_local)
+    selected_next = position.clone()
+    unresolved = torch.ones(batch, dtype=torch.bool, device=u_pred_local.device)
+    position_collides = _torch_point_collides_rectangles(position, rects, rect_mask, collision_margin).squeeze(1)
+
+    def evaluate_tier(candidates: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        # candidates: [batch, choices, 2] in local coordinates.
+        candidates = torch.clamp(candidates, -float(u_max), float(u_max))
+        u_global = _torch_local_to_global(candidates, heading)
+        next_pos = position[:, None, :] + float(dt) * (drift_global[:, None, :] + u_global)
+        collision = position_collides[:, None] | _torch_point_collides_rectangles(
+            next_pos, rects, rect_mask, collision_margin
+        )
+        distance = torch.linalg.vector_norm(next_pos - goal_global[:, None, :], dim=-1)
+        distance = distance.masked_fill(collision, float("inf"))
+        best_idx = torch.argmin(distance, dim=1)
+        valid = torch.isfinite(distance).any(dim=1)
+        gather = best_idx[:, None, None].expand(-1, 1, 2)
+        return candidates.gather(1, gather).squeeze(1), next_pos.gather(1, gather).squeeze(1), valid
+
+    for tier in _POLICY_FILTER_TIERS:
+        choices = [
+            scale * _torch_rotate_local(policy_input, angle)
+            for scale, angle in tier
+        ]
+        candidate_tier = torch.stack(choices, dim=1)
+        candidate, candidate_next, valid = evaluate_tier(candidate_tier)
+        take = unresolved & valid
+        selected = torch.where(take[:, None], candidate, selected)
+        selected_next = torch.where(take[:, None], candidate_next, selected_next)
+        unresolved = unresolved & ~valid
+
+    # The runtime filter tries the nominal goal control after wide deflections,
+    # rather than rotating the network action. Keep that separate from the
+    # policy-action-derived tiers above.
+    candidate, candidate_next, valid = evaluate_tier(u_goal_local[:, None, :])
+    take = unresolved & valid
+    selected = torch.where(take[:, None], candidate, selected)
+    selected_next = torch.where(take[:, None], candidate_next, selected_next)
+    unresolved = unresolved & ~valid
+
+    # Runtime uses the final backing-out tier after the nominal goal candidate.
+    backing = torch.stack([-0.5 * policy_input, -1.0 * policy_input], dim=1)
+    candidate, candidate_next, valid = evaluate_tier(backing)
+    take = unresolved & valid
+    selected = torch.where(take[:, None], candidate, selected)
+    selected_next = torch.where(take[:, None], candidate_next, selected_next)
+
+    # Forward: selected collision-safe action. Backward: raw policy action.
+    selected_st = u_pred_local + (selected - u_pred_local).detach()
+    return selected_st, selected_next
+
+
 def configure_repo(root: Path, mplconfigdir: str) -> None:
     for path in (root, root / "sofai", root / "solvers"):
         value = str(path)
@@ -36,6 +183,15 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out_model", required=True)
     p.add_argument("--out_dataset", default="")
     p.add_argument("--init_model", default="")
+    p.add_argument(
+        "--preserve_init_norm",
+        action="store_true",
+        help=(
+            "Keep the normalization statistics stored in --init_model. This is useful "
+            "when fine-tuning a prior continual-learning checkpoint: changing both "
+            "the weights and input coordinate system destabilizes the update."
+        ),
+    )
     p.add_argument("--source", choices=["s2", "selected", "all_success", "fallback_success"], default="all_success")
     p.add_argument("--max_trajectories", type=int, default=200)
     p.add_argument("--context_len", type=int, default=20)
@@ -96,12 +252,32 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--s1_success_weight", type=float, default=1.0)
     p.add_argument("--bootstrap_success_weight", type=float, default=5.0)
     p.add_argument("--dagger_success_weight", type=float, default=10.0)
+    p.add_argument(
+        "--target_replay_fraction",
+        type=float,
+        default=-1.0,
+        help=(
+            "When in [0, 1], force this fraction of the training sampler mass to fixed "
+            "teacher replay rows (non-DAgger), with the remainder assigned to DAgger rows. "
+            "A negative value preserves legacy source weighting."
+        ),
+    )
     p.add_argument("--max_sample_weight", type=float, default=25.0)
     p.add_argument("--action_mode", choices=["delta_u", "absolute_u"], default="delta_u")
     p.add_argument("--rollout_horizon", type=int, default=8)
     p.add_argument("--rollout_stride", type=int, default=4)
     p.add_argument("--rollout_every", type=int, default=8)
     p.add_argument("--rollout_collision_margin", type=float, default=0.25)
+    p.add_argument(
+        "--rollout_filter_mode",
+        choices=["policy", "none"],
+        default="policy",
+        help=(
+            "Safety dynamics used only by the differentiable rollout loss. 'policy' "
+            "matches the runtime policy-first safety filter in the forward pass and "
+            "uses a straight-through gradient; 'none' preserves the legacy raw-action rollout."
+        ),
+    )
     p.add_argument("--mplconfigdir", default="")
     return p.parse_args()
 
@@ -293,6 +469,7 @@ def build_samples(
     rect_list: List[np.ndarray] = []
     traj_ids: List[int] = []
     source_weight_list: List[float] = []
+    replay_sample_list: List[bool] = []
     trajectory_count_by_jsonl: Dict[str, int] = {}
     row_count_by_jsonl: Dict[str, int] = {}
     trajectory_count_by_type: Dict[str, int] = {
@@ -428,6 +605,9 @@ def build_samples(
                 rect_list.append(np.asarray(nl.scenario_rects(scenario), dtype=np.float32).reshape(-1, 4))
                 traj_ids.append(traj_idx)
                 source_weight_list.append(float(traj_weight))
+                # Replay is the fixed teacher pool. DAgger samples are teacher
+                # labels on states visited by the policy and form the online arm.
+                replay_sample_list.append(not bool(row.get("dagger")))
 
     if not ctx_list:
         raise RuntimeError("No successful benchmark trajectories found for S1 training.")
@@ -460,6 +640,7 @@ def build_samples(
             rect_mask[index, : rect.shape[0]] = 1.0
     traj_id = np.asarray(traj_ids, dtype=np.int32)
     source_weight = np.asarray(source_weight_list, dtype=np.float32)
+    is_replay = np.asarray(replay_sample_list, dtype=bool)
 
     return {
         "ctx": ctx,
@@ -478,6 +659,7 @@ def build_samples(
         "rect_mask": rect_mask,
         "traj_id": traj_id,
         "source_weight": source_weight,
+        "is_replay": is_replay,
         "meta": {
             "dynamics_mode": "nonlinear_point_policy",
             "action_mode": str(action_mode),
@@ -611,6 +793,8 @@ def main() -> None:
             f"invalid_states={data['meta']['skipped_invalid_states']}"
         )
 
+    data["meta"]["rollout_filter_mode"] = str(args.rollout_filter_mode)
+
     if args.audit_json:
         audit_path = Path(args.audit_json).expanduser()
         if not audit_path.is_absolute():
@@ -686,6 +870,7 @@ def main() -> None:
         dropout=args.dropout,
     ).to(device)
 
+    init_norm: Dict[str, np.ndarray] | None = None
     if args.init_model:
         init_model = Path(args.init_model).expanduser()
         if not init_model.is_absolute():
@@ -698,6 +883,11 @@ def main() -> None:
         )
         if "state_dict" in ckpt and compatible:
             model.load_state_dict(ckpt["state_dict"], strict=False)
+            if args.preserve_init_norm:
+                raw_norm = ckpt.get("norm")
+                if not isinstance(raw_norm, dict):
+                    raise RuntimeError("Cannot preserve normalization: init checkpoint has no norm dictionary.")
+                init_norm = {str(key): np.asarray(value, dtype=np.float32) for key, value in raw_norm.items()}
         elif "state_dict" in ckpt:
             raise RuntimeError(
                 "Incompatible init model: action_mode/dyn_dim do not match the training dataset. "
@@ -711,20 +901,31 @@ def main() -> None:
     optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=args.lr, weight_decay=args.weight_decay)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=0.5, patience=5)
 
-    ctx_mean = torch.from_numpy(np.mean(data["ctx"], axis=0)).float().to(device)
-    ctx_std = torch.from_numpy(np.std(data["ctx"], axis=0) + 1e-6).float().to(device)
-    sit_mean = torch.from_numpy(np.mean(data["sit"], axis=0)).float().to(device)
-    sit_std = torch.from_numpy(np.std(data["sit"], axis=0) + 1e-6).float().to(device)
-    dyn_mean = torch.from_numpy(np.mean(data["dyn"], axis=0)).float().to(device)
-    dyn_std = torch.from_numpy(np.std(data["dyn"], axis=0) + 1e-6).float().to(device)
-    goal_mean = torch.from_numpy(np.mean(data["goal"], axis=0)).float().to(device)
-    goal_std = torch.from_numpy(np.std(data["goal"], axis=0) + 1e-6).float().to(device)
-    u_mean = torch.from_numpy(np.mean(data["u"], axis=0)).float().to(device)
-    u_std = torch.from_numpy(np.std(data["u"], axis=0) + 1e-6).float().to(device)
-    du_mean = torch.from_numpy(np.mean(data["du"], axis=0)).float().to(device)
-    du_std = torch.from_numpy(np.std(data["du"], axis=0) + 1e-6).float().to(device)
-    next_mean = torch.from_numpy(np.mean(data["next_local"], axis=0)).float().to(device)
-    next_std = torch.from_numpy(np.std(data["next_local"], axis=0) + 1e-6).float().to(device)
+    def normalization_tensor(key: str, fallback: np.ndarray) -> torch.Tensor:
+        value = fallback if init_norm is None else init_norm.get(key)
+        if value is None or np.asarray(value).shape != fallback.shape:
+            raise RuntimeError(
+                f"Cannot preserve normalization: {key} has shape "
+                f"{None if value is None else np.asarray(value).shape}, expected {fallback.shape}."
+            )
+        return torch.from_numpy(np.asarray(value, dtype=np.float32)).float().to(device)
+
+    ctx_mean = normalization_tensor("ctx_mean", np.mean(data["ctx"], axis=0))
+    ctx_std = normalization_tensor("ctx_std", np.std(data["ctx"], axis=0) + 1e-6)
+    sit_mean = normalization_tensor("sit_mean", np.mean(data["sit"], axis=0))
+    sit_std = normalization_tensor("sit_std", np.std(data["sit"], axis=0) + 1e-6)
+    dyn_mean = normalization_tensor("dyn_mean", np.mean(data["dyn"], axis=0))
+    dyn_std = normalization_tensor("dyn_std", np.std(data["dyn"], axis=0) + 1e-6)
+    goal_mean = normalization_tensor("goal_mean", np.mean(data["goal"], axis=0))
+    goal_std = normalization_tensor("goal_std", np.std(data["goal"], axis=0) + 1e-6)
+    u_mean = normalization_tensor("u_mean", np.mean(data["u"], axis=0))
+    u_std = normalization_tensor("u_std", np.std(data["u"], axis=0) + 1e-6)
+    du_mean = normalization_tensor("du_mean", np.mean(data["du"], axis=0))
+    du_std = normalization_tensor("du_std", np.std(data["du"], axis=0) + 1e-6)
+    next_mean = normalization_tensor("next_mean", np.mean(data["next_local"], axis=0))
+    next_std = normalization_tensor("next_std", np.std(data["next_local"], axis=0) + 1e-6)
+    if init_norm is not None:
+        print("[train] preserving normalization from init checkpoint")
     dt_nom = float(meta["dt_nom"])
 
     def norm_ctx(x): return (x - ctx_mean[None, :, :]) / ctx_std[None, :, :]
@@ -773,6 +974,30 @@ def main() -> None:
         W[train_mask],
     )
     train_sampler_weights = train_balance * source_weights_np[train_mask]
+    target_replay_fraction = float(args.target_replay_fraction)
+    if target_replay_fraction >= 0.0:
+        if target_replay_fraction > 1.0:
+            raise ValueError("--target_replay_fraction must be in [0, 1] or negative to disable it.")
+        replay_train = np.asarray(data["is_replay"], dtype=bool)[train_mask]
+        replay_mass = float(train_sampler_weights[replay_train].sum())
+        dagger_mass = float(train_sampler_weights[~replay_train].sum())
+        if replay_mass <= 0.0 or dagger_mass <= 0.0:
+            raise RuntimeError(
+                "Replay-DAgger mixing requires both fixed teacher replay rows and valid DAgger rows. "
+                f"replay_mass={replay_mass}, dagger_mass={dagger_mass}"
+            )
+        total_mass = replay_mass + dagger_mass
+        train_sampler_weights[replay_train] *= target_replay_fraction * total_mass / replay_mass
+        train_sampler_weights[~replay_train] *= (1.0 - target_replay_fraction) * total_mass / dagger_mass
+        effective = float(train_sampler_weights[replay_train].sum() / train_sampler_weights.sum())
+        meta["target_replay_fraction"] = target_replay_fraction
+        meta["effective_replay_fraction"] = effective
+        if args.audit_json:
+            Path(args.audit_json).expanduser().write_text(json.dumps(meta, indent=2, sort_keys=True) + "\n")
+        print(
+            f"[train] replay_dagger_mix target_replay={target_replay_fraction:.3f} "
+            f"effective_replay={effective:.3f}"
+        )
     train_sampler_weights = train_sampler_weights / (train_sampler_weights.mean() + 1e-6)
     train_sampler = WeightedRandomSampler(
         weights=torch.from_numpy(train_sampler_weights).double(),
@@ -940,8 +1165,37 @@ def main() -> None:
             )
             pred_action = denorm(pred_action_norm, action_mean, action_std)
             u_local = prev_u_local + pred_action if args.action_mode == "delta_u" else pred_action
-            u_global = local_to_global(u_local, heading)
-            pos = pos + dt_nom * (nonlinear_drift_global(pos, dyn_raw) + u_global)
+            drift_global = nonlinear_drift_global(pos, dyn_raw)
+            if args.rollout_filter_mode == "policy":
+                # ``b_goal`` is represented in the teacher state's local frame.
+                # Reconstruct its fixed global target, then express the nominal
+                # goal action at the rollout's current state. This is the same
+                # policy-first filter decision runtime S1 makes at each step.
+                goal_global = b_pos[:, step] + local_to_global(b_goal[:, step], heading)
+                goal_local = global_to_local(goal_global - pos, heading)
+                goal_drift_local = global_to_local(drift_global, heading)
+                u_goal_local = 1.5 * goal_local - goal_drift_local
+                u_local, _safe_next = policy_first_safe_control_straight_through(
+                    u_pred_local=u_local,
+                    u_goal_local=u_goal_local,
+                    position=pos,
+                    heading=heading,
+                    drift_global=drift_global,
+                    goal_global=goal_global,
+                    rects=b_rects[:, step],
+                    rect_mask=b_rect_mask[:, step],
+                    dt=dt_nom,
+                    u_max=float(args.u_max_nom),
+                    collision_margin=float(args.rollout_collision_margin),
+                )
+                # The selected next state is exact in the forward pass. Using the
+                # straight-through action in the algebraic step below preserves
+                # its gradient path to the network output.
+                u_global = local_to_global(u_local, heading)
+                pos = pos + dt_nom * (drift_global + u_global)
+            else:
+                u_global = local_to_global(u_local, heading)
+                pos = pos + dt_nom * (drift_global + u_global)
             rollout_loss = rollout_loss + F.smooth_l1_loss(pos, b_next_pos[:, step], beta=max(float(args.huber_delta), 1e-6))
             if args.action_mode == "delta_u":
                 smooth_loss = smooth_loss + (pred_action / max(float(args.u_max_nom), 1e-6)).square().mean()

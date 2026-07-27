@@ -71,7 +71,7 @@ for family in bugtrap; do
     --block_seed 42 \
     --cl_bootstrap_solver cbf \
     --train_device cpu \
-    --train_source s2\
+    --train_source s2 \
     --bootstrap_success_weight 5.0 \
     --fallback_success_weight 10.0 \
     --dagger_states_per_scenario 0 \
@@ -109,13 +109,42 @@ done
 
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python input/generate_nl_dict.py \
   --output_dir input/nl \
-  --prefix benchmark_dualmp_nl_dense_clutter_benchmark100 \
-  --families dense_clutter \
-  --n_per_family 100 \
+  --prefix benchmark_dualmp_nl_bugtrap_benchmark500 \
+  --families bugtrap \
+  --n_per_family 500 \
   --seed 20260727 \
   --u_max 3.0 \
   --goal_tol 0.5
 
+
+testing:
+
+families=(bugtrap)
+for family in "${families[@]}"; do
+  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python script/run_suite.py \
+    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
+    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
+    --assets_dir "db/by_env/${family}_nl" \
+    --out_dir "output/benchmark_runs_727/nl_${family}_suite" \
+    --scenario_ids 0-399 \
+    --block_size 100 \
+    --workers 4 \
+    --block_order shuffled \
+    --block_seed 42 \
+    --cl_bootstrap_solver cbf \
+    --train_source all_success \
+    --bootstrap_success_weight 1.0 \
+    --fallback_success_weight 1.0 \
+    --s1_success_weight 1.0 \
+    --dagger_states_per_scenario 0 \
+    --train_epochs 20 \
+    --train_batch 64 \
+    --train_lr 0.0003 \
+    --train_device cpu\
+    --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
+    --probe_scenario_ids 0-99 \
+    --configs sofai_cbf_cl
+done
 
 
 """
@@ -145,8 +174,8 @@ MODES = (
 
 ## "s2_mpc_do",
 
-# ``collect_mpc_dagger.py`` labels states with plain acados MPC, so every MPC
-# fallback variant shares the same recovery demonstrations.
+# The legacy cumulative mode only labels MPC arms. Replay-DAgger is teacher
+# matched and labels CBF arms with CBF as well.
 DAGGER_SOLVERS = frozenset({"mpc", "mpc_warm"})
 
 
@@ -158,9 +187,14 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--bootstrap_results_dir", default="output/bootstrap_bugtrap_nl")
     p.add_argument(
         "--cl_bootstrap_solver",
-        choices=["mpc", "mpc_do", "cbf"],
-        default="mpc",
-        help="System 2 source for the shared initial S1 training trajectories.",
+        choices=["auto", "mpc", "mpc_do", "cbf"],
+        default="auto",
+        help=(
+            "System 2 source for the initial S1 training trajectories. 'auto' gives each arm the "
+            "teacher it falls back to, so the base checkpoint and every added demonstration come "
+            "from one solver. Naming a single solver forces it on every arm, which mixes teachers "
+            "with different action magnitudes and leaves the policy regressing contradictory labels."
+        ),
     )
     p.add_argument("--scenario_ids", default="0-499")
     p.add_argument("--block_size", type=int, default=100) ## block size for continual learning: continual learning happens after a block finishes
@@ -184,6 +218,15 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=8,
         help="Run the rollout loss once every N supervised training batches.",
+    )
+    p.add_argument(
+        "--train_rollout_filter_mode",
+        choices=["policy", "none"],
+        default="policy",
+        help=(
+            "Safety filter used inside continual training's differentiable rollout loss. "
+            "'policy' matches runtime S1; 'none' is the legacy raw-action objective."
+        ),
     )
     p.add_argument(
         "--train_device",
@@ -215,6 +258,22 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--bootstrap_success_weight", type=float, default=1.0)
     p.add_argument("--dagger_states_per_scenario", type=int, default=0)
     p.add_argument("--dagger_success_weight", type=float, default=10.0)
+    p.add_argument(
+        "--cl_train_mode",
+        choices=["cumulative", "replay_dagger"],
+        default="cumulative",
+        help=(
+            "cumulative preserves the original retrain-from-base scheme. replay_dagger keeps "
+            "only fixed S2 bootstrap replay plus validated S2 labels from S1-visited states, "
+            "then fine-tunes the preceding block model."
+        ),
+    )
+    p.add_argument(
+        "--replay_fraction",
+        type=float,
+        default=0.60,
+        help="Fixed-teacher replay share in replay_dagger sampler mixing.",
+    )
     p.add_argument("--block_order", choices=["shuffled", "sequential"], default="shuffled")
     p.add_argument("--block_seed", type=int, default=42)
     p.add_argument("--probe_dictionary", default="")
@@ -313,6 +372,33 @@ def effective_workers(requested: int) -> int:
     return max(2, int(requested))
 
 
+# The System 2 whose demonstrations should teach each continual-learning arm.
+# mpc_warm falls back to MPC with a warm start, so plain MPC demonstrations are
+# the matching teacher.
+ARM_BOOTSTRAP_SOLVER = {
+    "sofai_cbf_cl": "cbf",
+    "sofai_mpc_cl": "mpc",
+    "sofai_mpc_warm_cl": "mpc",
+}
+
+
+def arm_bootstrap_solver(cfg: str, requested: str) -> str:
+    if str(requested) != "auto":
+        return str(requested)
+    return ARM_BOOTSTRAP_SOLVER.get(cfg, "mpc")
+
+
+def arm_base_model(assets_dir: Path, root: Path, solver: str, override: str) -> Path:
+    """Prefer the per-solver base checkpoint written by prepare_environment_assets."""
+    if str(override).strip():
+        model = Path(override).expanduser()
+    else:
+        model = assets_dir / f"s1_policy_nonlinear_{solver}.pth"
+        if not model.exists():
+            model = assets_dir / "s1_policy_nonlinear.pth"
+    return model if model.is_absolute() else root / model
+
+
 def base_env(root: Path, model_path: Path, mplconfigdir: str) -> Dict[str, str]:
     for path in (root, root / "sofai", root / "solvers"):
         value = str(path)
@@ -397,6 +483,7 @@ def train_model(
     train_lr: float,
     train_rollout_horizon: int,
     train_rollout_every: int,
+    train_rollout_filter_mode: str,
     train_device: str,
     train_dt_nom: float,
     train_n_steps_nom: int,
@@ -404,6 +491,8 @@ def train_model(
     s1_success_weight: float,
     bootstrap_success_weight: float,
     dagger_success_weight: float,
+    target_replay_fraction: float,
+    preserve_init_norm: bool,
     audit_json: Path,
     env: Dict[str, str],
     dry_run: bool,
@@ -442,6 +531,8 @@ def train_model(
         str(train_rollout_horizon),
         "--rollout_every",
         str(train_rollout_every),
+        "--rollout_filter_mode",
+        str(train_rollout_filter_mode),
         "--device",
         str(train_device),
         "--dt_nom",
@@ -456,14 +547,18 @@ def train_model(
         str(bootstrap_success_weight),
         "--dagger_success_weight",
         str(dagger_success_weight),
+        "--target_replay_fraction",
+        str(target_replay_fraction),
         "--audit_json",
         str(audit_json),
     ])
+    if preserve_init_norm:
+        cmd.append("--preserve_init_norm")
     run(cmd, cwd=root, env=env, dry_run=dry_run)
     return out_model
 
 
-def collect_mpc_dagger(
+def collect_s2_dagger(
     *,
     root: Path,
     python: str,
@@ -471,6 +566,7 @@ def collect_mpc_dagger(
     model: Path,
     scenario_ids: Sequence[int],
     states_per_scenario: int,
+    s2_solver: str,
     out_jsonl: Path,
     env: Dict[str, str],
     dry_run: bool,
@@ -488,6 +584,8 @@ def collect_mpc_dagger(
         ",".join(str(index) for index in scenario_ids),
         "--states_per_scenario",
         str(states_per_scenario),
+        "--s2_solver",
+        s2_solver,
         "--out_jsonl",
         str(out_jsonl),
     ]
@@ -564,22 +662,25 @@ def main() -> None:
     workers = effective_workers(args.workers)
     probe_workers = effective_workers(args.probe_workers or args.workers)
 
+    # Standalone S1/S2 arms keep the legacy unsuffixed checkpoint; each CL arm
+    # resolves its own teacher-matched checkpoint below.
     if args.s1_model:
-        init_model = Path(args.s1_model).expanduser()
+        default_init_model = Path(args.s1_model).expanduser()
     else:
-        init_model = assets_dir / "s1_policy_nonlinear.pth"
-    if not init_model.is_absolute():
-        init_model = root / init_model
-    if not init_model.exists() and not args.dry_run:
-        raise FileNotFoundError(init_model)
+        default_init_model = assets_dir / "s1_policy_nonlinear.pth"
+    if not default_init_model.is_absolute():
+        default_init_model = root / default_init_model
+    if not default_init_model.exists() and not args.dry_run:
+        raise FileNotFoundError(default_init_model)
     if not args.dry_run:
         validate_training_geometry(
-            init_model,
+            default_init_model,
             train_dt_nom=args.train_dt_nom,
             train_n_steps_nom=args.train_n_steps_nom,
         )
 
-    env = base_env(root, init_model, args.mplconfigdir)
+    init_model = default_init_model
+    env = base_env(root, default_init_model, args.mplconfigdir)
     manifest: Dict[str, object] = {
         "root": str(root),
         "dictionary": str(dictionary),
@@ -590,6 +691,7 @@ def main() -> None:
         "train_device": str(args.train_device),
         "train_rollout_horizon": int(args.train_rollout_horizon),
         "train_rollout_every": int(args.train_rollout_every),
+        "train_rollout_filter_mode": str(args.train_rollout_filter_mode),
         "train_dt_nom": float(args.train_dt_nom),
         "train_n_steps_nom": int(args.train_n_steps_nom),
         "blocks": blocks,
@@ -675,12 +777,27 @@ def main() -> None:
             else:
                 solver = "mpc"
 
+            bootstrap_solver = arm_bootstrap_solver(cfg, args.cl_bootstrap_solver)
+            init_model = arm_base_model(assets_dir, root, bootstrap_solver, args.s1_model)
+            if not init_model.exists() and not args.dry_run:
+                raise FileNotFoundError(
+                    f"Missing base checkpoint for {cfg} taught by {bootstrap_solver.upper()}: {init_model}. "
+                    f"Run prepare_environment_assets.py --s2_solvers {bootstrap_solver}."
+                )
+            if not args.dry_run:
+                validate_training_geometry(
+                    init_model,
+                    train_dt_nom=args.train_dt_nom,
+                    train_n_steps_nom=args.train_n_steps_nom,
+                )
+            print(f"[{cfg}] teacher={bootstrap_solver} base_checkpoint={init_model}")
+
             current_model = init_model
             bootstrap_stem = dictionary.stem.replace("_eval_", "_train_")
-            bootstrap_jsonl = bootstrap_results_dir / f"{bootstrap_stem}_{args.cl_bootstrap_solver}_bootstrap_runs.jsonl"
+            bootstrap_jsonl = bootstrap_results_dir / f"{bootstrap_stem}_{bootstrap_solver}_bootstrap_runs.jsonl"
             if not bootstrap_jsonl.is_file() and not args.dry_run:
                 raise FileNotFoundError(
-                    f"Missing {args.cl_bootstrap_solver.upper()} base successful-trajectory JSONL: {bootstrap_jsonl}"
+                    f"Missing {bootstrap_solver.upper()} base successful-trajectory JSONL: {bootstrap_jsonl}"
                 )
             train_dictionary = dictionary.with_name(bootstrap_stem + ".json")
             if not args.dry_run and not train_dictionary.is_file():
@@ -688,6 +805,12 @@ def main() -> None:
             if not args.dry_run:
                 validate_bootstrap_scenarios(bootstrap_jsonl, train_dictionary)
             cumulative_jsonls: List[Path] = [bootstrap_jsonl]
+            dagger_jsonls: List[Path] = []
+            if args.cl_train_mode == "replay_dagger" and int(args.dagger_states_per_scenario) <= 0:
+                raise RuntimeError(
+                    "replay_dagger requires --dagger_states_per_scenario > 0; otherwise there "
+                    "is no online teacher supervision to mix with replay."
+                )
             previous_trajectory_count = 0
             if probe_ids:
                 # Establish a fixed S1-only baseline before any CL block is used.
@@ -729,45 +852,66 @@ def main() -> None:
                     workers=workers,
                     dry_run=args.dry_run,
                 )
-                cumulative_jsonls.append(block_jsonl)
+                if args.cl_train_mode == "cumulative":
+                    cumulative_jsonls.append(block_jsonl)
                 dagger_jsonl = None
-                # Both MPC arms must receive identical DAgger supervision, or the
-                # warm-start comparison would differ by training data as well.
-                if solver in DAGGER_SOLVERS and int(args.dagger_states_per_scenario) > 0:
-                    dagger_jsonl = cfg_dir / "dagger" / f"{prefix}_mpc_recoveries.jsonl"
-                    collect_mpc_dagger(
+                # In replay-DAgger every arm queries its own teacher. The legacy
+                # cumulative path retains its MPC-only behavior for compatibility.
+                collect_dagger = (
+                    args.cl_train_mode == "replay_dagger" or solver in DAGGER_SOLVERS
+                ) and int(args.dagger_states_per_scenario) > 0
+                if collect_dagger:
+                    dagger_solver = "cbf" if solver == "cbf" else "mpc"
+                    dagger_jsonl = cfg_dir / "dagger" / f"{prefix}_{dagger_solver}_recoveries.jsonl"
+                    collect_s2_dagger(
                         root=root,
                         python=python,
                         dictionary=dictionary,
                         model=current_model,
                         scenario_ids=block_ids,
                         states_per_scenario=int(args.dagger_states_per_scenario),
+                        s2_solver=dagger_solver,
                         out_jsonl=dagger_jsonl,
                         env=env,
                         dry_run=args.dry_run,
                     )
-                    cumulative_jsonls.append(dagger_jsonl)
+                    if args.cl_train_mode == "replay_dagger":
+                        dagger_jsonls.append(dagger_jsonl)
+                    else:
+                        cumulative_jsonls.append(dagger_jsonl)
                 next_model = cfg_dir / "models" / f"{prefix}_s1_policy_nonlinear.pth"
                 next_dataset = cfg_dir / "datasets" / f"{prefix}_s1_nonlinear_dataset.npz"
                 training_audit = cfg_dir / "audits" / f"{prefix}_training_audit.json"
-                # Fully retrain from the same frozen base checkpoint on all
-                # successful trajectories observed through this block.
+                if args.cl_train_mode == "replay_dagger":
+                    training_jsonls = [bootstrap_jsonl, *dagger_jsonls]
+                    training_init_model = current_model
+                    training_source = "s2"
+                    target_replay_fraction = args.replay_fraction
+                else:
+                    training_jsonls = cumulative_jsonls
+                    training_init_model = init_model
+                    training_source = args.train_source
+                    target_replay_fraction = -1.0
+                # Legacy cumulative mode restarts from the frozen base. The
+                # replay-DAgger mode carries the prior model forward while
+                # retaining fixed teacher replay at every update.
                 if not args.dry_run: ### retraining happens here
                     train_model(
                         root=root,
                         python=python,
                         dictionary=dictionary,
-                        results_jsonl=cumulative_jsonls,
-                        init_model=init_model,
+                        results_jsonl=training_jsonls,
+                        init_model=training_init_model,
                         out_model=next_model,
                         out_dataset=next_dataset,
-                        source=args.train_source,
+                        source=training_source,
                         max_trajectories=0,
                         train_epochs=args.train_epochs,
                         train_batch=args.train_batch,
                         train_lr=args.train_lr,
                         train_rollout_horizon=args.train_rollout_horizon,
                         train_rollout_every=args.train_rollout_every,
+                        train_rollout_filter_mode=args.train_rollout_filter_mode,
                         train_device=args.train_device,
                         train_dt_nom=args.train_dt_nom,
                         train_n_steps_nom=args.train_n_steps_nom,
@@ -775,13 +919,15 @@ def main() -> None:
                         s1_success_weight=args.s1_success_weight,
                         bootstrap_success_weight=args.bootstrap_success_weight,
                         dagger_success_weight=args.dagger_success_weight,
+                        target_replay_fraction=target_replay_fraction,
+                        preserve_init_norm=(args.cl_train_mode == "replay_dagger"),
                         audit_json=training_audit,
                         env=env,
                         dry_run=False,
                     )
                     previous_trajectory_count = verify_cumulative_training_audit(
                         training_audit,
-                        cumulative_jsonls,
+                        training_jsonls,
                         previous_trajectory_count,
                     )
                 current_model = next_model
@@ -789,13 +935,18 @@ def main() -> None:
                     "prefix": prefix,
                     "jsonl": str(block_jsonl),
                     "model": str(current_model),
-                    "training_initialization": "base_checkpoint",
-                    "training_init_model": str(init_model),
-                    "bootstrap_solver": args.cl_bootstrap_solver,
+                    "training_initialization": (
+                        "prior_block" if args.cl_train_mode == "replay_dagger" else "base_checkpoint"
+                    ),
+                    "training_init_model": str(training_init_model),
+                    "cl_train_mode": args.cl_train_mode,
+                    "replay_fraction": target_replay_fraction,
+                    "train_rollout_filter_mode": args.train_rollout_filter_mode,
+                    "bootstrap_solver": bootstrap_solver,
                     "bootstrap_jsonl": str(bootstrap_jsonl),
                     "block_ids": block_ids,
                     "dagger_jsonl": "" if dagger_jsonl is None else str(dagger_jsonl),
-                    "training_jsonls": [str(path) for path in cumulative_jsonls],
+                    "training_jsonls": [str(path) for path in training_jsonls],
                     "training_audit": str(training_audit),
                     "training_trajectory_count": previous_trajectory_count,
                 }

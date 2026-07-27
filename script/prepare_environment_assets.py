@@ -66,6 +66,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -98,11 +99,32 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--eval_seed", type=int, default=8)
     p.add_argument("--probe_seed", type=int, default=700)
     p.add_argument("--s2_solver", choices=["cbf", "mpc", "mpc_do"], default="mpc")
+    p.add_argument(
+        "--s2_solvers",
+        nargs="+",
+        default=[],
+        choices=["cbf", "mpc", "mpc_do"],
+        help=(
+            "Collect one bootstrap set and train one base S1 checkpoint per solver, so a "
+            "continual-learning arm can be initialised and taught by the same System 2 it falls "
+            "back to. Mixing teachers feeds the policy contradictory action magnitudes. "
+            "Defaults to --s2_solver."
+        ),
+    )
     p.add_argument("--train_source", choices=["s2", "selected", "all_success"], default="all_success")
     p.add_argument("--train_trajectories", type=int, default=0)
     p.add_argument("--train_epochs", type=int, default=40)
     p.add_argument("--train_batch", type=int, default=64)
     p.add_argument("--train_lr", type=float, default=3e-4)
+    p.add_argument(
+        "--train_rollout_filter_mode",
+        choices=["policy", "none"],
+        default="policy",
+        help=(
+            "Safety filter used inside bootstrap training's differentiable rollout loss. "
+            "'policy' matches runtime S1; 'none' is the legacy raw-action objective."
+        ),
+    )
     p.add_argument("--workers", type=int, default=3, help="Parallel S2 bootstrap benchmark workers.")
     p.add_argument(
         "--train_dt_nom",
@@ -151,6 +173,18 @@ def resolve_path(root: Path, spec: str, *, family: str) -> Path:
     return path
 
 
+def solver_asset_paths(assets_dir: Path, solver: str) -> tuple[Path, Path]:
+    """Per-solver base checkpoint, so several teachers can coexist in one family.
+
+    ``run_suite.py`` looks for exactly these names when it matches a CL arm to
+    its own teacher, and falls back to the unsuffixed legacy pair otherwise.
+    """
+    return (
+        assets_dir / f"s1_policy_nonlinear_{solver}.pth",
+        assets_dir / f"s1_nonlinear_dataset_{solver}.npz",
+    )
+
+
 def successful_trajectory_count(path: Path) -> int:
     count = 0
     for line in path.read_text().splitlines():
@@ -171,6 +205,7 @@ def main() -> None:
     if not args.dry_run:
         out_dir.mkdir(parents=True, exist_ok=True)
     families: Sequence[str] = args.families or [args.family]
+    solvers: List[str] = list(dict.fromkeys(args.s2_solvers or [args.s2_solver]))
 
     for family_index, family in enumerate(families):
         assets_dir = resolve_path(root, args.assets_dir, family=family)
@@ -262,84 +297,99 @@ def main() -> None:
                 ]
             run(probe_cmd, cwd=root, dry_run=args.dry_run)
 
-        if not args.skip_collect:
-            collect_cmd = [
-                    python,
-                    "run_motion_planning_benchmarks.py",
-                    "--root",
-                    str(root),
-                    "--input_dir",
-                    str(out_dir),
-                    "--patterns",
-                    train_dict_path.name,
-                    "--scenario_ids",
-                    f"0-{args.train_n_per_family - 1}",
-                    "--run_type",
-                    "s2",
-                    "--s2",
-                    args.s2_solver,
-                    "--timeout_sec",
-                    "300",
-                    "--workers",
-                    str(args.workers),
-                    "--out_dir",
-                    str(results_dir),
-                    "--out_prefix",
-                    f"{train_dict_path.stem}_{args.s2_solver}_bootstrap",
-            ]
-            if target_successes:
-                collect_cmd.extend(["--stop_after_successes", str(target_successes)])
-            run(collect_cmd, cwd=root, dry_run=args.dry_run)
+        for solver in solvers:
+            solver_model, solver_dataset = solver_asset_paths(assets_dir, solver)
+            jsonl = results_dir / f"{train_dict_path.stem}_{solver}_bootstrap_runs.jsonl"
 
-        if not args.skip_train:
-            jsonl = results_dir / f"{train_dict_path.stem}_{args.s2_solver}_bootstrap_runs.jsonl"
-            if not args.dry_run and target_successes:
-                successful = successful_trajectory_count(jsonl)
-                if successful < target_successes:
-                    print(
-                        f"[warn] {family} collected {successful}/{target_successes} successful "
-                        f"{args.s2_solver.upper()} bootstrap trajectories; training on all available successes."
-                    )
-            run(
-                [
-                    python,
-                    "script/train_s1_nonlinear.py",
-                    "--root",
-                    str(root),
-                    "--dictionary",
-                    str(train_dict_path),
-                    "--results_jsonl",
-                    str(jsonl),
-                    "--out_model",
-                    str(model_path),
-                    "--out_dataset",
-                    str(dataset_path),
-                    "--source",
-                    args.train_source,
-                    "--max_trajectories",
-                    str(target_successes or args.train_trajectories),
-                    "--epochs",
-                    str(args.train_epochs),
-                    "--batch",
-                    str(args.train_batch),
-                    "--lr",
-                    str(args.train_lr),
-                    "--dt_nom",
-                    str(args.train_dt_nom),
-                    "--n_steps_nom",
-                    str(args.train_n_steps_nom),
-                ],
-                cwd=root,
-                dry_run=args.dry_run,
-            )
+            if not args.skip_collect:
+                collect_cmd = [
+                        python,
+                        "run_motion_planning_benchmarks.py",
+                        "--root",
+                        str(root),
+                        "--input_dir",
+                        str(out_dir),
+                        "--patterns",
+                        train_dict_path.name,
+                        "--scenario_ids",
+                        f"0-{args.train_n_per_family - 1}",
+                        "--run_type",
+                        "s2",
+                        "--s2",
+                        solver,
+                        "--timeout_sec",
+                        "300",
+                        "--workers",
+                        str(args.workers),
+                        "--out_dir",
+                        str(results_dir),
+                        "--out_prefix",
+                        f"{train_dict_path.stem}_{solver}_bootstrap",
+                ]
+                if target_successes:
+                    collect_cmd.extend(["--stop_after_successes", str(target_successes)])
+                run(collect_cmd, cwd=root, dry_run=args.dry_run)
+
+            if not args.skip_train:
+                if not args.dry_run and target_successes:
+                    successful = successful_trajectory_count(jsonl)
+                    if successful < target_successes:
+                        print(
+                            f"[warn] {family} collected {successful}/{target_successes} successful "
+                            f"{solver.upper()} bootstrap trajectories; training on all available successes."
+                        )
+                run(
+                    [
+                        python,
+                        "script/train_s1_nonlinear.py",
+                        "--root",
+                        str(root),
+                        "--dictionary",
+                        str(train_dict_path),
+                        "--results_jsonl",
+                        str(jsonl),
+                        "--out_model",
+                        str(solver_model),
+                        "--out_dataset",
+                        str(solver_dataset),
+                        "--source",
+                        args.train_source,
+                        "--max_trajectories",
+                        str(target_successes or args.train_trajectories),
+                        "--epochs",
+                        str(args.train_epochs),
+                        "--batch",
+                        str(args.train_batch),
+                        "--lr",
+                        str(args.train_lr),
+                        "--rollout_filter_mode",
+                        str(args.train_rollout_filter_mode),
+                        "--dt_nom",
+                        str(args.train_dt_nom),
+                        "--n_steps_nom",
+                        str(args.train_n_steps_nom),
+                    ],
+                    cwd=root,
+                    dry_run=args.dry_run,
+                )
+
+            # Keep the legacy unsuffixed pair pointing at the first solver so
+            # existing commands that do not name a teacher still resolve.
+            if solver == solvers[0] and not args.dry_run and solver_model.exists():
+                shutil.copyfile(solver_model, model_path)
+                if solver_dataset.exists():
+                    shutil.copyfile(solver_dataset, dataset_path)
 
         print("\n[done]")
         print(f"[family] {family}")
         print(f"[train_dictionary] {train_dict_path}")
         print(f"[eval_dictionary] {eval_dict_path}")
         print(f"[probe_dictionary] {probe_dict_path}")
-        print(f"[model] {model_path}")
-        print(f"[dataset] {dataset_path}")
+        for solver in solvers:
+            solver_model, solver_dataset = solver_asset_paths(assets_dir, solver)
+            print(f"[model:{solver}] {solver_model}")
+            print(f"[dataset:{solver}] {solver_dataset}")
+        print(f"[model:default] {model_path}")
         print(f"[results] {results_dir}")
 
 

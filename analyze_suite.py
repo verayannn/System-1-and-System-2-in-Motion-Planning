@@ -5,8 +5,8 @@ Example:
 
 PYTHONDONTWRITEBYTECODE=1 \
 python analyze_suite.py \
-  --archive_dir output/benchmark_runs_v2_ideal \
-  --configs s1_neural s2_mpc s2_cbf sofai_mpc_cl sofai_mpc_warm_cl sofai_cbf_cl
+  --archive_dir output/benchmark_runs_replay_dagger \
+  --configs sofai_cbf_cl
 
 The archive must contain one directory per family, conventionally named
 ``nl_<family>_suite``, with a ``suite_manifest.json`` in each directory.
@@ -231,20 +231,23 @@ def suite_configs(suite_dir: Path, manifest: dict[str, Any]) -> list[str]:
 
 
 def block_count(suite_dir: Path, manifest: dict[str, Any], configs: list[str], block_size: int) -> tuple[int, int]:
-    blocks = len(manifest.get("blocks", []))
+    # ``run_suite.py`` rewrites suite_manifest.json each time it is invoked.
+    # A later standalone/S1-only invocation can therefore leave a one-block
+    # manifest beside completed multi-block CL runs. Never let that stale
+    # manifest truncate block files already present on disk.
+    manifest_blocks = len(manifest.get("blocks", []))
     fallback_size = max(0, int(block_size))
-    if not blocks and not fallback_size:
+    if not manifest_blocks and not fallback_size:
         fallback_size = archive.inferred_block_size(suite_dir, configs)
-    if not blocks:
-        blocks = archive.inferred_block_count(suite_dir, configs)
-    if not blocks:
-        csv_blocks = [
-            block
-            for config in configs
-            for path in summary_files(suite_dir, config, probe=False)
-            if (block := file_block_index(path)) is not None
-        ]
-        blocks = 1 + max(csv_blocks) if csv_blocks else 0
+    jsonl_blocks = archive.inferred_block_count(suite_dir, configs)
+    csv_block_indices = [
+        block
+        for config in configs
+        for path in summary_files(suite_dir, config, probe=False)
+        if (block := file_block_index(path)) is not None
+    ]
+    csv_blocks = 1 + max(csv_block_indices) if csv_block_indices else 0
+    blocks = max(manifest_blocks, jsonl_blocks, csv_blocks)
     return blocks, fallback_size
 
 

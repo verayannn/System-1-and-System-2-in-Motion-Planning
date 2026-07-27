@@ -9,9 +9,9 @@ Example:
   
 PYTHONDONTWRITEBYTECODE=1 \
 python analyze_archive_results.py \
-  --suite_dir output/benchmark_runs/nl_dense_clutter_suite_v1 \
-  --configs s1_neural s2_mpc sofai_mpc_cl\
-  --block_size 50
+  --suite_dir output/benchmark_runs/nl_bugtrap_suite \
+  --configs sofai_cbf_cl \
+  --block_size 100
 
 
 
@@ -214,6 +214,12 @@ def rows_by_block(suite_dir: Path, manifest: dict[str, Any], config: str, block_
         # ``run_suite.py`` rewrites its manifest on every invocation. Preserve
         # standalone S1/S2 analysis when their JSONLs were generated separately.
         rows = rows_from_solver_files(suite_dir, config, block_size)
+        # CL result filenames encode their update index directly. A stale
+        # manifest can describe a later standalone run and map every reused
+        # scenario ID to its one remaining block, so never remap explicit CL
+        # file blocks through that manifest lookup.
+        if config.endswith("_cl"):
+            return rows
         return [
             (lookup.get(int(row.get("scenario_index", row.get("scenario_id", -1))), block), row)
             for block, row in rows

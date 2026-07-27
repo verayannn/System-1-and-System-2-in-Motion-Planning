@@ -12,6 +12,7 @@ import argparse
 import json
 import os
 import sys
+from dataclasses import replace
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -56,6 +57,34 @@ def sample_indices(length: int, count: int) -> Iterable[int]:
     return np.unique(np.linspace(0, length - 2, max(1, count), dtype=int)).tolist()
 
 
+def valid_recovery(
+    result: dict[str, Any] | None,
+    requested_start: np.ndarray,
+) -> tuple[bool, str]:
+    """Reject malformed S2 recoveries before they can enter training."""
+    if not isinstance(result, dict):
+        return False, "missing_result"
+    if not bool(result.get("success", result.get("solved", False))):
+        return False, "unsolved"
+    if not bool(result.get("collision_free", False)):
+        return False, "collision"
+    states = np.asarray(result.get("states"), dtype=float)
+    inputs = np.asarray(result.get("inputs"), dtype=float)
+    if states.ndim != 2 or states.shape[0] < 2 or states.shape[1] < 2:
+        return False, "invalid_states"
+    # ``maybe_patch_goal_trajectory`` can append one final goal state without
+    # an associated control, so MPC legitimately returns one fewer input than
+    # state transitions. The trainer derives any missing final control from
+    # adjacent states.
+    if inputs.ndim != 2 or inputs.shape[0] < 1 or inputs.shape[0] > states.shape[0] - 1:
+        return False, "invalid_inputs"
+    if not (np.all(np.isfinite(states)) and np.all(np.isfinite(inputs))):
+        return False, "nonfinite"
+    if not np.allclose(states[0, :2], requested_start[:2], atol=1e-5, rtol=0.0):
+        return False, "start_mismatch"
+    return True, "ok"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default=Path(__file__).resolve().parents[1])
@@ -63,6 +92,12 @@ def main() -> None:
     parser.add_argument("--s1_model", required=True)
     parser.add_argument("--scenario_ids", default="all")
     parser.add_argument("--states_per_scenario", type=int, default=4)
+    parser.add_argument(
+        "--s2_solver",
+        choices=["mpc", "cbf"],
+        default="mpc",
+        help="Teacher used to label S1-visited states.",
+    )
     parser.add_argument("--out_jsonl", required=True)
     args = parser.parse_args()
 
@@ -71,9 +106,12 @@ def main() -> None:
         if str(path) not in sys.path:
             sys.path.insert(0, str(path))
     from input.input_handler import load_scenarios
-    from solvers.S2_mpc import solve_MPC_with_info
     from solvers._s2_common import resolve_mplconfigdir
     from solvers.s1_nonlinear import load_s1_checkpoint, rollout_policy
+    if args.s2_solver == "mpc":
+        from solvers.S2_mpc import solve_MPC_with_info as solve_with_info
+    else:
+        from solvers.S2_cbf import solve_CBF_with_info as solve_with_info
 
     os.environ["MPLCONFIGDIR"] = str(resolve_mplconfigdir(root, os.environ.get("MPLCONFIGDIR")))
     dictionary = Path(args.dictionary).expanduser()
@@ -94,6 +132,7 @@ def main() -> None:
     ids = parse_ids(args.scenario_ids, len(scenarios))
     collected = 0
     attempted = 0
+    rejected: dict[str, int] = {}
 
     with out_jsonl.open("w") as handle:
         for scenario_index in ids:
@@ -115,12 +154,22 @@ def main() -> None:
             )
             for state_index in sample_indices(len(states), int(args.states_per_scenario)):
                 attempted += 1
-                override = scenario_override(scenario, states[state_index])
-                result = solve_MPC_with_info(override)
-                if not result or not bool(result.get("success")):
+                recovery_start = np.asarray(states[state_index], dtype=float)
+                override = scenario_override(scenario, recovery_start)
+                # S2 solvers consume MazeProblem attributes, not a serialised
+                # dictionary. Passing ``override`` directly silently substituted
+                # their zero-valued defaults and produced fake [0, 0] recoveries.
+                recovery_problem = replace(
+                    scenario,
+                    start=tuple(map(float, recovery_start[:2])),
+                )
+                result = solve_with_info(recovery_problem)
+                valid, reason = valid_recovery(result, recovery_start)
+                if not valid:
+                    rejected[reason] = rejected.get(reason, 0) + 1
                     continue
                 attempt = {
-                    "name": "s2_mpc_dagger",
+                    "name": f"s2_{args.s2_solver}_dagger",
                     "system": "s2",
                     "success": True,
                     "states": np.asarray(result["states"], dtype=float).tolist(),
@@ -140,7 +189,10 @@ def main() -> None:
                 handle.write(json.dumps(row) + "\n")
                 collected += 1
             print(f"[dagger] scenario={scenario_index} collected={collected} attempted={attempted}")
-    print(f"[write] {out_jsonl} successful_mpc_recoveries={collected} attempted={attempted}")
+    print(
+        f"[write] {out_jsonl} teacher={args.s2_solver} "
+        f"valid_recoveries={collected} attempted={attempted} rejected={rejected}"
+    )
 
 
 if __name__ == "__main__":
