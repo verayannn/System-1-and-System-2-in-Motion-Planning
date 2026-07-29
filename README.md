@@ -1,4 +1,4 @@
-<img width="468" height="255" alt="image" src="https://github.com/user-attachments/assets/50cab1ea-d873-4a5b-ae12-4cfd5b209fc9" /># Dual Process Motion Planning
+# Dual Process Motion Planning
 
 This repository contains the code used for the AAAI 2027 submission *Dual Process Motion Planning*. It implements a SOFAI-based dual-process motion-planning stack for 2D obstacle-avoidance tasks.
 
