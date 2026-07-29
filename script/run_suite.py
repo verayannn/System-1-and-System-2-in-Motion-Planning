@@ -18,133 +18,46 @@ successful trajectories accumulated from bootstrap plus completed blocks.
 
 for the server:
 
-for family in long_slalom; do
-  PYTHONDONTWRITEBYTECODE=1 \
-  .venv/bin/python script/run_suite.py \
-    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
-    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
-    --assets_dir "db/by_env/${family}_nl" \
-    --out_dir "output/benchmark_runs/nl_${family}_suite" \
-    --scenario_ids 0-99 \
-    --block_size 30 \
-    --workers 3 \
-    --block_order shuffled \
-    --block_seed 42 \
-    --cl_bootstrap_solver mpc \
-    --train_source all_success \
-    --bootstrap_success_weight 5.0 \
-    --fallback_success_weight 10.0 \
-    --s1_success_weight 1.0 \
-    --dagger_states_per_scenario 0 \
-    --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-    --probe_scenario_ids 0-49 \
-    --configs sofai_mpc_warm_cl sofai_mpc_cl \
-    --train_epochs 15 \
-    --train_batch 64 \
-    --train_lr 0.0003
-done
 
-
-
-
-PYTHONDONTWRITEBYTECODE=1 \
-python analyze_archive_results.py \
-  --suite_dir output/benchmark_runs/nl_dense_clutter_suite \
-  --configs sofai_mpc_cl sofai_mpc_warm_cl
-
-
-  
-
-small sample run with train only s2 success:
-
-for family in bugtrap; do
-  PYTHONDONTWRITEBYTECODE=1 \
-  .venv/bin/python script/run_suite.py \
-    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
-    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
-    --assets_dir "db/by_env/${family}_nl" \
-    --out_dir "output/benchmark_runs/nl_${family}_suite" \
-    --scenario_ids 0-199 \
-    --block_size 50 \
-    --workers 3 \
-    --block_order shuffled \
-    --block_seed 42 \
-    --cl_bootstrap_solver cbf \
-    --train_device cpu \
-    --train_source s2 \
-    --bootstrap_success_weight 5.0 \
-    --fallback_success_weight 10.0 \
-    --dagger_states_per_scenario 0 \
-    --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-    --probe_scenario_ids 0-499 \
-    --configs sofai_cbf_cl \
-    --dagger_states_per_scenario 4 \
-    --train_epochs 25 \
-    --train_batch 64 \
-    --train_rollout_horizon 8 \
-    --train_rollout_every 8 \
-    --train_lr 0.0003
-done
-
-
-
-current:
-
-for family in dense_clutter; do
-  PYTHONDONTWRITEBYTECODE=1 \
-  .venv/bin/python script/run_suite.py \
-    --dictionary "input/input/nl/benchmark_dualmp_nl_dense_clutter_benchmark100_dense_clutter.json" \
-    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
-    --assets_dir "db/by_env/${family}_nl" \
-    --out_dir "output/benchmark_runs_current_bs_mpc/nl_${family}_suite" \
-    --scenario_ids 0-99 \
-    --workers 3 \
-    --block_order shuffled \
-    --block_seed 42 \
-    --cl_bootstrap_solver cbf \
-    --configs s1_neural
-done
-
-
-
-PYTHONDONTWRITEBYTECODE=1 .venv/bin/python input/generate_nl_dict.py \
-  --output_dir input/nl \
-  --prefix benchmark_dualmp_nl_bugtrap_benchmark500 \
-  --families bugtrap \
-  --n_per_family 500 \
-  --seed 20260727 \
-  --u_max 3.0 \
-  --goal_tol 0.5
-
-
-testing:
-
-families=(bugtrap)
+families=(
+  large_sparse
+  dense_clutter
+  serial_walls
+  maze_branching
+  long_slalom
+  bugtrap
+)
 for family in "${families[@]}"; do
-  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python script/run_suite.py \
+  PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. \
+  .venv/bin/python script/run_suite.py \
     --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
     --bootstrap_results_dir "output/bootstrap_${family}_nl" \
     --assets_dir "db/by_env/${family}_nl" \
-    --out_dir "output/benchmark_runs_727/nl_${family}_suite" \
-    --scenario_ids 0-399 \
+    --out_dir "output/benchmark_runs/nl_${family}_suite" \
+    --scenario_ids 0-499 \
     --block_size 100 \
-    --workers 4 \
+    --workers 16 \
+    --timeout_sec 60 \
     --block_order shuffled \
     --block_seed 42 \
-    --cl_bootstrap_solver cbf \
-    --train_source all_success \
+    --cl_bootstrap_solver auto \
+    --configs sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl s1_neural s2_cbf s2_mpc \
+    --cl_train_mode replay_dagger \
+    --replay_fraction 0.60 \
+    --dagger_states_per_scenario 4 \
+    --train_source s2 \
     --bootstrap_success_weight 1.0 \
-    --fallback_success_weight 1.0 \
-    --s1_success_weight 1.0 \
-    --dagger_states_per_scenario 0 \
-    --train_epochs 20 \
+    --dagger_success_weight 1.0 \
+    --train_epochs 12 \
     --train_batch 64 \
-    --train_lr 0.0003 \
-    --train_device cpu\
+    --train_lr 0.0001 \
+    --train_device cpu \
     --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-    --probe_scenario_ids 0-99 \
-    --configs sofai_cbf_cl
+    --probe_scenario_ids 0-499
 done
+
+
+
 
 
 """
@@ -164,12 +77,12 @@ from typing import Dict, Iterable, List, Sequence
 ## MODES = ("sofai_mpc_cl", "sofai_mpc_warm_cl")
 
 MODES = (
-    "sofai_cbf_cl",
-    "sofai_mpc_cl",
-    "sofai_mpc_warm_cl",
     "s1_neural",
     "s2_cbf",
     "s2_mpc",
+    "sofai_cbf_cl",
+    "sofai_mpc_cl",
+    "sofai_mpc_warm_cl",
 )
 
 ## "s2_mpc_do",

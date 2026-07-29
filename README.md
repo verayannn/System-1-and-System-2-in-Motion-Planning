@@ -129,7 +129,7 @@ sofai/
 ├── visualize_mp.py                     # Single-case runner + plot output
 ├── run_motion_planning_benchmarks.py   # Batch benchmark runner
 ├── plot_suite_results.py               # Suite success-rate / runtime plots
-├── plot_suite_s1_s2_ratio.py           # S1 vs S2 split plot for CL runs
+├── analyze_suite_results.py            # Complete archive analysis and figure pipeline
 │
 ├── sofai/                              # Vendored upstream SOFAI package
 ├── safe_control/                       # Vendored safe_control + acados
@@ -345,14 +345,18 @@ python plot_suite_results.py \
   --out output/benchmark_runs/nl_dense_clutter_suite/summary.png
 ```
 
-To plot the System 1 / System 2 split by block:
+To run all archive analysis, continual-learning figures, and System 1 / System 2
+split plots in one command:
 
 ```bash
-python plot_suite_s1_s2_ratio.py \
-  --suite_dir output/benchmark_runs/nl_dense_clutter_suite \
-  --config sofai_cbf_cl \
-  --out output/benchmark_runs/nl_dense_clutter_suite/s1_s2_ratio.png
+python analyze_suite_results.py \
+  --archive_dir output/benchmark_runs
 ```
+
+All generated CSVs, tables, and figures are written below
+`output/benchmark_runs/analysis/`. In particular, cross-family continual-learning
+figures are placed in `analysis/figures/`, and per-family System 1/System 2
+plots in `analysis/s1_s2_ratio/`.
 
 
 ## Upstream SOFAI Reference

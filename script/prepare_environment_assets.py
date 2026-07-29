@@ -6,57 +6,32 @@ This script prepares all assets for a nonlinear benchmark family:
 2. Collect successful System 2 trajectories rollouts for training.
 3. Train the initial neural System 1 checkpoint from all successful bootstrap trajectories.
 
+for the server:
 
-cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
-source .env.acados
-
-PYTHONDONTWRITEBYTECODE=1 \
-python script/prepare_environment_assets.py \
-  --families bugtrap \
-  --s2_solver mpc \
-  --train_n_per_family 30 \
-  --eval_n_per_family 200 \
-  --probe_n_per_family 50 
-  
-  
---bootstrap_target_successes 300
---probe_n_per_family 200
---probe_seed 700
---skip_probe_generate
-
-
-
-current:
-
-PYTHONDONTWRITEBYTECODE=1 \
+export SOFAI_S1_FILTER_MODE=policy
+families=(
+  large_sparse
+  dense_clutter
+  serial_walls
+  maze_branching
+  long_slalom
+  bugtrap
+)
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. \
 .venv/bin/python script/prepare_environment_assets.py \
-  --families bugtrap \
-  --s2_solver cbf \
-  --train_n_per_family 50 \
-  --eval_n_per_family 200 \
-  --probe_n_per_family 1000 \
+  --families "${families[@]}" \
+  --s2_solvers cbf mpc \
+  --train_n_per_family 100 \
+  --eval_n_per_family 500 \
+  --probe_n_per_family 500 \
+  --train_seed 7 \
+  --eval_seed 8 \
   --probe_seed 700 \
   --train_epochs 35 \
   --train_batch 64 \
-  --train_lr 0.0003
-
-
-
-
-PYTHONDONTWRITEBYTECODE=1 \
-.venv/bin/python script/prepare_environment_assets.py \
-  --families dense_clutter \
-  --s2_solver cbf \
-  --train_n_per_family 100 \
-  --eval_n_per_family 200 \
-  --train_epochs 20 \
-  --train_batch 64 \
   --train_lr 0.0003 \
-  --workers 3
+  --workers 16
 
-default: 
---train_dt_nom 0.075
---train_n_steps_nom 900
 
 
 """
