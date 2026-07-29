@@ -121,51 +121,17 @@ The repository scripts automatically choose a writable `MPLCONFIGDIR`, so you do
 ## Directory Structure
 
 ```text
-sofai/
-├── README.md                           # Project documentation
-├── requirements.txt                    # Top-level experiment environment
-├── motion_planning_solver.py           # Main single-scenario runner
-├── visualize_mp.py                     # Single-case runner + plot output
-├── run_motion_planning_benchmarks.py   # Batch benchmark runner
-├── plot_suite_results.py               # Suite success-rate / runtime plots
-├── analyze_suite_results.py            # Complete archive analysis and figure pipeline
-│
-├── sofai/                              # Vendored upstream SOFAI package
-├── safe_control/                       # Vendored safe_control + acados
-│
-├── solvers/                            # Motion-planning solver implementations
-│   ├── S1_motion_primitives.py         # Primitive-based System 1
-│   ├── S1_memory_neural.py             # Memory + neural System 1
-│   ├── S2_mpc.py                       # MPC System 2 wrapper
-│   ├── S2_cbf.py                       # CBF System 2 wrapper
-│   ├── base/                           # Core planning / training logic folder
-│   └── combinations/                   # Combined SOFAI runner variants
-│       ├── mpc_solver.py
-│       ├── mpc_solver_new_S1.py
-│       ├── cbf_solver.py
-│       └── cbf_solver_new_S1.py
-│
-├── input/                              # Benchmark dictionaries and metadata
-│   ├── input_handler.py
-│   ├── generate_benchmark_dictionaries.py
-│   ├── generate_nl_dict.py
-│   ├── meta/
-│   │   ├── context.txt
-│   │   └── thresholds.txt
-│   └── nl/                             # Nonlinear benchmark dictionaries
-│
-├── db/                                 # Active/default S1 assets
-│   └── by_env/                         # Per-environment assets
-│
-├── script/                             # Experiment orchestration scripts
-│   ├── prepare_environment_assets.py
-│   ├── run_suite.py
-│   └── train_s1_nonlinear.py
-│
-└── output/                             # Generated results, plots, summaries
-    ├── single_scenario_runs/
-    └── benchmark_runs
-
+System-1-and-System-2-in-Motion-Planning/
+├── motion_planning_solver.py           # Single-scenario planner entry point
+├── visualize_mp.py                     # Single-scenario visualisation
+├── analyze_suite_results.py            # Unified benchmark analysis pipeline
+├── requirements.txt / pyproject.toml   # Python environment and package metadata
+├── input/                              # Benchmark dictionaries and generation utilities
+├── db/by_env/                          # Per-environment neural S1 datasets and checkpoints
+├── solvers/                            # S1 policies, MPC/CBF S2 solvers, quality metrics
+├── script/                             # Suite runner, S1 training, and setup utilities
+├── sofai/                              # Vendored SOFAI framework
+└── safe_control/                       # Vendored CBF and acados dependencies
 ```
 
 
