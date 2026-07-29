@@ -122,6 +122,7 @@ The repository scripts automatically choose a writable `MPLCONFIGDIR`, so you do
 
 ```text
 System-1-and-System-2-in-Motion-Planning/
+├── README.md                           # Project documentation and usage
 ├── motion_planning_solver.py           # Single-scenario planner entry point
 ├── visualize_mp.py                     # Single-scenario visualisation
 ├── analyze_suite_results.py            # Unified benchmark analysis pipeline
@@ -129,7 +130,10 @@ System-1-and-System-2-in-Motion-Planning/
 ├── input/                              # Benchmark dictionaries and generation utilities
 ├── db/by_env/                          # Per-environment neural S1 datasets and checkpoints
 ├── solvers/                            # S1 policies, MPC/CBF S2 solvers, quality metrics
-├── script/                             # Suite runner, S1 training, and setup utilities
+├── script/                             # Experiment orchestration utilities
+│   ├── prepare_environment_assets.py   # Create per-environment S1 assets
+│   ├── run_suite.py                    # Run benchmark suites and continual learning
+│   └── train_s1_nonlinear.py           # Train or fine-tune the neural S1 policy
 ├── sofai/                              # Vendored SOFAI framework
 └── safe_control/                       # Vendored CBF and acados dependencies
 ```
