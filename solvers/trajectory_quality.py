@@ -1,39 +1,3 @@
-"""Duration-invariant trajectory quality metrics.
-
-The index defined here scores *how good the executed path is*, deliberately
-separated from *how fast it was traversed* and *how long the solver took*.
-Mixing those axes into one number lets an aggressive controller buy a better
-"quality" score purely by saturating its actuator, which is what the previous
-integrated-MPC-cost definition did.
-
-Three sub-scores, each in ``(0, 1]`` and each normalised against a reference
-that is defined by the scenario rather than by the population of solvers:
-
-``path_efficiency``
-    Shortest collision-free path length over executed path length. Reference is
-    an 8-connected grid search around obstacles inflated by the evaluation body
-    radius. This is the standard path-optimality ratio used by planner
-    benchmarks (OMPL, PathBench).
-
-``smoothness``
-    Spectral arc length of the speed profile, expressed as a ratio against the
-    spectral arc length of an ideal minimum-jerk movement (Flash & Hogan,
-    J. Neurosci. 1985), so that a minimum-jerk trajectory scores 1.0. Spectral
-    arc length and log dimensionless jerk are the only smoothness measures
-    shown to be valid, i.e. invariant to movement duration and amplitude; of
-    the two, only spectral arc length also passes the reliability criterion,
-    which is why Balasubramanian et al. recommend it (IEEE TBME 2012;
-    J. NeuroEng. Rehabil. 2015). Log dimensionless jerk is reported alongside
-    as an independent cross-check.
-
-``clearance``
-    Minimum obstacle clearance over a target clearance of one body radius,
-    capped at 1.0 so the score rewards keeping a safe envelope rather than
-    rewarding unnecessary conservatism.
-
-The three combine by geometric mean, so a trajectory cannot compensate for a
-near-collision or a badly chattering control by excelling elsewhere.
-"""
 
 from __future__ import annotations
 

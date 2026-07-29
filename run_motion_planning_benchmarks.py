@@ -3,20 +3,12 @@
 
 Run from the repo root:
 
-    python3 run_motion_planning_benchmarks.py \
-      --patterns benchmark_dualmp_dense_clutter.json \
-      --scenario_ids 0-9 \
-      --s1 primitives \
-      --s2 mpc \
-      --run_type sofai
-
-cd /Users/apple/Desktop/sofai
 
 PYTHONDONTWRITEBYTECODE=1 \
 /Users/apple/miniconda3/envs/s12_env/bin/python3.10 run_motion_planning_benchmarks.py \
   --patterns benchmark_dualmp_dense_clutter.json \
   --scenario_ids 2 \
-  --s1 primitives \
+  --s1 neural \
   --s2 mpc \
   --run_type s1 \
   --timeout_sec 60 \

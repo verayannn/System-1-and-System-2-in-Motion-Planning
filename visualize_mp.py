@@ -11,29 +11,6 @@ single-case visualization tool:
 
 Example:
 
-cd /Users/apple/Documents/GitHub/System-1-and-System-2-in-Motion-Planning
-
-
-SOFAI_MPC_HORIZON=200 \
-SOFAI_MPC_DT=0.01 \
-SOFAI_MPC_STEPS=5000 \
-SOFAI_MPC_MAX_ITER=500 \
-SOFAI_MPC_REFERENCE_GRID=0.20 \
-SOFAI_MPC_Q_POS=75 \
-SOFAI_MPC_R_DU=0.75 \
-
-
-PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
-python visualize_mp.py \
-  --problem_dictionary nl/benchmark_dualmp_nl_long_slalom_eval_long_slalom.json \
-  --scenario_ids 19 \
-  --s1 neural \
-  --s2 cbf \
-  --run_type s1 \
-  --out_dir output/visualize_mp \
-  --out_prefix s1_ls
-
-
 PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/mpl \
 python visualize_mp.py \
   --problem_dictionary nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
