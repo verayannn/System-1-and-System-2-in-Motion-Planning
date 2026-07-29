@@ -1,17 +1,16 @@
-# Dual Process Motion Planning
+<img width="468" height="255" alt="image" src="https://github.com/user-attachments/assets/50cab1ea-d873-4a5b-ae12-4cfd5b209fc9" /># Dual Process Motion Planning
 
-This repository contains the code used for the NeurIPS 2026 submission *Dual Process Motion Planning*. It implements a SOFAI-based dual-process motion-planning stack for 2D obstacle-avoidance tasks.
+This repository contains the code used for the AAAI 2027 submission *Dual Process Motion Planning*. It implements a SOFAI-based dual-process motion-planning stack for 2D obstacle-avoidance tasks.
 
 The core idea is to combine:
 
 - **System 1**: a fast experience-driven planner
-  - motion-primitives retrieval (`primitives`)
-  - memory + neural policy (`neural`)
+  - neural policy (`neural`)
 - **System 2**: a slower but more reliable online solver
   - model predictive control (`mpc`)
   - control barrier functions (`cbf`)
 - **Metacognitive arbitration**: the SOFAI controller decides whether to accept the System 1 proposal or fall back to System 2
-- **Continual-learning variants**: successful System 2 trajectories can be written back into memory and used to improve later runs
+- **Continual-learning variants**: successful System 2 trajectories will be used for retraining System 1 to improve later runs
 
 
 ## Installation
@@ -174,17 +173,17 @@ sofai/
 
 `motion_planning_solver.py` is the main single-scenario driver. It supports:
 
-- `--s1`: `primitives` or `neural`
+- `--s1`: `neural`
 - `--s2`: `mpc` or `cbf`
 - `--run_type`: `s1`, `s2`, or `sofai`
 
-Example: run the dual-process planner with primitive System 1 and MPC System 2:
+Example: run the dual-process planner with System 1 and MPC System 2:
 
 ```bash
 python motion_planning_solver.py \
   --problem_dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
   --scenario_id 1 \
-  --s1 primitives \
+  --s1 neural \
   --s2 mpc \
   --run_type sofai
 ```
@@ -206,16 +205,11 @@ Example: CBF System 2 only:
 python motion_planning_solver.py \
   --problem_dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
   --scenario_id 1 \
-  --s1 primitives \
+  --s1 neural \
   --s2 cbf \
   --run_type s2
 ```
 
-Notes:
-
-- `--problem_dictionary` is resolved inside `input/`
-- `--scenario_id` is zero-based
-- `--new_run True` resets the SOFAI experience log when starting a fresh run
 
 
 ## Usage: Running the Benchmarks
@@ -224,58 +218,61 @@ Notes:
 
 Use `script/prepare_environment_assets.py` to create:
 
-- motion-primitive databases
 - successful S2 trajectory libraries
 - neural-policy training datasets
 - trained neural S1 checkpoints
 - solver-ready benchmark dictionaries
+- probe set for continual learning evaluation
 
 Supported environment families:
 
-- `small_open`
+
 - `large_sparse`
 - `dense_clutter`
-- `wall_gap`
 - `serial_walls`
 - `maze_branching`
+- `long_slalom`
 - `bugtrap`
 
-For a single family:
+For a single family with S2 CBF solver:
 
 ```bash
 python script/prepare_environment_assets.py \
   --family dense_clutter \
-  --train_n_per_family 2000 \
-  --bootstrap_target_successes 500 \
-  --eval_n_per_family 10000 \
+  --train_n_per_family 100 \
+  --eval_n_per_family 500 \
   --s2_solver cbf
 ```
 
 For all the families:
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/private/tmp/mpl \
-python script/prepare_environment_assets.py \
-  --families small_open large_sparse dense_clutter wall_gap serial_walls maze_branching bugtrap \
-  --train_n_per_family 2000 \
-  --bootstrap_target_successes 500 \
-  --eval_n_per_family 10000 \
-  --s2_solver cbf
+export SOFAI_S1_FILTER_MODE=policy
+families=(
+  large_sparse
+  dense_clutter
+  serial_walls
+  maze_branching
+  long_slalom
+  bugtrap
+)
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. \
+.venv/bin/python script/prepare_environment_assets.py \
+  --families "${families[@]}" \
+  --s2_solvers cbf mpc \
+  --train_n_per_family 100 \
+  --eval_n_per_family 500 \
+  --probe_n_per_family 500 \
+  --train_seed 7 \
+  --eval_seed 8 \
+  --probe_seed 700 \
+  --train_epochs 35 \
+  --train_batch 64 \
+  --train_lr 0.0003 \
+  --workers 16
 ```
 
-The script writes benchmark dictionaries to `input/nl/` and assets to `db/by_env/<family>_nl/`.
-`--train_n_per_family` is the candidate pool. The script keeps exactly
-`--bootstrap_target_successes` successful S2 trajectories and stops if the pool
-is too small, so the base S1 dataset has auditable provenance.
 
-Generate a separate fixed probe set before any continual-learning run:
-
-```bash
-python script/generate_probe_assets.py \
-  --families dense_clutter \
-  --n_per_family 200 \
-  --seed 700
-```
 
 ### 2. Run the full benchmark set
 
@@ -286,64 +283,55 @@ python script/generate_probe_assets.py \
 - `s2_mpc`
 - `sofai_cbf_cl`
 - `sofai_mpc_cl`
+- `sofai_mpc_warm_cl`
 
-The SOFAI continual-learning modes run in blocks, retrain the neural System 1 after each block, and carry the updated checkpoint into the next block.
 
-For a single family:
-
-```bash
-python script/run_suite.py \
-  --dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
-  --bootstrap_results_dir output/bootstrap_dense_clutter_nl \
-  --assets_dir db/by_env/dense_clutter_nl \
-  --out_dir output/benchmark_runs/nl_dense_clutter_suite \
-  --scenario_ids 0-2499 \
-  --block_size 500 \
-  --workers 6 \
-  --block_order shuffled \
-  --block_seed 42 \
-  --cl_init base \
-  --train_source all_success \
-  --fallback_success_weight 5.0 \
-  --probe_dictionary input/nl/benchmark_dualmp_nl_dense_clutter_probe_dense_clutter.json \
-  --probe_scenario_ids 0-199 \
-  --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl
-```
-
-SOFAI always runs S1 first and invokes S2 only after a failed S1 rollout. Each
-CL checkpoint is retrained from the frozen base model using the successful base
-and completed benchmark trajectories only. Probe JSONLs are never training
-inputs. Report `planning_runtime_sec`, which is S1 plus S2 when a fallback is
-needed, rather than `selected_runtime_sec`.
+SOFAI always runs S1 first and invokes S2 only after a failed S1 rollout. Each CL checkpoint is retrained from the frozen base model using the successful base and completed benchmark trajectories only. Probe JSONLs are never training inputs. 
 
 For all the families:
 
 ```bash
-for family in dense_clutter small_open large_sparse wall_gap serial_walls maze_branching bugtrap; do
- PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR="${TMPDIR:-/tmp}/mpl" \
- python script/run_suite.py \
-   --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
-   --bootstrap_results_dir "output/bootstrap_${family}_nl" \
-   --assets_dir "db/by_env/${family}_nl" \
-   --out_dir "output/benchmark_runs/nl_${family}_suite" \
-   --scenario_ids 0-2499 \
-   --block_size 500 \
-   --workers 6 \
-   --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl
+families=(
+  large_sparse
+  dense_clutter
+  serial_walls
+  maze_branching
+  long_slalom
+  bugtrap
+)
+for family in "${families[@]}"; do
+  PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. \
+  .venv/bin/python script/run_suite.py \
+    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
+    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
+    --assets_dir "db/by_env/${family}_nl" \
+    --out_dir "output/benchmark_runs/nl_${family}_suite" \
+    --scenario_ids 0-499 \
+    --block_size 100 \
+    --workers 16 \
+    --timeout_sec 60 \
+    --block_order shuffled \
+    --block_seed 42 \
+    --cl_bootstrap_solver auto \
+    --configs sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl s1_neural s2_cbf s2_mpc \
+    --cl_train_mode replay_dagger \
+    --replay_fraction 0.60 \
+    --dagger_states_per_scenario 4 \
+    --train_source s2 \
+    --bootstrap_success_weight 1.0 \
+    --dagger_success_weight 1.0 \
+    --train_epochs 12 \
+    --train_batch 64 \
+    --train_lr 0.0001 \
+    --train_device cpu \
+    --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
+    --probe_scenario_ids 0-499
 done
 ```
 
 
 
 ### 3. Plot results
-
-Example:
-
-```bash
-python plot_suite_results.py \
-  --suite_dir output/benchmark_runs/nl_dense_clutter_suite \
-  --out output/benchmark_runs/nl_dense_clutter_suite/summary.png
-```
 
 To run all archive analysis, continual-learning figures, and System 1 / System 2
 split plots in one command:
