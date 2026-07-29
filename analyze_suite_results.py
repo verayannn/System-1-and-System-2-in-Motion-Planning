@@ -154,12 +154,16 @@ def fallback_block_lookup(suite_dir: Path, configs: Iterable[str]) -> dict[int, 
 
 
 def resolve_run_file(suite_dir: Path, config: str, run: dict[str, Any], probe: bool = False) -> Path:
-    prefix = str(run.get("probe_prefix" if probe else "prefix", "")).strip()
+    prefix = str(
+        (run.get("probe_prefix") or run.get("prefix", "")) if probe else run.get("prefix", "")
+    ).strip()
     candidates = []
     if prefix:
         candidates.append(suite_dir / config / ("probe" if probe else "runs") / f"{prefix}_runs.jsonl")
         candidates.append(suite_dir / config / f"{prefix}_runs.jsonl")
-    raw = str(run.get("probe_jsonl") if probe else run.get("jsonl") or "").strip()
+    raw = str(
+        (run.get("probe_jsonl") or run.get("jsonl") or "") if probe else run.get("jsonl") or ""
+    ).strip()
     if raw:
         original = Path(raw).expanduser()
         candidates.append(original)
