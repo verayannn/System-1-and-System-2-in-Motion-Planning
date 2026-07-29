@@ -124,6 +124,7 @@ The repository scripts automatically choose a writable `MPLCONFIGDIR`, so you do
 System-1-and-System-2-in-Motion-Planning/
 ├── README.md                           # Project documentation and usage
 ├── motion_planning_solver.py           # Single-scenario planner entry point
+├── run_motion_planning_benchmarks.py   # Run motion-planning benchmarks and save JSONL/CSV metrics
 ├── visualize_mp.py                     # Single-scenario visualisation
 ├── analyze_suite_results.py            # Unified benchmark analysis pipeline
 ├── requirements.txt / pyproject.toml   # Python environment and package metadata
