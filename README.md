@@ -248,7 +248,7 @@ for family in "${families[@]}"; do
     --block_order shuffled \
     --block_seed 42 \
     --cl_bootstrap_solver auto \
-    --configs sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl s1_neural s2_cbf s2_mpc \
+    --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl \
     --cl_train_mode replay_dagger \
     --replay_fraction 0.60 \
     --dagger_states_per_scenario 4 \
@@ -267,18 +267,15 @@ done
 
 #### 3. Plot results
 
-To run all archive analysis, continual-learning figures, and System 1 / System 2
-split plots in one command:
+Plot results in one command:
 
 ```bash
-python analyze_suite_results.py \
-  --archive_dir output/benchmark_runs
+python analyze_suite_results.py --archive_dir output/benchmark_runs \
+      --families dense_clutter large_sparse maze_branching serial_walls long_slalom bugtrap \
+      --configs s1_neural s2_cbf sofai_cbf_cl s2_mpc sofai_mpc_cl sofai_mpc_warm_cl
 ```
 
-All generated CSVs, tables, and figures are written below
-`output/benchmark_runs/analysis/`. In particular, cross-family continual-learning
-figures are placed in `analysis/figures/`, and per-family System 1/System 2
-plots in `analysis/s1_s2_ratio/`.
+All generated CSVs, tables, and figures are written below `output/benchmark_runs/analysis/`.
 
 
 ## Upstream SOFAI Reference
