@@ -1,6 +1,6 @@
-<img width="468" height="24" alt="image" src="https://github.com/user-attachments/assets/deb4c489-2ef9-454f-bc80-21a1e9fa8996" /># Dual Process Motion Planning
+# Dual Process Motion Planning
 
-This repository contains the code used for the AAAI 2027 submission *Dual Process Motion Planning*. It implements a SOFAI-based dual-process motion-planning stack for 2D obstacle-avoidance tasks.
+This repository contains the code used for the AAAI 2027 submission *Dual Process Motion Planning*. It implements a SOFAI-based dual-process motion-planning stack for 2D obstacle-avoidance tasks under nonlinear dynamics.
 
 The core idea is to combine:
 
@@ -10,28 +10,19 @@ The core idea is to combine:
   - model predictive control (`mpc`)
   - control barrier functions (`cbf`)
 - **Metacognitive arbitration**: the SOFAI controller decides whether to accept the System 1 proposal or fall back to System 2
-- **Continual-learning variants**: successful System 2 trajectories will be used for retraining System 1 to improve later runs
+- **Continual-learning variants**: successful System 2 trajectories are aggregated for retraining System 1 to improve later runs
 
 
 ## Installation
 
-The recommended setup uses Python 3.10 or 3.11, `uv`, and the repo-local
-`safe_control/acados` tree. MPC additionally requires a C/C++ compiler, CMake,
-Make, and Git. System 1 and the CBF System 2 solver do not require acados.
-
-The Python environment alone is insufficient for MPC: acados native shared
-libraries must be built for the same architecture as the Python interpreter.
+Follow the steps below to install the dual-process motion-planning stack:
 
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/verayannn/System-1-and-System-2-in-Motion-Planning.git
 cd System-1-and-System-2-in-Motion-Planning
 ```
-
-`safe_control/acados` is vendored in this repository, including its required
-BLASFEO and HPIPM sources. Do not run `git -C safe_control/acados submodule
-update ...`: this vendored directory is not an independent Git worktree.
 
 ### 2. Install prerequisites
 
@@ -49,8 +40,6 @@ xcode-select --install
 brew install cmake uv
 ```
 
-Install [`uv`](https://docs.astral.sh/uv/getting-started/installation/) by its
-official instructions if it is not available through your package manager.
 
 ### 3. Create the Python environment
 
@@ -65,37 +54,11 @@ The root `pyproject.toml` installs the repo itself in editable mode and exposes 
 - `sofai/`
 - `safe_control/`
 
-Do not install `./sofai` and `./safe_control` as separate editable packages for the normal experiment environment; that reintroduces nested build-system resolution.
-
-The lock file pins a tested dependency set; use `uv sync` rather than manually
-upgrading individual scientific packages.
 
 ### 4. Build and register acados
 
 ```bash
 python script/setup_acados.py --jobs 4
-source .env.acados
-```
-
-The setup script:
-
-- builds `safe_control/acados` with CMake
-- checks that `libacados`, `libblasfeo`, and `libhpipm` exist
-- installs `acados_template` into the active Python environment
-- writes `.env.acados` with the correct library path variables for macOS or Linux
-
-It builds the portable BLASFEO `GENERIC` target. This is deliberate: the
-vendored upstream snapshot does not track BLASFEO's ignored ISA-probing assembly
-files, and `GENERIC` avoids that fragile CPU-specific probe on both macOS and
-Linux.
-
-Source `.env.acados` in every new shell before running an MPC command. It sets
-the acados source and dynamic-library paths for the local build.
-
-If you want to use a separate acados checkout instead of the repo-local one:
-
-```bash
-python script/setup_acados.py --acados_root /path/to/acados --skip_build
 source .env.acados
 ```
 
@@ -119,14 +82,6 @@ assert root is not None, "acados shared libraries were not found"
 PY
 ```
 
-If this command segfaults (exit code 139) after a prior or interrupted acados
-build, rebuild the generated native artifacts for the active machine:
-
-```bash
-rm -rf safe_control/acados/build safe_control/acados/lib
-python script/setup_acados.py --clean --jobs 4
-source .env.acados
-```
 
 ### Pip or Conda fallback
 
@@ -140,8 +95,6 @@ python -m pip install -r requirements.txt
 python script/setup_acados.py --jobs 4
 source .env.acados
 ```
-
-The repository scripts automatically choose a writable `MPLCONFIGDIR`, so you do not normally need to set it manually. If you want to override it, use a writable path such as `/tmp/mpl` on both macOS and Linux.
 
 ## Directory Structure
 
@@ -165,22 +118,37 @@ System-1-and-System-2-in-Motion-Planning/
 ```
 
 
-## Smoke Test Runs
+## Usage: Running the Benchmarks
 
-Smoke test run: for each family, use all the solvers on 20 instances.
+Supported environment families:
 
-using:
-generated instances in input
-pretrained S1 results in db/by_env
+- `large_sparse`
+- `dense_clutter`
+- `serial_walls`
+- `maze_branching`
+- `long_slalom`
+- `bugtrap`
+
+Supported benchmark configurations:
+
+- `s1_neural`
+- `s2_cbf`
+- `s2_mpc`
+- `sofai_cbf_cl`
+- `sofai_mpc_cl`
+- `sofai_mpc_warm_cl`
+
+In standard SOFAI mode, System 1 is attempted first and System 2 is invoked only when the System 1 rollout fails. Continual-learning checkpoints are updated after each benchmark block. Probe JSONLs are never used as the training inputs.
+
+### Smoke Test Run
+
+Run all benchmark configurations on 50 evaluation instances and 20 probe instances from the Dense
+Clutter and Bugtrap families. This command uses the generated instances in `input/` and the pretrained System 1 checkpoints in `db/by_env/`.
 
 
 ```bash
 families=(
-  large_sparse
   dense_clutter
-  serial_walls
-  maze_branching
-  long_slalom
   bugtrap
 )
 for family in "${families[@]}"; do
@@ -190,22 +158,22 @@ for family in "${families[@]}"; do
     --bootstrap_results_dir "output/bootstrap_${family}_nl" \
     --assets_dir "db/by_env/${family}_nl" \
     --out_dir "output/benchmark_smoke_test_runs/nl_${family}_suite" \
-    --scenario_ids 0-19 \
-    --block_size 10 \
+    --scenario_ids 0-49 \
+    --block_size 25 \
     --workers 3 \
-    --dagger_workers 3 \
     --timeout_sec 60 \
     --block_order shuffled \
     --block_seed 42 \
     --cl_bootstrap_solver auto \
-    --configs sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl s1_neural s2_cbf s2_mpc \
+    --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl \
     --cl_train_mode replay_dagger \
     --replay_fraction 0.60 \
     --dagger_states_per_scenario 4 \
+    --dagger_workers 3 \
     --train_source s2 \
     --bootstrap_success_weight 1.0 \
     --dagger_success_weight 1.0 \
-    --train_epochs 6 \
+    --train_epochs 10 \
     --train_batch 32 \
     --train_lr 0.0001 \
     --train_device cpu \
@@ -215,9 +183,9 @@ done
 ```
 
 
-## Usage: Running the Benchmarks
+### Full-Scale Benchmark Run
 
-### 1. Generate S1 assets and benchmark dictionaries
+#### 1. Generate S1 assets and benchmark dictionaries
 
 Use `script/prepare_environment_assets.py` to create:
 
@@ -227,27 +195,6 @@ Use `script/prepare_environment_assets.py` to create:
 - solver-ready benchmark dictionaries
 - probe set for continual learning evaluation
 
-Supported environment families:
-
-
-- `large_sparse`
-- `dense_clutter`
-- `serial_walls`
-- `maze_branching`
-- `long_slalom`
-- `bugtrap`
-
-For a single family with S2 CBF solver:
-
-```bash
-python script/prepare_environment_assets.py \
-  --family dense_clutter \
-  --train_n_per_family 100 \
-  --eval_n_per_family 500 \
-  --s2_solver cbf
-```
-
-For all the families:
 
 ```bash
 export SOFAI_S1_FILTER_MODE=policy
@@ -276,22 +223,7 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. \
 ```
 
 
-
-### 2. Run the full benchmark set
-
-`script/run_suite.py` supports:
-
-- `s1_neural`
-- `s2_cbf`
-- `s2_mpc`
-- `sofai_cbf_cl`
-- `sofai_mpc_cl`
-- `sofai_mpc_warm_cl`
-
-
-SOFAI always runs S1 first and invokes S2 only after a failed S1 rollout. Each CL checkpoint is retrained from the frozen base model using the successful base and completed benchmark trajectories only. Probe JSONLs are never training inputs. 
-
-For all the families:
+#### 2. Run the full benchmark set
 
 ```bash
 families=(
@@ -312,7 +244,6 @@ for family in "${families[@]}"; do
     --scenario_ids 0-499 \
     --block_size 100 \
     --workers 16 \
-    --dagger_workers 8 \
     --timeout_sec 60 \
     --block_order shuffled \
     --block_seed 42 \
@@ -334,13 +265,7 @@ for family in "${families[@]}"; do
 done
 ```
 
-`--dagger_workers` controls scenario-level parallelism while collecting S2
-DAgger recoveries. It defaults to `0`, which reuses `--workers`; set it to `1`
-to collect sequentially.
-
-
-
-### 3. Plot results
+#### 3. Plot results
 
 To run all archive analysis, continual-learning figures, and System 1 / System 2
 split plots in one command:
@@ -362,4 +287,4 @@ This repository vendors and extends the SOFAI framework locally under `sofai/`. 
 
 [ai4society/sofai_tool](https://github.com/ai4society/sofai_tool/)
 
-This repo adds the motion-planning experiments, benchmark generators, solver wrappers, neural System 1 path, and continual-learning benchmark workflows used in the NeurIPS submission.
+This repo adds the motion-planning experiments, benchmark generators, solver wrappers, neural System 1 path, and continual-learning benchmark workflows used in the AAAI submission.
