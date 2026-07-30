@@ -15,9 +15,12 @@ The core idea is to combine:
 
 ## Installation
 
-The recommended setup uses `uv` plus the repo-local `safe_control/acados` tree. This works on macOS and Linux as long as the machine has a C/C++ compiler, `cmake`, `make`, and `git`.
+The recommended setup uses Python 3.10 or 3.11, `uv`, and the repo-local
+`safe_control/acados` tree. MPC additionally requires a C/C++ compiler, CMake,
+Make, and Git. System 1 and the CBF System 2 solver do not require acados.
 
-System 2 MPC is acados-only in this repo. The Python dependencies can be installed by `uv` or `pip`, but the native acados shared libraries must still be built with CMake. System 1 and System 2 CBF do not require acados.
+The Python environment alone is insufficient for MPC: acados native shared
+libraries must be built for the same architecture as the Python interpreter.
 
 ### 1. Clone the repository
 
@@ -30,7 +33,26 @@ cd System-1-and-System-2-in-Motion-Planning
 BLASFEO and HPIPM sources. Do not run `git -C safe_control/acados submodule
 update ...`: this vendored directory is not an independent Git worktree.
 
-### 2. Install Python dependencies with `uv`
+### 2. Install prerequisites
+
+On Ubuntu/Debian:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y git build-essential cmake python3-dev
+```
+
+On macOS:
+
+```bash
+xcode-select --install
+brew install cmake uv
+```
+
+Install [`uv`](https://docs.astral.sh/uv/getting-started/installation/) by its
+official instructions if it is not available through your package manager.
+
+### 3. Create the Python environment
 
 ```bash
 uv venv --python 3.10
@@ -45,9 +67,10 @@ The root `pyproject.toml` installs the repo itself in editable mode and exposes 
 
 Do not install `./sofai` and `./safe_control` as separate editable packages for the normal experiment environment; that reintroduces nested build-system resolution.
 
-It also keeps the numerical stack on `numpy>=1.26.4,<2.0`, which avoids the previous mismatch between vendored SOFAI and `safe_control`.
+The lock file pins a tested dependency set; use `uv sync` rather than manually
+upgrading individual scientific packages.
 
-### 3. Build and register acados
+### 4. Build and register acados
 
 ```bash
 python script/setup_acados.py --jobs 4
@@ -66,19 +89,8 @@ vendored upstream snapshot does not track BLASFEO's ignored ISA-probing assembly
 files, and `GENERIC` avoids that fragile CPU-specific probe on both macOS and
 Linux.
 
-On Linux servers, install native build tools first if they are missing:
-
-```bash
-sudo apt-get update
-sudo apt-get install -y git build-essential cmake python3-dev
-```
-
-On macOS, install build tools if they are missing:
-
-```bash
-xcode-select --install
-brew install cmake
-```
+Source `.env.acados` in every new shell before running an MPC command. It sets
+the acados source and dynamic-library paths for the local build.
 
 If you want to use a separate acados checkout instead of the repo-local one:
 
@@ -87,25 +99,38 @@ python script/setup_acados.py --acados_root /path/to/acados --skip_build
 source .env.acados
 ```
 
-### 4. Verify the install
+### 5. Verify the installation
 
 ```bash
 python - <<'PY'
+import acados_template
 import sofai_tool
 import safe_control
 from solvers._s2_common import detect_acados_root
+from solvers.S2_mpc import solve_MPC_with_info
 
 root = detect_acados_root()
+print("acados_template import: ok")
 print("SOFAI import: ok")
 print("safe_control import: ok")
+print("MPC solver import: ok")
 print("acados root:", root)
 assert root is not None, "acados shared libraries were not found"
 PY
 ```
 
+If this command segfaults (exit code 139) after a prior or interrupted acados
+build, rebuild the generated native artifacts for the active machine:
+
+```bash
+rm -rf safe_control/acados/build safe_control/acados/lib
+python script/setup_acados.py --clean --jobs 4
+source .env.acados
+```
+
 ### Pip or Conda fallback
 
-If `uv` is not available, use a Python 3.10 environment and install the compatibility requirements:
+If `uv` is not available, use Python 3.10 or 3.11:
 
 ```bash
 python3.10 -m venv .venv
@@ -280,6 +305,7 @@ for family in "${families[@]}"; do
     --scenario_ids 0-499 \
     --block_size 100 \
     --workers 16 \
+    --dagger_workers 8 \
     --timeout_sec 60 \
     --block_order shuffled \
     --block_seed 42 \
@@ -299,6 +325,10 @@ for family in "${families[@]}"; do
     --probe_scenario_ids 0-499
 done
 ```
+
+`--dagger_workers` controls scenario-level parallelism while collecting S2
+DAgger recoveries. It defaults to `0`, which reuses `--workers`; set it to `1`
+to collect sequentially.
 
 
 

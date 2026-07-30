@@ -9,15 +9,19 @@ trainer reconstructs the correct map, goal, and nonlinear dynamics context.
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ProcessPoolExecutor
 import json
 import os
 import sys
+from collections import Counter
 from dataclasses import replace
 from pathlib import Path
 from typing import Any, Iterable
 
 import numpy as np
 import torch
+
+_WORKER: dict[str, Any] = {}
 
 
 def parse_ids(value: str, count: int) -> list[int]:
@@ -85,6 +89,106 @@ def valid_recovery(
     return True, "ok"
 
 
+def initialize_worker(
+    root_value: str,
+    dictionary_value: str,
+    model_value: str,
+    s2_solver: str,
+    states_per_scenario: int,
+    device_name: str,
+) -> None:
+    """Load read-only scenario and policy state once in each worker."""
+    root = Path(root_value)
+    for path in (root, root / "sofai"):
+        if str(path) not in sys.path:
+            sys.path.insert(0, str(path))
+
+    from input.input_handler import load_scenarios
+    from solvers._s2_common import resolve_mplconfigdir
+    from solvers.s1_nonlinear import load_s1_checkpoint
+
+    if s2_solver == "mpc":
+        from solvers.S2_mpc import solve_MPC_with_info as solve_with_info
+    else:
+        from solvers.S2_cbf import solve_CBF_with_info as solve_with_info
+
+    os.environ["MPLCONFIGDIR"] = str(resolve_mplconfigdir(root, os.environ.get("MPLCONFIGDIR")))
+    device = torch.device(device_name)
+    model, norm, meta = load_s1_checkpoint(Path(model_value), device)
+    _WORKER.update(
+        root=root,
+        scenarios=load_scenarios(dictionary_value),
+        model=model,
+        norm=norm,
+        settings=dict(meta.get("dataset_meta", {})),
+        device=device,
+        s2_solver=s2_solver,
+        solve_with_info=solve_with_info,
+        dictionary=str(dictionary_value),
+        states_per_scenario=int(states_per_scenario),
+    )
+
+
+def collect_scenario(
+    scenario_index: int,
+) -> tuple[int, list[dict[str, Any]], int, dict[str, int]]:
+    """Collect all valid teacher recoveries for one scenario."""
+    from solvers.s1_nonlinear import rollout_policy
+
+    scenario = _WORKER["scenarios"][scenario_index]
+    settings = _WORKER["settings"]
+    states, _inputs, _info = rollout_policy(
+        _WORKER["model"],
+        scenario,
+        _WORKER["norm"],
+        _WORKER["device"],
+        total_steps=int(settings.get("n_steps_nom", 200)),
+        dt_nom=float(settings.get("dt_nom", 0.05)),
+        u_max_nom=float(settings.get("u_max_nom", scenario.u_max)),
+        collision_margin=0.2,
+        goal_tol=float(scenario.goal_tol),
+        grid_n=int(settings.get("grid_n", 25)),
+        n_steps_nom=int(settings.get("n_steps_nom", 200)),
+        buffer_cells=int(settings.get("buffer_cells", 2)),
+        stop_tol=float(settings.get("stop_tol", scenario.goal_tol)),
+    )
+
+    rows: list[dict[str, Any]] = []
+    attempted = 0
+    rejected: Counter[str] = Counter()
+    for state_index in sample_indices(len(states), int(_WORKER["states_per_scenario"])):
+        attempted += 1
+        recovery_start = np.asarray(states[state_index], dtype=float)
+        override = scenario_override(scenario, recovery_start)
+        recovery_problem = replace(scenario, start=tuple(map(float, recovery_start[:2])))
+        result = _WORKER["solve_with_info"](recovery_problem)
+        valid, reason = valid_recovery(result, recovery_start)
+        if not valid:
+            rejected[reason] += 1
+            continue
+        attempt = {
+            "name": f"s2_{_WORKER['s2_solver']}_dagger",
+            "system": "s2",
+            "success": True,
+            "states": np.asarray(result["states"], dtype=float).tolist(),
+            "inputs": np.asarray(result.get("inputs", []), dtype=float).tolist(),
+            "dt": float(result.get("dt", settings.get("dt_nom", 0.05))),
+        }
+        rows.append(
+            {
+                "run_type": "s2",
+                "dictionary": _WORKER["dictionary"],
+                "scenario_index": int(scenario_index),
+                "scenario_override": override,
+                "dagger": True,
+                "attempts": [attempt],
+                "selected_attempt": attempt["name"],
+                "success": True,
+            }
+        )
+    return scenario_index, rows, attempted, dict(rejected)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default=Path(__file__).resolve().parents[1])
@@ -92,6 +196,12 @@ def main() -> None:
     parser.add_argument("--s1_model", required=True)
     parser.add_argument("--scenario_ids", default="all")
     parser.add_argument("--states_per_scenario", type=int, default=4)
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Number of scenario-level DAgger collection workers (default: 1).",
+    )
     parser.add_argument(
         "--s2_solver",
         choices=["mpc", "cbf"],
@@ -105,15 +215,6 @@ def main() -> None:
     for path in (root, root / "sofai"):
         if str(path) not in sys.path:
             sys.path.insert(0, str(path))
-    from input.input_handler import load_scenarios
-    from solvers._s2_common import resolve_mplconfigdir
-    from solvers.s1_nonlinear import load_s1_checkpoint, rollout_policy
-    if args.s2_solver == "mpc":
-        from solvers.S2_mpc import solve_MPC_with_info as solve_with_info
-    else:
-        from solvers.S2_cbf import solve_CBF_with_info as solve_with_info
-
-    os.environ["MPLCONFIGDIR"] = str(resolve_mplconfigdir(root, os.environ.get("MPLCONFIGDIR")))
     dictionary = Path(args.dictionary).expanduser()
     if not dictionary.is_absolute():
         dictionary = root / dictionary
@@ -125,69 +226,53 @@ def main() -> None:
         out_jsonl = root / out_jsonl
     out_jsonl.parent.mkdir(parents=True, exist_ok=True)
 
-    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    model, norm, meta = load_s1_checkpoint(model_path, device)
-    settings = dict(meta.get("dataset_meta", {}))
-    scenarios = load_scenarios(str(dictionary))
-    ids = parse_ids(args.scenario_ids, len(scenarios))
+    from input.input_handler import load_scenarios
+
+    ids = parse_ids(args.scenario_ids, len(load_scenarios(str(dictionary))))
+    workers = max(1, int(args.workers))
     collected = 0
     attempted = 0
-    rejected: dict[str, int] = {}
+    rejected: Counter[str] = Counter()
+    # Independent MPS rollouts are not safe across subprocesses. The recovery
+    # solvers dominate collection time, so parallel workers use CPU for S1.
+    initializer_args = (
+        str(root),
+        str(dictionary),
+        str(model_path),
+        args.s2_solver,
+        int(args.states_per_scenario),
+        "cpu" if workers > 1 else ("mps" if torch.backends.mps.is_available() else "cpu"),
+    )
 
     with out_jsonl.open("w") as handle:
-        for scenario_index in ids:
-            scenario = scenarios[scenario_index]
-            states, _inputs, _info = rollout_policy(
-                model,
-                scenario,
-                norm,
-                device,
-                total_steps=int(settings.get("n_steps_nom", 200)),
-                dt_nom=float(settings.get("dt_nom", 0.05)),
-                u_max_nom=float(settings.get("u_max_nom", scenario.u_max)),
-                collision_margin=0.2,
-                goal_tol=float(scenario.goal_tol),
-                grid_n=int(settings.get("grid_n", 25)),
-                n_steps_nom=int(settings.get("n_steps_nom", 200)),
-                buffer_cells=int(settings.get("buffer_cells", 2)),
-                stop_tol=float(settings.get("stop_tol", scenario.goal_tol)),
-            )
-            for state_index in sample_indices(len(states), int(args.states_per_scenario)):
-                attempted += 1
-                recovery_start = np.asarray(states[state_index], dtype=float)
-                override = scenario_override(scenario, recovery_start)
-                # S2 solvers consume MazeProblem attributes, not a serialised
-                # dictionary. Passing ``override`` directly silently substituted
-                # their zero-valued defaults and produced fake [0, 0] recoveries.
-                recovery_problem = replace(
-                    scenario,
-                    start=tuple(map(float, recovery_start[:2])),
-                )
-                result = solve_with_info(recovery_problem)
-                valid, reason = valid_recovery(result, recovery_start)
-                if not valid:
-                    rejected[reason] = rejected.get(reason, 0) + 1
-                    continue
-                attempt = {
-                    "name": f"s2_{args.s2_solver}_dagger",
-                    "system": "s2",
-                    "success": True,
-                    "states": np.asarray(result["states"], dtype=float).tolist(),
-                    "inputs": np.asarray(result.get("inputs", []), dtype=float).tolist(),
-                    "dt": float(result.get("dt", settings.get("dt_nom", 0.05))),
-                }
-                row = {
-                    "run_type": "s2",
-                    "dictionary": str(dictionary),
-                    "scenario_index": int(scenario_index),
-                    "scenario_override": override,
-                    "dagger": True,
-                    "attempts": [attempt],
-                    "selected_attempt": attempt["name"],
-                    "success": True,
-                }
+        if workers == 1:
+            initialize_worker(*initializer_args)
+            results = map(collect_scenario, ids)
+        else:
+            with ProcessPoolExecutor(
+                max_workers=workers,
+                initializer=initialize_worker,
+                initargs=initializer_args,
+            ) as executor:
+                # executor.map preserves scenario order, keeping JSONL output
+                # deterministic regardless of worker completion order.
+                for scenario_index, rows, scenario_attempted, scenario_rejected in executor.map(
+                    collect_scenario,
+                    ids,
+                ):
+                    for row in rows:
+                        handle.write(json.dumps(row) + "\n")
+                    collected += len(rows)
+                    attempted += scenario_attempted
+                    rejected.update(scenario_rejected)
+                    print(f"[dagger] scenario={scenario_index} collected={collected} attempted={attempted}")
+                results = ()
+        for scenario_index, rows, scenario_attempted, scenario_rejected in results:
+            for row in rows:
                 handle.write(json.dumps(row) + "\n")
-                collected += 1
+            collected += len(rows)
+            attempted += scenario_attempted
+            rejected.update(scenario_rejected)
             print(f"[dagger] scenario={scenario_index} collected={collected} attempted={attempted}")
     print(
         f"[write] {out_jsonl} teacher={args.s2_solver} "

@@ -116,6 +116,15 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out_dir", default="output/benchmark_runs/nl_bugtrap_suite")
     p.add_argument("--timeout_sec", type=float, default=60.0)
     p.add_argument("--workers", type=int, default=1)
+    p.add_argument(
+        "--dagger_workers",
+        type=int,
+        default=0,
+        help=(
+            "Scenario-level workers for DAgger collection. "
+            "0 reuses --workers; 1 keeps collection sequential."
+        ),
+    )
     p.add_argument("--s1_model", default="")
     p.add_argument("--train_epochs", type=int, default=30)
     p.add_argument("--train_batch", type=int, default=64)
@@ -481,6 +490,7 @@ def collect_s2_dagger(
     states_per_scenario: int,
     s2_solver: str,
     out_jsonl: Path,
+    workers: int,
     env: Dict[str, str],
     dry_run: bool,
 ) -> Path:
@@ -501,6 +511,8 @@ def collect_s2_dagger(
         s2_solver,
         "--out_jsonl",
         str(out_jsonl),
+        "--workers",
+        str(max(1, int(workers))),
     ]
     run(cmd, cwd=root, env=env, dry_run=dry_run)
     return out_jsonl
@@ -574,6 +586,7 @@ def main() -> None:
     probe_ids = parse_ids(args.probe_scenario_ids, probe_count) if str(args.probe_scenario_ids).strip() else []
     workers = effective_workers(args.workers)
     probe_workers = effective_workers(args.probe_workers or args.workers)
+    dagger_workers = max(1, int(args.dagger_workers or args.workers))
 
     # Standalone S1/S2 arms keep the legacy unsuffixed checkpoint; each CL arm
     # resolves its own teacher-matched checkpoint below.
@@ -785,6 +798,7 @@ def main() -> None:
                         states_per_scenario=int(args.dagger_states_per_scenario),
                         s2_solver=dagger_solver,
                         out_jsonl=dagger_jsonl,
+                        workers=dagger_workers,
                         env=env,
                         dry_run=args.dry_run,
                     )
