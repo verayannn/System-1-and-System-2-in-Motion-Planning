@@ -126,7 +126,7 @@ THIS_DIR = Path(__file__).resolve().parent
 SOLVER_DIR = THIS_DIR.parent
 INSTANCE_DIR = SOLVER_DIR.parent
 LEGACY_CODES_ROOT = Path(
-    os.environ.get("SOFAI_LEGACY_CODES_ROOT", "/Users/apple/Desktop/S1:2 codes")
+    os.environ.get("SOFAI_LEGACY_CODES_ROOT", INSTANCE_DIR)
 ).expanduser()
 
 

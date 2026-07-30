@@ -5,7 +5,7 @@ Run from the repo root:
 
 
 PYTHONDONTWRITEBYTECODE=1 \
-/Users/apple/miniconda3/envs/s12_env/bin/python3.10 run_motion_planning_benchmarks.py \
+python run_motion_planning_benchmarks.py \
   --patterns benchmark_dualmp_dense_clutter.json \
   --scenario_ids 2 \
   --s1 neural \

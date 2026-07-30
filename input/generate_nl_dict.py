@@ -6,7 +6,7 @@ generate_benchmark_dictionaries.py. The difference is the query dynamics:
 each scenario now stores an explicit nonlinear model description instead of
 linearized A/B matrices.
 
-cd /Users/apple/Desktop/sofai
+cd /path/to/System-1-and-System-2-in-Motion-Planning
 python input/generate_nl_dict.py \
   --families dense_clutter \
   --n_per_family 50 \

@@ -2999,7 +2999,7 @@ def main_dagger_continual():
 # Full-retrain CLI path helpers
 # ============================================================
 
-LEGACY_CODES_ROOT = Path(os.environ.get("SOFAI_LEGACY_CODES_ROOT", "/Users/apple/Desktop/S1:2 codes")).expanduser()
+LEGACY_CODES_ROOT = Path(os.environ.get("SOFAI_LEGACY_CODES_ROOT", ROOT_DIR)).expanduser()
 
 
 def resolve_full_retrain_path(path_like: str, *, required: bool = False) -> Path:

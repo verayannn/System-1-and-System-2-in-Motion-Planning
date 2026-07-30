@@ -392,7 +392,7 @@ def plot_paper_figures(probes: list[dict[str, Any]], out_dir: Path) -> None:
     lookup: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in probes: lookup[(str(row["family"]), str(row["config"]))].append(row)
     for metric, column, ylabel, filename, scale in (
-        ("success", "success_rate", "Probe success rate (%)", "continual_learning.pdf", 100.0),
+        ("success", "success_rate", "Probe success rate (%)", "continual_learning_succ.pdf", 100.0),
         ("quality", "mean_quality", "Mean trajectory quality $Q$", "continual_learning_quality.pdf", 1.0),
     ):
         figure, axes = plt.subplots(2, 3, figsize=(7.2, 4.4), sharex=True)
