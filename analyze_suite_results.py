@@ -175,6 +175,26 @@ def resolve_run_file(suite_dir: Path, config: str, run: dict[str, Any], probe: b
     raise FileNotFoundError(f"No {'probe ' if probe else ''}JSONL found for {config}/{prefix or raw}")
 
 
+def resolve_probe_summary_file(suite_dir: Path, config: str, run: dict[str, Any]) -> Path:
+    prefix = str(run.get("probe_prefix") or run.get("prefix", "")).strip()
+    candidates = []
+    if prefix:
+        candidates.append(suite_dir / config / "probe" / f"{prefix}_summary.csv")
+        candidates.append(suite_dir / config / f"{prefix}_summary.csv")
+    raw = str(run.get("probe_summary_csv") or run.get("probe_jsonl") or run.get("jsonl") or "").strip()
+    if raw:
+        original = Path(raw).expanduser()
+        candidates.append(original)
+        candidates.append(original.with_name(re.sub(r"_runs\.jsonl$", "_summary.csv", original.name)))
+        if suite_dir.name in original.parts:
+            relative = original.parts[original.parts.index(suite_dir.name) + 1:]
+            candidates.append(suite_dir.joinpath(*relative).with_name(re.sub(r"_runs\.jsonl$", "_summary.csv", original.name)))
+    for path in candidates:
+        if path.is_file():
+            return path
+    raise FileNotFoundError(f"No probe summary CSV found for {config}/{prefix or raw}")
+
+
 def direct_rows(suite_dir: Path, config: str, block_size: int) -> list[tuple[int, dict[str, Any]]]:
     files = [path for path in sorted((suite_dir / config).rglob("*_runs.jsonl")) if "probe" not in path.parts]
     if not files:
@@ -225,11 +245,20 @@ def probe_rows(suite_dir: Path, manifest: dict[str, Any], config: str) -> list[t
         try:
             rows.extend((-1, row) for row in read_jsonl(resolve_run_file(suite_dir, config, base, True)))
         except FileNotFoundError:
-            pass
+            try:
+                rows.extend((-1, row) for row in read_summary_csv(resolve_probe_summary_file(suite_dir, config, base)))
+            except FileNotFoundError:
+                pass
     for default, run in enumerate(config_data.get("runs", [])):
         if run.get("probe_jsonl") or run.get("probe_prefix"):
             block = file_block_index(Path(str(run.get("prefix", "")))) or default
-            rows.extend((block, row) for row in read_jsonl(resolve_run_file(suite_dir, config, run, True)))
+            try:
+                rows.extend((block, row) for row in read_jsonl(resolve_run_file(suite_dir, config, run, True)))
+            except FileNotFoundError:
+                try:
+                    rows.extend((block, row) for row in read_summary_csv(resolve_probe_summary_file(suite_dir, config, run)))
+                except FileNotFoundError:
+                    pass
     if rows:
         return rows
     for path in summary_files(suite_dir, config, True):
