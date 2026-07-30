@@ -142,8 +142,44 @@ In standard SOFAI mode, System 1 is attempted first and System 2 is invoked only
 
 ### Smoke Test Run
 
+
+#### 1. Generate S1 assets and benchmark dictionaries
+
+Use `script/prepare_environment_assets.py` to create:
+
+- successful S2 trajectory libraries
+- neural-policy training datasets
+- trained neural S1 checkpoints
+- solver-ready benchmark dictionaries
+- probe set for continual learning evaluation
+
+```bash
+export SOFAI_S1_FILTER_MODE=policy
+families=(
+  dense_clutter
+  bugtrap
+)
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. \
+.venv/bin/python script/prepare_environment_assets.py \
+  --families "${families[@]}" \
+  --s2_solvers cbf mpc \
+  --train_n_per_family 100 \
+  --eval_n_per_family 500 \
+  --probe_n_per_family 500 \
+  --train_seed 7 \
+  --eval_seed 8 \
+  --probe_seed 700 \
+  --train_epochs 35 \
+  --train_batch 64 \
+  --train_lr 0.0003 \
+  --workers 16
+```
+
+
+#### 2. Run the smoke test benchmark sets
+
 Run all benchmark configurations on 50 evaluation instances and 20 probe instances from the Dense
-Clutter and Bugtrap families. This command uses the generated instances in `input/` and the pretrained System 1 checkpoints in `db/by_env/`.
+Clutter and Bugtrap families. This command uses the generated instances in `input/` and the pretrained System 1 checkpoints in `db/` from above.
 
 
 ```bash
@@ -183,17 +219,12 @@ done
 ```
 
 
+Delete the `input/` and `db/` folders after the smoke test completes.
+
+
 ### Full-Scale Benchmark Run
 
 #### 1. Generate S1 assets and benchmark dictionaries
-
-Use `script/prepare_environment_assets.py` to create:
-
-- successful S2 trajectory libraries
-- neural-policy training datasets
-- trained neural S1 checkpoints
-- solver-ready benchmark dictionaries
-- probe set for continual learning evaluation
 
 
 ```bash
