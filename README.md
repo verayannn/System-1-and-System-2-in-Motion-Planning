@@ -1,4 +1,4 @@
-# Dual Process Motion Planning
+<img width="468" height="24" alt="image" src="https://github.com/user-attachments/assets/deb4c489-2ef9-454f-bc80-21a1e9fa8996" /># Dual Process Motion Planning
 
 This repository contains the code used for the AAAI 2027 submission *Dual Process Motion Planning*. It implements a SOFAI-based dual-process motion-planning stack for 2D obstacle-avoidance tasks.
 
@@ -165,47 +165,54 @@ System-1-and-System-2-in-Motion-Planning/
 ```
 
 
-## Usage: Run One Scenario
+## Smoke Test Runs
 
-`motion_planning_solver.py` is the main single-scenario driver. It supports:
+Smoke test run: for each family, use all the solvers on 20 instances.
 
-- `--s1`: `neural`
-- `--s2`: `mpc` or `cbf`
-- `--run_type`: `s1`, `s2`, or `sofai`
+using:
+generated instances in input
+pretrained S1 results in db/by_env
 
-Example: run the dual-process planner with System 1 and MPC System 2:
-
-```bash
-python motion_planning_solver.py \
-  --problem_dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
-  --scenario_id 1 \
-  --s1 neural \
-  --s2 mpc \
-  --run_type sofai
-```
-
-Example: neural System 1 only:
 
 ```bash
-python motion_planning_solver.py \
-  --problem_dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
-  --scenario_id 1 \
-  --s1 neural \
-  --s2 mpc \
-  --run_type s1
+families=(
+  large_sparse
+  dense_clutter
+  serial_walls
+  maze_branching
+  long_slalom
+  bugtrap
+)
+for family in "${families[@]}"; do
+  PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. \
+  .venv/bin/python script/run_suite.py \
+    --dictionary "input/nl/benchmark_dualmp_nl_${family}_eval_${family}.json" \
+    --bootstrap_results_dir "output/bootstrap_${family}_nl" \
+    --assets_dir "db/by_env/${family}_nl" \
+    --out_dir "output/benchmark_smoke_test_runs/nl_${family}_suite" \
+    --scenario_ids 0-19 \
+    --block_size 10 \
+    --workers 3 \
+    --dagger_workers 3 \
+    --timeout_sec 60 \
+    --block_order shuffled \
+    --block_seed 42 \
+    --cl_bootstrap_solver auto \
+    --configs sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl s1_neural s2_cbf s2_mpc \
+    --cl_train_mode replay_dagger \
+    --replay_fraction 0.60 \
+    --dagger_states_per_scenario 4 \
+    --train_source s2 \
+    --bootstrap_success_weight 1.0 \
+    --dagger_success_weight 1.0 \
+    --train_epochs 6 \
+    --train_batch 32 \
+    --train_lr 0.0001 \
+    --train_device cpu \
+    --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
+    --probe_scenario_ids 0-19
+done
 ```
-
-Example: CBF System 2 only:
-
-```bash
-python motion_planning_solver.py \
-  --problem_dictionary input/nl/benchmark_dualmp_nl_dense_clutter_eval_dense_clutter.json \
-  --scenario_id 1 \
-  --s1 neural \
-  --s2 cbf \
-  --run_type s2
-```
-
 
 
 ## Usage: Running the Benchmarks
@@ -314,6 +321,7 @@ for family in "${families[@]}"; do
     --cl_train_mode replay_dagger \
     --replay_fraction 0.60 \
     --dagger_states_per_scenario 4 \
+    --dagger_workers 8 \
     --train_source s2 \
     --bootstrap_success_weight 1.0 \
     --dagger_success_weight 1.0 \
