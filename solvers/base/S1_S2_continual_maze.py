@@ -1,23 +1,6 @@
 """
 S1_S2_continual_maze.py - memory + neural System-1 continual learning.
 
-This is the maintained Base implementation used by S1_memory_neural.py. It keeps
-the full-retrain behavior from the original continual_full_retrain.py while
-using local mpc-sofai paths by default.
-
-Convention:
-    A: 2x2
-    B: 2xm, usually 2x2 in the current maze experiments
-    dyn = [A_local.flatten(), B_local.flatten(), drift_local]
-
-Run from sofai_tool/sofai_instances/mpc-sofai:
-    python Solvers/Base/S1_S2_continual_maze.py \
-      --scenarios input/benchmark_scenarios_maze_1199_block200.json \
-      --initial_model Solvers/s1_policy_control_cnn_diverse_5k.pth \
-      --base_dataset Solvers/nn_dataset_maze_diverse_5k.npz \
-      --base_memory_traj_npz Solvers/s1_sfcbf_success_trajs_diverse_5k.npz \
-      --base_memory_scenarios Solvers/benchmark_scenarios_maze_diverse_5k.json \
-      --workdir output/paper_1199_full_retrain_s2only
 """
 
 from __future__ import annotations
@@ -3003,7 +2986,6 @@ LEGACY_CODES_ROOT = Path(os.environ.get("SOFAI_LEGACY_CODES_ROOT", ROOT_DIR)).ex
 
 
 def resolve_full_retrain_path(path_like: str, *, required: bool = False) -> Path:
-    """Resolve old maze/n_s1 paths when this script is run from mpc-sofai."""
     p = Path(path_like).expanduser()
     candidates = [p]
     if not p.is_absolute():
@@ -3032,7 +3014,6 @@ def resolve_full_retrain_path(path_like: str, *, required: bool = False) -> Path
 
 
 def resolve_full_retrain_output_path(path_like: str) -> Path:
-    """Resolve relative output paths under the mpc-sofai instance root."""
     p = Path(path_like).expanduser()
     if p.is_absolute():
         return p

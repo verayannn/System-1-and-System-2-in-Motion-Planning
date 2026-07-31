@@ -416,7 +416,6 @@ def generate(args: argparse.Namespace) -> Dict[str, object]:
         },
         "notes": [
             "Generated dictionaries are 2D because the current solver is 2D.",
-            "Files are separated by benchmark_family so NeurIPS tables can report by family.",
             "The optional *_all.json file is for aggregate sweeps.",
         ],
     }

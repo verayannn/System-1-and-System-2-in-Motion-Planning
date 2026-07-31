@@ -109,7 +109,6 @@ except ImportError:
     except ImportError as e:
         raise ImportError(
             "Could not import S2_cbf_maze.py. Keep it in Solvers/Base/ "
-            "or run this script from the mpc-sofai instance root."
         ) from e
 
 

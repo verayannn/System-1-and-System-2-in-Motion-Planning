@@ -1,5 +1,5 @@
 """
-train_nn_policy.py - neural System-1 policy trainer for the mpc-sofai maze setup.
+train_nn_policy.py - neural System-1 policy trainer.
 
 Model:
     (local context, situation vector, local dynamics features, local goal vector) -> u_t
@@ -137,7 +137,6 @@ def _strip_legacy_maze_prefix(path: Path) -> Path:
 
 
 def resolve_existing_path(path_like: str, *, required: bool = False) -> Path:
-    """Resolve CLI inputs from mpc-sofai first, then the legacy maze folder."""
     if not path_like:
         return Path()
 
@@ -166,7 +165,6 @@ def resolve_existing_path(path_like: str, *, required: bool = False) -> Path:
 
 
 def resolve_output_path(path_like: str) -> Path:
-    """Keep generated model artifacts inside mpc-sofai unless an absolute path is given."""
     path = Path(path_like).expanduser()
     if path.is_absolute():
         return path
