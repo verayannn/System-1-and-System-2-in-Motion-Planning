@@ -206,7 +206,7 @@ done
 ```
 
 
-Delete the `input/` and `db/` folders after the smoke test completes.
+Delete the `input/nl` and `db/` folders after the smoke test completes.
 
 
 ### Full-Scale Benchmark Run
