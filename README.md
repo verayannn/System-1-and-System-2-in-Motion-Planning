@@ -290,7 +290,7 @@ Plot results in one command:
 ```bash
 python analyze_suite_results.py --archive_dir output/benchmark_runs \
       --families dense_clutter large_sparse maze_branching serial_walls long_slalom bugtrap \
-      --configs s1_neural s2_cbf sofai_cbf_cl s2_mpc sofai_mpc_cl sofai_mpc_warm_cl
+      --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl
 ```
 
 All generated CSVs, tables, and figures are written below `output/benchmark_runs/analysis/`.
