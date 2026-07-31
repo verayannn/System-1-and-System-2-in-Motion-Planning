@@ -98,8 +98,8 @@ tmp/
 temp/
 
 
-
 # =========================
 # Database files
 # =========================
 db/by_env/
+db/plan_experience.json

@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 """Analyze a complete ``run_suite.py`` archive and write all artefacts below ``analysis/``.
 
-Example::
+Alongside the per-family and aggregate summaries, this writes the paper tables:
+``per_family_results.tex``, ``continual_learning_results.tex``, and
+``warm_start_ablation.tex``.
 
-    python analyze_suite_results.py --archive_dir output/benchmark_runs \
+Example:
+
+    python analyze_suite_results.py --archive_dir output/benchmark_runs_concise \
       --families dense_clutter large_sparse maze_branching serial_walls long_slalom bugtrap \
-      --configs s1_neural s2_cbf sofai_cbf_cl s2_mpc sofai_mpc_cl sofai_mpc_warm_cl
+      --configs s1_neural sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl
+
 """
 from __future__ import annotations
 
@@ -24,9 +29,9 @@ import numpy as np
 from solvers._s2_common import resolve_mplconfigdir
 
 METHOD_LABELS = {
-    "s1_neural": "NN", "s2_mpc": "MPC", "s2_cbf": "CBF",
-    "sofai_cbf_cl": "sofai CBF CL", "sofai_mpc_cl": "sofai MPC CL",
-    "sofai_mpc_warm_cl": "sofai MPC warm CL",
+    "s1_neural": "NN", "s2_cbf": "CBF", "s2_mpc": "MPC",
+    "sofai_cbf_cl": "DMP-CBF", "sofai_mpc_cl": "DMP-MPC",
+    "sofai_mpc_warm_cl": "DMP-Warm",
 }
 METHOD_ORDER = tuple(METHOD_LABELS)
 BOOLEAN_COLUMNS = frozenset({
@@ -39,10 +44,15 @@ FAMILIES = (
     ("serial_walls", "Serial walls"), ("maze_branching", "Maze branching"),
     ("long_slalom", "Long slalom"), ("bugtrap", "Bugtrap"),
 )
+FAMILY_LABELS = {
+    "large_sparse": "LS", "dense_clutter": "DC", "serial_walls": "SW",
+    "maze_branching": "MB", "long_slalom": "LSM", "bugtrap": "BT",
+}
 ARMS = {
     "sofai_cbf_cl": ("CBF teacher", "#1f77b4", "o"),
     "sofai_mpc_cl": ("MPC teacher", "#d62728", "s"),
 }
+ARM_LABELS = {"sofai_cbf_cl": "CBF", "sofai_mpc_cl": "MPC"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -53,9 +63,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--runtime_field", default="planning_runtime_sec")
     parser.add_argument("--block_size", type=int, default=0)
     parser.add_argument("--out_dir", default="", help="Defaults to <archive_dir>/analysis.")
-    parser.add_argument("--no_learning_plots", action="store_true")
     parser.add_argument("--skip_paper_figures", action="store_true")
-    parser.add_argument("--skip_s1_s2_plots", action="store_true")
+    parser.add_argument("--skip_paper_tables", action="store_true")
+    parser.add_argument("--cold_config", default="sofai_mpc_cl", help="Cold-started arm of the warm-start ablation.")
+    parser.add_argument("--warm_config", default="sofai_mpc_warm_cl", help="Warm-started arm of the warm-start ablation.")
     return parser.parse_args()
 
 
@@ -363,26 +374,198 @@ def write_tables(out_dir: Path, family_rows: list[dict[str, Any]], solves: dict[
     print(f"[write] {png}")
 
 
-def plot_family_learning(family: str, metrics: list[dict[str, Any]], probes: list[dict[str, Any]], path: Path) -> None:
-    configs = ordered_configs(row for row in metrics if str(row["config"]).endswith("_cl"))
-    if not configs:
-        return
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    figure, axes = plt.subplots(2, 3, figsize=(14, 7), sharex="row")
-    panels = ((metrics, "Benchmark", "success_rate", "Success rate", (0, 1.05)), (metrics, "Benchmark", "mean_quality", "Mean quality", (0, 1.05)),
-              (metrics, "Benchmark", "mean_runtime_sec", "Mean runtime (s)", None), (probes, "Fixed S1 probe", "success_rate", "Success rate", (0, 1.05)),
-              (probes, "Fixed S1 probe", "mean_quality", "Mean quality", (0, 1.05)), (probes, "Fixed S1 probe", "mean_runtime_sec", "Mean runtime (s)", None))
-    for axis, (source, title, field, ylabel, ylim) in zip(axes.ravel(), panels):
-        for config in configs:
-            rows = sorted((row for row in source if row["config"] == config), key=lambda row: int(row["block"]))
-            if rows: axis.plot([int(row["block"]) + 1 for row in rows], [row[field] for row in rows], "o-", label=METHOD_LABELS.get(config, config))
-        axis.set(title=f"{title}: {ylabel}", xlabel="CL update", ylabel=ylabel)
-        if ylim: axis.set_ylim(*ylim)
-        axis.grid(axis="y", alpha=.3)
-    axes[0, 0].legend(frameon=False, fontsize=8); figure.tight_layout(); figure.savefig(path, dpi=200); plt.close(figure)
+def signed(raw: Any, digits: int) -> str:
+    try:
+        number_value = float(raw)
+    except (TypeError, ValueError):
+        return "--"
+    return "--" if not math.isfinite(number_value) else f"${number_value:+.{digits}f}$"
+
+
+def mean_or_nan(values: Iterable[float]) -> float:
+    finite = [item for item in values if item is not None and math.isfinite(item)]
+    return float(np.mean(finite)) if finite else math.nan
+
+
+def family_label(family: str) -> str:
+    return FAMILY_LABELS.get(family, family.replace("_", " "))
+
+
+def ordered_families(names: Iterable[str]) -> list[str]:
+    present = list(dict.fromkeys(names))
+    known = [family for family, _ in FAMILIES if family in present]
+    return known + [family for family in present if family not in dict(FAMILIES)]
+
+
+def write_tex(path: Path, lines: list[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n")
     print(f"[write] {path}")
+
+
+def scenario_key(row: dict[str, Any]) -> int | None:
+    for key in ("scenario_index", "scenario_id"):
+        try:
+            return int(float(row[key]))
+        except (KeyError, TypeError, ValueError):
+            continue
+    return None
+
+
+def s2_attempt(row: dict[str, Any]) -> tuple[bool, float | None, bool]:
+    """Return whether System 2 ran, how long it took, and whether it solved.
+
+    JSONL runs keep this per attempt while summary CSV rows keep it in flat
+    columns, so both shapes are read here.
+    """
+    for attempt in row.get("attempts", []) or []:
+        if attempt.get("system") == "s2":
+            runtime = value(attempt, "runtime_sec")
+            return True, runtime if runtime is not None else value(row, "s2_runtime_sec"), bool(attempt.get("success"))
+    if bool(row.get("s2_attempted")):
+        return True, value(row, "s2_runtime_sec"), bool(row.get("s2_success"))
+    return False, None, False
+
+
+def write_per_family_table(out_dir: Path, family_metrics: list[dict[str, Any]]) -> None:
+    """Methods as rows, environment families as columns, one block per metric."""
+    families = ordered_families(str(row["family"]) for row in family_metrics)
+    configs = ordered_configs(family_metrics)
+    if not families or not configs:
+        return
+    lookup = {(str(row["family"]), str(row["config"])): row for row in family_metrics}
+    sections = (
+        (r"Success rate (\%)", lambda row: number(row["success_rate"], percent=True)),
+        (r"Mean planning runtime (ms)", lambda row: number(1000 * float(row["mean_runtime_sec"]), 0)),
+        (r"Mean trajectory quality \(Q\)", lambda row: number(row["mean_quality"], 3)),
+    )
+    counts = [int(row["scenarios"]) for row in family_metrics if int(row["scenarios"])]
+    size = f" (\\(n={max(set(counts), key=counts.count)}\\))" if counts else ""
+    legend = ", ".join(f"{family_label(family)}: {title.lower()}" for family, title in FAMILIES if family in families)
+    lines = [
+        r"\begin{table}[t]", r"\centering", r"\small",
+        rf"\caption{{Per-family results on instance sets{size}. {legend}.}}",
+        r"\label{tab:per_family}", r"\resizebox{\linewidth}{!}{",
+        r"\begin{tabular}{l" + "c" * len(families) + "}", r"\toprule",
+        " & ".join([r"\textbf{Method}"] + [rf"\textbf{{{family_label(family)}}}" for family in families]) + r" \\",
+    ]
+    for title, render in sections:
+        lines.append(r"\midrule")
+        lines.append(rf"\multicolumn{{{len(families) + 1}}}{{l}}{{\emph{{{title}}}}} \\")
+        for config in configs:
+            cells = [METHOD_LABELS.get(config, config)]
+            cells.extend("--" if (row := lookup.get((family, config))) is None else render(row) for family in families)
+            lines.append(" & ".join(cells) + r" \\")
+    lines.extend([r"\bottomrule", r"\end{tabular}", r"}", r"\end{table}"])
+    write_tex(out_dir / "tables" / "per_family_results.tex", lines)
+
+
+def write_continual_learning_table(out_dir: Path, probes: list[dict[str, Any]], block_size: int | None) -> None:
+    """Probe success per continual-learning block, one row per family and arm."""
+    arms = [config for config in ARM_LABELS if any(str(row["config"]) == config for row in probes)]
+    families = ordered_families(str(row["family"]) for row in probes if str(row["config"]) in arms)
+    blocks = sorted({int(row["block"]) for row in probes if int(row["block"]) >= 0})
+    if not families or not arms or not blocks:
+        return
+    lookup = {(str(row["family"]), str(row["config"]), int(row["block"])): row for row in probes}
+    columns = ["base", *blocks]
+    collected: dict[tuple[str, Any], list[float]] = defaultdict(list)
+    body: list[str] = []
+
+    for family in families:
+        printed = False
+        for config in arms:
+            cells = {
+                column: lookup.get((family, config, -1 if column == "base" else int(column)))
+                for column in columns
+            }
+            if all(row is None for row in cells.values()):
+                continue
+            rates = {
+                column: 100 * float(row["success_rate"]) if row is not None else math.nan
+                for column, row in cells.items()
+            }
+            qualities = {
+                column: float(row["mean_quality"]) if row is not None else math.nan
+                for column, row in cells.items()
+            }
+            last = next((column for column in reversed(blocks) if cells.get(column) is not None), None)
+            delta = rates[last] - rates["base"] if last is not None and cells["base"] is not None else math.nan
+            delta_quality = qualities[last] - qualities["base"] if last is not None and cells["base"] is not None else math.nan
+            row_cells = [family_label(family) if not printed else "", ARM_LABELS[config]]
+            row_cells.extend(number(rates[column] / 100, percent=True) for column in columns)
+            row_cells.extend([signed(delta, 1), signed(delta_quality, 3)])
+            body.append(" & ".join(row_cells) + r" \\")
+            for column in columns:
+                collected[(config, column)].append(rates[column])
+            collected[(config, "delta")].append(delta)
+            collected[(config, "delta_quality")].append(delta_quality)
+            printed = True
+
+    for index, config in enumerate(arms):
+        if not any(collected[(config, column)] for column in columns):
+            continue
+        cells = [r"\textbf{Mean}" if index == 0 else "", ARM_LABELS[config]]
+        cells.extend(number(mean_or_nan(collected[(config, column)]) / 100, percent=True) for column in columns)
+        cells.extend([signed(mean_or_nan(collected[(config, "delta")]), 1),
+                      signed(mean_or_nan(collected[(config, "delta_quality")]), 3)])
+        body.append(("\\midrule\n" if index == 0 else "") + " & ".join(cells) + r" \\")
+
+    probe_counts = [int(row["scenarios"]) for row in probes if int(row["scenarios"])]
+    probe_size = f"\\(({max(probe_counts)})\\)-instance " if probe_counts else ""
+    block_text = f"\\(({block_size})\\)-instance " if block_size else ""
+    header = [r"\textbf{Family}", r"\textbf{Arm}", r"\textbf{Base}"]
+    header.extend(rf"\textbf{{B{block}}}" for block in blocks)
+    header.extend([r"\(\boldsymbol{\Delta}\)", r"\(\boldsymbol{\Delta Q}\)"])
+    lines = [
+        r"\begin{table}[t]", r"\centering", r"\small",
+        rf"\caption{{Continual learning on the held-out {probe_size}probe set. ``Base'' is the bootstrap "
+        rf"policy before any online experience. B{blocks[0]}--B{blocks[-1]} show cumulative performance after "
+        rf"each {block_text}block. \(\Delta\) is the change from Base to B{blocks[-1]}, and \(\Delta Q\) is "
+        r"the corresponding change in mean S1 trajectory quality.}",
+        r"\label{tab:continual_learning}", r"\resizebox{\linewidth}{!}{",
+        r"\begin{tabular}{ll" + "c" * (len(columns) + 2) + "}", r"\toprule",
+        " & ".join(header) + r" \\", r"\midrule",
+        *body,
+        r"\bottomrule", r"\end{tabular}", r"}", r"\end{table}",
+    ]
+    write_tex(out_dir / "tables" / "continual_learning_results.tex", lines)
+
+
+def write_warm_start_table(out_dir: Path, escalations: dict[tuple[str, str], list[dict[str, Any]]], cold_config: str, warm_config: str) -> None:
+    """Cold versus warm System 2 time on instances both MPC arms escalated."""
+    families = ordered_families(family for family, config in escalations if config in (cold_config, warm_config))
+    body: list[str] = []
+    rows: list[dict[str, Any]] = []
+    for family in families:
+        cold = {key: row for row in escalations.get((family, cold_config), []) if (key := scenario_key(row)) is not None}
+        warm = {key: row for row in escalations.get((family, warm_config), []) if (key := scenario_key(row)) is not None}
+        paired = [(s2_attempt(cold[key]), s2_attempt(warm[key])) for key in sorted(set(cold) & set(warm))]
+        paired = [(left, right) for left, right in paired if left[0] and right[0]]
+        if not paired:
+            continue
+        cold_time = mean_or_nan(left[1] for left, _ in paired)
+        warm_time = mean_or_nan(right[1] for _, right in paired)
+        cold_solves = sum(left[2] for left, _ in paired)
+        warm_solves = sum(right[2] for _, right in paired)
+        rows.append({"family": family, "paired_instances": len(paired), "cold_mean_s2_sec": cold_time,
+                     "warm_mean_s2_sec": warm_time, "delta_sec": cold_time - warm_time,
+                     "cold_s2_solves": cold_solves, "warm_s2_solves": warm_solves})
+        body.append(" & ".join([family_label(family), str(len(paired)), number(cold_time), number(warm_time),
+                                signed(cold_time - warm_time, 3), f"{cold_solves} / {warm_solves}"]) + r" \\")
+    if not body:
+        return
+    lines = [
+        r"\begin{table}[t]", r"\centering", r"\small",
+        r"\caption{Warm-start ablation on instances escalated by both MPC arms. Times are mean System~2 "
+        r"solver time; ``S2 solves'' counts successful fallbacks.}",
+        r"\label{tab:warmstart}",
+        r"\begin{tabular}{lccccc}", r"\toprule",
+        r"\textbf{Family} & \textbf{\(n\)} & \textbf{Cold (s)} & \textbf{Warm (s)} & \(\boldsymbol{\Delta}\) & \textbf{S2 solves} \\",
+        r"\midrule", *body, r"\bottomrule", r"\end{tabular}", r"\end{table}",
+    ]
+    write_tex(out_dir / "tables" / "warm_start_ablation.tex", lines)
+    write_csv(out_dir / "warm_start_ablation.csv", rows)
 
 
 def plot_paper_figures(probes: list[dict[str, Any]], out_dir: Path) -> None:
@@ -392,8 +575,8 @@ def plot_paper_figures(probes: list[dict[str, Any]], out_dir: Path) -> None:
     lookup: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in probes: lookup[(str(row["family"]), str(row["config"]))].append(row)
     for metric, column, ylabel, filename, scale in (
-        ("success", "success_rate", "Probe success rate (%)", "continual_learning_succ.pdf", 100.0),
-        ("quality", "mean_quality", "Mean trajectory quality $Q$", "continual_learning_quality.pdf", 1.0),
+        ("success", "success_rate", "Probe success rate (%)", "continual_learning_succ.png", 100.0),
+        ("quality", "mean_quality", "Mean trajectory quality $Q$", "continual_learning_quality.png", 1.0),
     ):
         figure, axes = plt.subplots(2, 3, figsize=(7.2, 4.4), sharex=True)
         for axis, (family, title) in zip(axes.flat, FAMILIES):
@@ -405,27 +588,9 @@ def plot_paper_figures(probes: list[dict[str, Any]], out_dir: Path) -> None:
         for axis in axes[:, 0]: axis.set_ylabel(ylabel)
         for axis in axes[1]: axis.set_xlabel("Cumulative CL block")
         handles, labels = axes.flat[0].get_legend_handles_labels(); figure.legend(handles, labels, loc="upper center", ncol=2, frameon=False)
-        figure.tight_layout(rect=(0, 0, 1, .93)); pdf = out_dir / "figures" / filename; pdf.parent.mkdir(exist_ok=True)
-        figure.savefig(pdf, bbox_inches="tight"); figure.savefig(pdf.with_suffix(".png"), dpi=300, bbox_inches="tight"); plt.close(figure)
-        print(f"[write] {pdf}")
-
-
-def plot_splits(splits: list[dict[str, Any]], out_dir: Path) -> None:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
-    for row in splits: groups[(str(row["family"]), str(row["config"]))].append(row)
-    for (family, config), rows in groups.items():
-        rows.sort(key=lambda row: int(row["block"])); xs = np.asarray([int(row["block"]) + 1 for row in rows])
-        s1 = np.asarray([float(row["s1_success"]) for row in rows]); s2 = np.asarray([float(row["s2_only_success"]) for row in rows])
-        figure, axis = plt.subplots(figsize=(7.2, 4.2)); axis.bar(xs-.19, s1, .38, label="S1 success"); axis.bar(xs+.19, s2, .38, label="S2-only success")
-        second = axis.twinx(); second.plot(xs, np.divide(s1, s1+s2, out=np.full_like(s1, math.nan), where=s1+s2 > 0), "o-", color="#2ca02c", label="S1 fraction")
-        axis.set(title=f"S1 versus S2-only success: {family.replace('_', ' ')} ({config})", xlabel="CL block", ylabel="Successful scenarios", xticks=xs)
-        second.set(ylabel="S1 fraction", ylim=(0, 1.05)); axis.grid(axis="y", alpha=.3)
-        handles, labels = axis.get_legend_handles_labels(); h2, l2 = second.get_legend_handles_labels(); axis.legend(handles+h2, labels+l2, frameon=False, fontsize=8)
-        path = out_dir / "s1_s2_ratio" / f"{family}_{config}.png"; path.parent.mkdir(exist_ok=True); figure.tight_layout(); figure.savefig(path, dpi=200); plt.close(figure)
-        print(f"[write] {path}")
+        figure.tight_layout(rect=(0, 0, 1, .93)); png = out_dir / "figures" / filename; png.parent.mkdir(exist_ok=True)
+        figure.savefig(png, dpi=300, bbox_inches="tight"); plt.close(figure)
+        print(f"[write] {png}")
 
 
 def main() -> None:
@@ -438,7 +603,8 @@ def main() -> None:
     suites = {family_name(path): path for path in sorted(archive_dir.glob("nl_*_suite")) if path.is_dir()}
     requested = args.families or list(suites)
     selected = [(family_name(Path(name)), suites.get(family_name(Path(name)), archive_dir / name)) for name in requested]
-    metrics, family_metrics, probes, splits, solves = [], [], [], [], {}
+    metrics, family_metrics, probes, solves = [], [], [], {}
+    escalations: dict[tuple[str, str], list[dict[str, Any]]] = {}
     index: dict[str, Any] = {"archive_dir": str(archive_dir), "families": {}}
     for family, suite in selected:
         if not suite.is_dir(): raise FileNotFoundError(suite)
@@ -455,19 +621,18 @@ def main() -> None:
             except (FileNotFoundError, KeyError):
                 try: raw = rows_from_summaries(suite, config, lookup, args.block_size)
                 except FileNotFoundError as error: print(f"[warn] {family}/{config}: {error}; skipping"); continue
+            if config in (args.cold_config, args.warm_config): escalations[(family, config)] = [row for _, row in raw]
             rows = aggregate(raw, blocks, args.runtime_field); metrics.extend({"family": family, "config": config, **row} for row in rows)
             overall = aggregate([(0, row) for _, row in raw], 1, args.runtime_field)[0]
             family_metrics.append({"family": family, "config": config, **overall}); index["families"][family]["configs"].append(config)
             probe = probe_rows(suite, manifest, config)
             probes.extend({"family": family, "config": config, **row} for row in aggregate_probe(probe, blocks, args.runtime_field) if row["scenarios"])
             if config.endswith("_cl"):
-                split = s1_s2_split(raw, blocks); splits.extend({"family": family, "config": config, **row} for row in split)
+                split = s1_s2_split(raw, blocks)
                 solves[(family, config)] = (sum(row["s1_success"] for row in split), sum(row["s2_only_success"] for row in split))
-        if not args.no_learning_plots: plot_family_learning(family, [row for row in metrics if row["family"] == family], [row for row in probes if row["family"] == family], out_dir / f"{family}_continual_learning.png")
     if not family_metrics: raise SystemExit("No result files found.")
     write_csv(out_dir / "metrics_by_block.csv", metrics); write_csv(out_dir / "metrics_by_family.csv", family_metrics)
     if probes: write_csv(out_dir / "probe_metrics_by_block.csv", probes)
-    if splits: write_csv(out_dir / "s1_s2_split_by_block.csv", splits)
     summary = ["# Archive Summary", "", "| Family | Config | Scenarios | Success | Mean runtime (s) | Mean Q |", "|---|---|---:|---:|---:|---:|"]
     summary.extend(f"| {row['family']} | {row['config']} | {row['scenarios']} | {number(row['success_rate'])} | {number(row['mean_runtime_sec'])} | {number(row['mean_quality'])} |" for row in family_metrics)
     (out_dir / "family_summary.md").write_text("\n".join(summary) + "\n")
@@ -484,9 +649,13 @@ def main() -> None:
     macro_solves = {("all_families", config): (float(np.mean([value[0] for (family, key), value in solves.items() if key == config])), float(np.mean([value[1] for (family, key), value in solves.items() if key == config]))) for config in ordered_configs(macro) if any(key == config for _, key in solves)}
     write_csv(out_dir / "metrics_macro_by_config.csv", macro)
     write_tables(out_dir, macro, macro_solves, "aggregate_results", f"Aggregate benchmark results averaged across the {len(selected)} environment families.", "tab:main_results")
+    if not args.skip_paper_tables:
+        write_per_family_table(out_dir, family_metrics)
+        block_counts = [int(row["scenarios"]) for row in metrics if int(row["scenarios"])]
+        write_continual_learning_table(out_dir, probes, max(set(block_counts), key=block_counts.count) if block_counts else None)
+        write_warm_start_table(out_dir, escalations, args.cold_config, args.warm_config)
     (out_dir / "manifest_index.json").write_text(json.dumps(index, indent=2, sort_keys=True) + "\n")
     if probes and not args.skip_paper_figures: plot_paper_figures(probes, out_dir)
-    if splits and not args.skip_s1_s2_plots: plot_splits(splits, out_dir)
 
 
 if __name__ == "__main__":

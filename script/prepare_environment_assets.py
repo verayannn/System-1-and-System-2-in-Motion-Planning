@@ -293,7 +293,7 @@ def main() -> None:
                         "--s2",
                         solver,
                         "--timeout_sec",
-                        "300",
+                        "60",
                         "--workers",
                         str(args.workers),
                         "--out_dir",
