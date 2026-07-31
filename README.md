@@ -183,7 +183,7 @@ for family in "${families[@]}"; do
     --out_dir "output/benchmark_smoke_test_runs/nl_${family}_suite" \
     --scenario_ids 0-49 \
     --block_size 25 \
-    --workers 3 \
+    --workers 16 \
     --timeout_sec 60 \
     --block_order shuffled \
     --block_seed 42 \
@@ -192,7 +192,7 @@ for family in "${families[@]}"; do
     --cl_train_mode replay_dagger \
     --replay_fraction 0.60 \
     --dagger_states_per_scenario 4 \
-    --dagger_workers 3 \
+    --dagger_workers 16 \
     --train_source s2 \
     --bootstrap_success_weight 1.0 \
     --dagger_success_weight 1.0 \
@@ -206,7 +206,7 @@ done
 ```
 
 
-> [Remark]
+> Remark:
 > Delete the `input/nl/` and `db/` folders after the smoke test completes.
 
 
