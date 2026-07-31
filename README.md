@@ -130,7 +130,7 @@ In standard SOFAI mode, System 1 is attempted first and System 2 is invoked only
 ### Smoke Test Run
 
 
-#### 1. Generate S1 assets and benchmark dictionaries
+#### 1. Generate S1 assets and benchmark dictionaries (estimated runtime: ~1 minute)
 
 Use `script/prepare_environment_assets.py` to create:
 
@@ -144,35 +144,33 @@ Use `script/prepare_environment_assets.py` to create:
 export SOFAI_S1_FILTER_MODE=policy
 families=(
   dense_clutter
-  bugtrap
 )
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. \
 .venv/bin/python script/prepare_environment_assets.py \
   --families "${families[@]}" \
   --s2_solvers cbf mpc \
-  --train_n_per_family 100 \
-  --eval_n_per_family 500 \
-  --probe_n_per_family 500 \
+  --train_n_per_family 20 \
+  --eval_n_per_family 10 \
+  --probe_n_per_family 10 \
   --train_seed 7 \
   --eval_seed 8 \
   --probe_seed 700 \
-  --train_epochs 35 \
-  --train_batch 64 \
+  --train_epochs 10 \
+  --train_batch 32 \
   --train_lr 0.0003 \
-  --workers 16
+  --workers 4
 ```
 
 
-#### 2. Run the smoke test benchmark sets
+#### 2. Run the smoke test benchmark sets (estimated runtime: ~3 minute)
 
-Run all benchmark configurations on 50 evaluation instances and 20 probe instances from the Dense
-Clutter and Bugtrap families. This command uses the generated instances in `input/` and the pretrained System 1 checkpoints in `db/` from above.
+Run all benchmark configurations on 10 evaluation instances and 10 probe instances from the Dense
+Clutter family. This command uses the generated instances in `input/` and the pretrained System 1 checkpoints in `db/` from above.
 
 
 ```bash
 families=(
   dense_clutter
-  bugtrap
 )
 for family in "${families[@]}"; do
   PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. \
@@ -181,9 +179,9 @@ for family in "${families[@]}"; do
     --bootstrap_results_dir "output/bootstrap_${family}_nl" \
     --assets_dir "db/by_env/${family}_nl" \
     --out_dir "output/benchmark_smoke_test_runs/nl_${family}_suite" \
-    --scenario_ids 0-49 \
-    --block_size 25 \
-    --workers 16 \
+    --scenario_ids 0-9 \
+    --block_size 10 \
+    --workers 4 \
     --timeout_sec 60 \
     --block_order shuffled \
     --block_seed 42 \
@@ -192,16 +190,16 @@ for family in "${families[@]}"; do
     --cl_train_mode replay_dagger \
     --replay_fraction 0.60 \
     --dagger_states_per_scenario 4 \
-    --dagger_workers 16 \
+    --dagger_workers 4 \
     --train_source s2 \
     --bootstrap_success_weight 1.0 \
     --dagger_success_weight 1.0 \
-    --train_epochs 10 \
+    --train_epochs 6 \
     --train_batch 32 \
     --train_lr 0.0001 \
     --train_device cpu \
     --probe_dictionary "input/nl/benchmark_dualmp_nl_${family}_probe_${family}.json" \
-    --probe_scenario_ids 0-19
+    --probe_scenario_ids 0-9
 done
 ```
 
