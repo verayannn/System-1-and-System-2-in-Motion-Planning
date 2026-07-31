@@ -7,9 +7,9 @@ Alongside the per-family and aggregate summaries, this writes the paper tables:
 
 Example:
 
-    python analyze_suite_results.py --archive_dir output/benchmark_runs_concise \
+    python analyze_suite_results.py --archive_dir output/benchmark_runs \
       --families dense_clutter large_sparse maze_branching serial_walls long_slalom bugtrap \
-      --configs s1_neural sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl
+      --configs s1_neural s2_cbf s2_mpc sofai_cbf_cl sofai_mpc_cl sofai_mpc_warm_cl
 
 """
 from __future__ import annotations
