@@ -206,7 +206,7 @@ done
 ```
 
 
-> Remark:
+> [!NOTE]
 > Delete the `input/nl/` and `db/` folders after the smoke test completes.
 
 
