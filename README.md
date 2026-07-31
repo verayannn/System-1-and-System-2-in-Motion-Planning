@@ -41,28 +41,32 @@ brew install cmake uv
 ```
 
 
-### 3. Create the Python environment
+### 3. Set up the environment
 
 ```bash
-uv venv --python 3.10
-source .venv/bin/activate
-uv sync --extra acados-template
+./setup.sh
 ```
+
+This creates `.venv` with Python 3.10, installs the dependencies, builds the vendored acados library, installs the acados template renderer, registers the acados environment inside the virtualenv, and verifies the result. Any extra arguments are passed to the acados step, for example `./setup.sh --jobs 8` or `./setup.sh --clean`.
 
 The root `pyproject.toml` installs the repo itself in editable mode and exposes the local source packages directly:
 
 - `sofai/`
 - `safe_control/`
 
-
-### 4. Build and register acados
+### 4. Use the environment
 
 ```bash
-python script/setup_acados.py --jobs 4
-source .env.acados
+source .venv/bin/activate
 ```
 
+Nothing else needs to be sourced. The acados settings (`ACADOS_SOURCE_DIR`, `TERA_PATH`, and the shared-library search path) live in the virtualenv, so they apply both when the environment is activated and when its interpreter is called directly, such as from benchmark worker processes. The setup step also writes `.env.acados` for shells that run outside the virtualenv.
+
+Re-run `./setup.sh --skip_build` after any plain `uv sync`, which removes the acados Python interface because it is not part of the lock file.
+
 ### 5. Verify the installation
+
+`setup.sh` runs this check automatically and prints `[ok] imports: ...`. To repeat it later:
 
 ```bash
 python - <<'PY'
@@ -83,17 +87,26 @@ PY
 ```
 
 
-### Pip or Conda fallback
+### Manual setup
 
-If `uv` is not available, use Python 3.10 or 3.11:
+If you prefer to run the steps yourself, or `setup.sh` does not fit your platform:
+
+```bash
+uv venv --python 3.10
+source .venv/bin/activate
+uv sync --extra acados-template --inexact
+python script/setup_acados.py --jobs 4
+```
+
+Without `uv`, use Python 3.10 or 3.11:
 
 ```bash
 python3.10 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+python -m pip install -e .
 python script/setup_acados.py --jobs 4
-source .env.acados
 ```
 
 ## Directory Structure
@@ -101,6 +114,7 @@ source .env.acados
 ```text
 System-1-and-System-2-in-Motion-Planning/
 ├── README.md                           # Project documentation and usage
+├── setup.sh                            # One-command environment and acados setup
 ├── motion_planning_solver.py           # Single-scenario planner entry point
 ├── run_motion_planning_benchmarks.py   # Run motion-planning benchmarks and save JSONL/CSV metrics
 ├── visualize_mp.py                     # Single-scenario visualisation
@@ -110,6 +124,7 @@ System-1-and-System-2-in-Motion-Planning/
 ├── db/by_env/                          # Per-environment neural S1 datasets and checkpoints
 ├── solvers/                            # S1 policies, MPC/CBF S2 solvers, quality metrics
 ├── script/                             # Experiment orchestration utilities
+│   ├── setup_acados.py                 # Build and register the acados backend
 │   ├── prepare_environment_assets.py   # Create per-environment S1 assets
 │   ├── run_suite.py                    # Run benchmark suites and continual learning
 │   └── train_s1_nonlinear.py           # Train or fine-tune the neural S1 policy
