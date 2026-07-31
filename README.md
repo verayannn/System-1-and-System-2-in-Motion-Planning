@@ -271,7 +271,7 @@ for family in "${families[@]}"; do
     --cl_train_mode replay_dagger \
     --replay_fraction 0.60 \
     --dagger_states_per_scenario 4 \
-    --dagger_workers 8 \
+    --dagger_workers 16 \
     --train_source s2 \
     --bootstrap_success_weight 1.0 \
     --dagger_success_weight 1.0 \
