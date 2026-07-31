@@ -17,14 +17,8 @@ The core idea is to combine:
 
 Follow the steps below to install the dual-process motion-planning stack:
 
-### 1. Clone the repository
 
-```bash
-git clone https://github.com/verayannn/System-1-and-System-2-in-Motion-Planning.git
-cd System-1-and-System-2-in-Motion-Planning
-```
-
-### 2. Install prerequisites
+### 1. Install prerequisites
 
 On Ubuntu/Debian:
 
@@ -41,30 +35,19 @@ brew install cmake uv
 ```
 
 
-### 3. Set up the environment
+### 2. Set up the environment
 
 ```bash
 ./setup.sh
 ```
 
-This creates `.venv` with Python 3.10, installs the dependencies, builds the vendored acados library, installs the acados template renderer, registers the acados environment inside the virtualenv, and verifies the result. Any extra arguments are passed to the acados step, for example `./setup.sh --jobs 8` or `./setup.sh --clean`.
-
-The root `pyproject.toml` installs the repo itself in editable mode and exposes the local source packages directly:
-
-- `sofai/`
-- `safe_control/`
-
-### 4. Use the environment
+### 3. Use the environment
 
 ```bash
 source .venv/bin/activate
 ```
 
-Nothing else needs to be sourced. The acados settings (`ACADOS_SOURCE_DIR`, `TERA_PATH`, and the shared-library search path) live in the virtualenv, so they apply both when the environment is activated and when its interpreter is called directly, such as from benchmark worker processes. The setup step also writes `.env.acados` for shells that run outside the virtualenv.
-
-Re-run `./setup.sh --skip_build` after any plain `uv sync`, which removes the acados Python interface because it is not part of the lock file.
-
-### 5. Verify the installation
+### 4. Verify the installation
 
 `setup.sh` runs this check automatically and prints `[ok] imports: ...`. To repeat it later:
 
@@ -86,17 +69,6 @@ assert root is not None, "acados shared libraries were not found"
 PY
 ```
 
-
-### Manual setup
-
-If you prefer to run the steps yourself, or `setup.sh` does not fit your platform:
-
-```bash
-uv venv --python 3.10
-source .venv/bin/activate
-uv sync --extra acados-template --inexact
-python script/setup_acados.py --jobs 4
-```
 
 Without `uv`, use Python 3.10 or 3.11:
 
