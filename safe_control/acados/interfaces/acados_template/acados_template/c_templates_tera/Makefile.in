@@ -163,15 +163,15 @@ CPPFLAGS += -DACADOS_WITH_CLARABEL
 {%- if qp_solver == "PARTIAL_CONDENSING_QPDUNES" %}
 CPPFLAGS += -DACADOS_WITH_QPDUNES
 {%- endif %}
-CPPFLAGS+= -I$(INCLUDE_PATH)
-CPPFLAGS+= -I$(INCLUDE_PATH)/acados
-CPPFLAGS+= -I$(INCLUDE_PATH)/blasfeo/include
-CPPFLAGS+= -I$(INCLUDE_PATH)/hpipm/include
+CPPFLAGS+= -I"$(INCLUDE_PATH)"
+CPPFLAGS+= -I"$(INCLUDE_PATH)/acados"
+CPPFLAGS+= -I"$(INCLUDE_PATH)/blasfeo/include"
+CPPFLAGS+= -I"$(INCLUDE_PATH)/hpipm/include"
  {%- if qp_solver == "FULL_CONDENSING_QPOASES" %}
-CPPFLAGS+= -I $(INCLUDE_PATH)/qpOASES_e/
+CPPFLAGS+= -I "$(INCLUDE_PATH)/qpOASES_e/"
  {%- endif %}
  {%- if qp_solver == "FULL_CONDENSING_DAQP" %}
-CPPFLAGS+= -I $(INCLUDE_PATH)/daqp/include
+CPPFLAGS+= -I "$(INCLUDE_PATH)/daqp/include"
  {%- endif %}
 
 {# c-compiler flags #}
@@ -184,7 +184,7 @@ CFLAGS += -fopenmp
 # CFLAGS += -g3 -fno-diagnostics-show-line-numbers -g
 
 # linker flags
-LDFLAGS+= -L$(LIB_PATH)
+LDFLAGS+= -L"$(LIB_PATH)"
 {% if solver_options.with_batch_functionality %}
 LDFLAGS += -fopenmp
 {%- endif %}
@@ -245,36 +245,36 @@ bundled_shared_lib: $(OBJ)
 
 ocp_shared_lib: $(OCP_OBJ) $(MODEL_OBJ)
 	$(CC) -shared $^ -o $(LIBACADOS_OCP_SOLVER) $(LDFLAGS) $(LDLIBS) \
-	-L$(EXTERNAL_DIR) -l$(EXTERNAL_LIB)
+	$(if $(strip $(EXTERNAL_LIB)),-L"$(strip $(EXTERNAL_DIR))" -l$(strip $(EXTERNAL_LIB)))
 
 
 # Cython targets
 ocp_cython_c: ocp_shared_lib
 	cython \
 	-o acados_ocp_solver_pyx.c \
-	-I $(INCLUDE_PATH)/../interfaces/acados_template/acados_template \
-	$(INCLUDE_PATH)/../interfaces/acados_template/acados_template/acados_ocp_solver_pyx.pyx \
-	-I {{ code_gen_opts.code_export_directory }} \
+	-I "$(INCLUDE_PATH)/../interfaces/acados_template/acados_template" \
+	"$(INCLUDE_PATH)/../interfaces/acados_template/acados_template/acados_ocp_solver_pyx.pyx" \
+	-I "{{ code_gen_opts.code_export_directory }}" \
 
 ocp_cython_o: ocp_cython_c
 	$(CC) $(ACADOS_FLAGS) -c -O2 \
 	-fPIC \
 	-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION \
 	-o acados_ocp_solver_pyx.o \
-	-I $(INCLUDE_PATH)/blasfeo/include/ \
-	-I $(INCLUDE_PATH)/hpipm/include/ \
-	-I $(INCLUDE_PATH) \
+	-I "$(INCLUDE_PATH)/blasfeo/include/" \
+	-I "$(INCLUDE_PATH)/hpipm/include/" \
+	-I "$(INCLUDE_PATH)" \
 	{%- for path in code_gen_opts.cython_include_dirs %}
-	-I {{ path }} \
+	-I "{{ path }}" \
 	{%- endfor %}
 	acados_ocp_solver_pyx.c \
 
 ocp_cython: ocp_cython_o
 	$(CC) $(ACADOS_FLAGS) -shared \
 	-o acados_ocp_solver_pyx{{ code_gen_opts.shared_lib_ext }} \
-	-Wl,-rpath=$(LIB_PATH) \
+	"-Wl,-rpath=$(LIB_PATH)" \
 	acados_ocp_solver_pyx.o \
-	$(abspath .)/libacados_ocp_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }} \
+	"$(abspath .)/libacados_ocp_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }}" \
 	$(LDFLAGS) $(LDLIBS)
 {%- endif %}
 
@@ -284,29 +284,29 @@ ocp_cython: ocp_cython_o
 sim_cython_c: sim_shared_lib
 	cython \
 	-o acados_sim_solver_pyx.c \
-	-I $(INCLUDE_PATH)/../interfaces/acados_template/acados_template \
-	$(INCLUDE_PATH)/../interfaces/acados_template/acados_template/acados_sim_solver_pyx.pyx \
-	-I {{ code_gen_opts.code_export_directory }} \
+	-I "$(INCLUDE_PATH)/../interfaces/acados_template/acados_template" \
+	"$(INCLUDE_PATH)/../interfaces/acados_template/acados_template/acados_sim_solver_pyx.pyx" \
+	-I "{{ code_gen_opts.code_export_directory }}" \
 
 sim_cython_o: sim_cython_c
 	$(CC) $(ACADOS_FLAGS) -c -O2 \
 	-fPIC \
 	-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION \
 	-o acados_sim_solver_pyx.o \
-	-I $(INCLUDE_PATH)/blasfeo/include/ \
-	-I $(INCLUDE_PATH)/hpipm/include/ \
-	-I $(INCLUDE_PATH) \
+	-I "$(INCLUDE_PATH)/blasfeo/include/" \
+	-I "$(INCLUDE_PATH)/hpipm/include/" \
+	-I "$(INCLUDE_PATH)" \
 	{%- for path in code_gen_opts.cython_include_dirs %}
-	-I {{ path }} \
+	-I "{{ path }}" \
 	{%- endfor %}
 	acados_sim_solver_pyx.c \
 
 sim_cython: sim_cython_o
 	$(CC) $(ACADOS_FLAGS) -shared \
 	-o acados_sim_solver_pyx{{ code_gen_opts.shared_lib_ext }} \
-	-Wl,-rpath=$(LIB_PATH) \
+	"-Wl,-rpath=$(LIB_PATH)" \
 	acados_sim_solver_pyx.o \
-	$(abspath .)/libacados_sim_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }} \
+	"$(abspath .)/libacados_sim_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }}" \
 	$(LDFLAGS) $(LDLIBS)
 {%- endif %}
 
