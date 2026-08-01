@@ -349,13 +349,11 @@ def render_template(in_file, out_file, output_dir, json_path, template_glob=None
     with set_directory(output_dir):
         tera_path = get_tera()
 
-        # call tera as system cmd
-        os_cmd = f"{tera_path} '{template_glob}' '{in_file}' '{json_path}' '{out_file}'"
-        # Windows cmd.exe can not cope with '...', so use "..." instead:
-        if os.name == 'nt':
-            os_cmd = os_cmd.replace('\'', '\"')
-
-        status = os.system(os_cmd)
+        # Pass arguments directly instead of constructing a shell command.
+        # This keeps paths containing spaces and shell metacharacters intact.
+        command = [tera_path, template_glob, in_file, json_path, out_file]
+        command_display = ' '.join(repr(argument) for argument in command)
+        status = call(command)
         if status != 0:
             print(f"\nRendering file {in_file} failed.\n\n",
                   "Known issues:\n",
@@ -364,7 +362,7 @@ def render_template(in_file, out_file, output_dir, json_path, template_glob=None
                   "from acados_template import get_tera\n",
                   "get_tera(tera_version = '0.0.34', force_download=True)\n\n",
                   "2) ROS templates are not compatibile with old tera version. Only relevant if you try generating a ROS node.")
-            raise RuntimeError(f'Rendering of {in_file} failed!\n\nAttempted to execute OS command:\n{os_cmd}\n\n')
+            raise RuntimeError(f'Rendering of {in_file} failed!\n\nAttempted to execute OS command:\n{command_display}\n\n')
 
 
 
