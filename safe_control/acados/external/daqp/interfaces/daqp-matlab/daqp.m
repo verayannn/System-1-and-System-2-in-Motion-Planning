@@ -7,35 +7,83 @@ classdef daqp< handle
         n = 0; m = 0; ms = 0
         H; f;
         A; bupper; blower; sense;
-        bin_ids;
+        break_points;
     end
 
     methods(Static)
-        function [x,fval,exitflag,info] = quadprog(H,f,A,bupper,blower,sense)
+        function [x,fval,exitflag,info] = quadprog(H,f,A,bupper,blower,sense,primal_start,dual_start)
+            if nargin < 7, primal_start = []; end
+            if nargin < 8, dual_start = []; end
             d = daqp();
-            [exitflag,setup_time] = d.setup(H,f,A,bupper,blower,sense);
+            [exitflag,setup_time] = d.setup(H,f,A,bupper,blower,sense,[],0,primal_start,dual_start,1);
             if(exitflag <0)
                 x = [];fval=[];info=[];
-                return; 
+                return;
             end
             [x,fval,exitflag,info] = d.solve();
             info.setup_time = setup_time;
         end
 
-        function [x,fval,exitflag,info] = linprog(f,A,bupper,blower,sense)
+        function [x,fval,exitflag,info] = linprog(f,A,bupper,blower,sense,primal_start,dual_start)
+            if nargin < 6, primal_start = []; end
+            if nargin < 7, dual_start = []; end
             d = daqp();
-            [exitflag,setup_time] = d.setup([],f,A,bupper,blower,sense);
+            [exitflag,setup_time] = d.setup([],f,A,bupper,blower,sense,[],0,primal_start,dual_start);
             if(exitflag <0)
                 x = [];fval=[];info=[];
-                return; 
+                return;
             end
-            
             settings = d.settings;
             settings.eps_prox = 1;
             settings.eta_prox = 1e-6;
             daqpmex('set_settings', d.work_ptr, settings);
             [x,fval,exitflag,info] = d.solve();
             info.setup_time = setup_time;
+        end
+
+        function [x,fval,exitflag,info] = avi(H,f,A,bupper,blower,sense,primal_start,dual_start)
+            if nargin < 7, primal_start = []; end
+            if nargin < 8, dual_start = []; end
+            d = daqp();
+            [exitflag,setup_time] = d.setup(H,f,A,bupper,blower,sense,[],1,primal_start,dual_start);
+            if(exitflag <0)
+                x = [];fval=[];info=[];
+                return;
+            end
+            [x,fval,exitflag,info] = d.solve();
+            info.setup_time = setup_time;
+        end
+
+        function [x,es,exitflag,info] = hidaqp(As,bus,bls)
+            nh = length(As);
+            A = [];
+            bu = [];
+            bl = [];
+            break_points=[0];
+            m = 0;
+            for i = 1:nh
+                m = m+size(As{i},1);
+                A =  [A;As{i}];
+                bu = [bu;bus{i}];
+                bl = [bl;bls{i}];
+                break_points = [break_points;m];
+            end
+            sense = zeros(m,1,'int32');
+            d = daqp();
+            d.setup([],[],A,bu,bl,sense,break_points);
+            [x,fval,exitflag, info] = d.solve();
+            es = {};
+            for i = 1:nh
+                etot = zeros(size(As{i},1),1);
+                Ax = As{i}*x;
+                eu = Ax-bus{i};
+                el = Ax-bls{i};
+                soft_upper = eu>0;
+                soft_lower = el<0;
+                etot(soft_upper) = eu(soft_upper);
+                etot(soft_lower) = el(soft_lower);
+                es{end+1} = etot;
+            end
         end
     end
 
@@ -47,37 +95,58 @@ classdef daqp< handle
             this.isdouble = daqpmex('isdouble');
         end
 
-        %% Destructor (Free C workspace) 
+        %% Destructor (Free C workspace)
         function delete(this)
             daqpmex('delete', this.work_ptr);
         end
 
         function [x,fval,exitflag,info] = solve(this)
             [x,fval,exitflag,info] = daqpmex('solve', this.work_ptr,...
-                this.H,this.f,this.A,this.bupper,this.blower,this.sense);
+                this.H,this.f,this.A,this.bupper,this.blower,this.sense,this.break_points);
         end
-        function [exitflag,setup_time] = setup(this,H,f,A,bupper,blower,sense)
+        function [exitflag,setup_time] = setup(this,H,f,A,bupper,blower,sense,break_points,problem_type,primal_start,dual_start,check_unconstrained)
+            if(nargin < 8)
+                break_points = [];
+            end
+            if(nargin < 9)
+                problem_type = 0;
+            end
+            if(nargin < 10)
+                primal_start = [];
+            end
+            if(nargin < 11)
+                dual_start = [];
+            end
+            if(nargin < 11)
+                check_unconstrained = 0;
+            end
+
             % TODO Check validity
-            % TODO match double/single with c_float... 
+            % TODO match double/single with c_float...
             this.n = length(f);
             this.m = length(bupper);
             this.ms = this.m-size(A,1);
             if(this.isdouble)
                 this.H = double(H);
                 this.f = double(f);
-                this.A = double(A'); % col.major => row.major 
+                this.A = double(A'); % col.major => row.major
                 this.bupper = double(bupper);
                 this.blower = double(blower);
             else
                 this.H = single(H);
                 this.f = single(f);
-                this.A = single(A'); % col.major => row.major 
+                this.A = single(A'); % col.major => row.major
                 this.bupper = single(bupper);
                 this.blower = single(blower);
             end
+            if problem_type == 1 % AVI
+                this.H = this.H' % col.major => row.major
+            end
             this.sense = int32(sense);
-            this.bin_ids= int32(find(bitand(this.sense,16))-1);
-            [exitflag,setup_time] = daqpmex('setup', this.work_ptr,this.H,this.f,this.A,this.bupper,this.blower,this.sense,this.bin_ids);
+            this.break_points= int32(break_points);
+            [exitflag,setup_time] = daqpmex('setup', this.work_ptr,this.H,this.f,...
+                this.A,this.bupper,this.blower,this.sense,this.break_points,int32(problem_type),...
+                primal_start,dual_start,check_unconstrained);
         end
 
         function settings = settings(this,varargin)
@@ -88,7 +157,7 @@ classdef daqp< handle
             if(length(varargin)==1)
                 if(isstruct(varargin{1})) % If struct as input treat it as new settings
                     new_settings = varargin{1};
-                else 
+                else
                     if(isstr(varargin{1})&& strcmp(varargin{1},'default')) % set/return default settings
                         daqpmex('set_default_settings', this.work_ptr);
                         settings = daqpmex('get_settings', this.work_ptr);
@@ -101,7 +170,7 @@ classdef daqp< handle
             end
             fn= fieldnames(new_settings);
             for k=1:numel(fn)
-                if(isfield(settings,fn{k}) && isscalar(new_settings.(fn{k}))) 
+                if(isfield(settings,fn{k}) && isscalar(new_settings.(fn{k})))
                     settings = setfield(settings,fn{k},cast(new_settings.(fn{k}),class(settings.(fn{k}))));
                 else
                     fprintf('Unable to set field %s\n',fn{k});
@@ -114,7 +183,7 @@ classdef daqp< handle
         function soften_constraints(this,ids)
             this.sense(ids) = this.sense(ids)+8;
             % TODO: update workspace
-            this 
+            this
         end
         function update(this,H,f,A,bupper,blower,sense)
             update_mask = int32(0);
@@ -154,7 +223,12 @@ classdef daqp< handle
             else
                 dir=varargin{2};
             end
-            daqpmex('codegen', this.work_ptr,fname,dir);
+            if(length(varargin)<3 || ~ischar(varargin{3}))
+                prefix='daqp_';
+            else
+                prefix=varargin{3};
+            end
+            daqpmex('codegen', this.work_ptr,fname,dir,prefix);
         end
     end
 end

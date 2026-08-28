@@ -49,18 +49,18 @@
 	{%- set hessian_approx = "GAUSS_NEWTON" %}
 {%- endif %}
 
-{%- if solver_options.model_external_shared_lib_dir %}
-	{%- set model_external_shared_lib_dir = solver_options.model_external_shared_lib_dir %}
+{%- if code_gen_options.model_external_shared_lib_dir %}
+	{%- set model_external_shared_lib_dir = code_gen_options.model_external_shared_lib_dir %}
 {%- endif %}
 
-{%- if solver_options.model_external_shared_lib_name %}
-	{%- set model_external_shared_lib_name = solver_options.model_external_shared_lib_name %}
+{%- if code_gen_options.model_external_shared_lib_name %}
+	{%- set model_external_shared_lib_name = code_gen_options.model_external_shared_lib_name %}
 {%- endif %}
 
 {# acados linking libraries and flags #}
-{%- if code_gen_opts.acados_link_libs and code_gen_opts.os and code_gen_opts.os == "pc" %}
-	{%- set link_libs = code_gen_opts.acados_link_libs.qpoases ~ " " ~ code_gen_opts.acados_link_libs.hpmpc ~ " " ~ code_gen_opts.acados_link_libs.osqp ~ " " ~ code_gen_opts.acados_link_libs.daqp ~ " " ~ code_gen_opts.acados_link_libs.clarabel -%}
-	{%- set openmp_flag = code_gen_opts.acados_link_libs.openmp %}
+{%- if code_gen_options.acados_link_libs and code_gen_options.os and code_gen_options.os == "pc" %}
+	{%- set link_libs = code_gen_options.acados_link_libs.qpoases ~ " " ~ code_gen_options.acados_link_libs.hpmpc ~ " " ~ code_gen_options.acados_link_libs.osqp ~ " " ~ code_gen_options.acados_link_libs.daqp ~ " " ~ code_gen_options.acados_link_libs.clarabel -%}
+	{%- set openmp_flag = code_gen_options.acados_link_libs.openmp %}
 {%- else %}
 	{%- set openmp_flag = " " %}
 	{%- if qp_solver == "FULL_CONDENSING_QPOASES" %}
@@ -100,7 +100,7 @@ OCP_SRC+= {{ solver_options.custom_update_filename }}
 	{%- endif %}
 {%- endif %}
 
-OCP_SRC+= acados_solver_{{ model.name }}.c
+OCP_SRC+= acados_solver_{{ name }}.c
 
 OCP_OBJ := $(OCP_SRC:.c=.o)
 	{%- endif %}
@@ -108,18 +108,18 @@ OCP_OBJ := $(OCP_SRC:.c=.o)
 
 {%- if solver_options.integrator_type != "DISCRETE" and N_horizon > 0 %}
 # for sim solver
-SIM_SRC= acados_sim_solver_{{ model.name }}.c
+SIM_SRC= acados_sim_solver_{{ name }}.c
 SIM_OBJ := $(SIM_SRC:.c=.o)
 
 # for target example_sim
-EX_SIM_SRC= main_sim_{{ model.name }}.c
+EX_SIM_SRC= main_sim_{{ name }}.c
 EX_SIM_OBJ := $(EX_SIM_SRC:.c=.o)
 EX_SIM_EXE := $(EX_SIM_SRC:.c=)
 {%- endif %}
 
 	{%- if problem_class != "SIM" %}
 # for target example
-EX_SRC= main_{{ model.name }}.c
+EX_SRC= main_{{ name }}.c
 EX_OBJ := $(EX_SRC:.c=.o)
 EX_EXE := $(EX_SRC:.c=)
 	{%- endif %}
@@ -144,8 +144,8 @@ EXTERNAL_DIR+= {{ model_external_shared_lib_dir  }}
 EXTERNAL_LIB+= {{ model_external_shared_lib_name }}
 {%- endif %}
 
-INCLUDE_PATH = {{ code_gen_opts.acados_include_path }}
-LIB_PATH = {{ code_gen_opts.acados_lib_path }}
+INCLUDE_PATH = {{ code_gen_options.acados_include_path }}
+LIB_PATH = {{ code_gen_options.acados_lib_path }}
 
 # preprocessor flags for make's implicit rules
 {%- if qp_solver == "FULL_CONDENSING_QPOASES" %}
@@ -163,20 +163,20 @@ CPPFLAGS += -DACADOS_WITH_CLARABEL
 {%- if qp_solver == "PARTIAL_CONDENSING_QPDUNES" %}
 CPPFLAGS += -DACADOS_WITH_QPDUNES
 {%- endif %}
-CPPFLAGS+= -I"$(INCLUDE_PATH)"
-CPPFLAGS+= -I"$(INCLUDE_PATH)/acados"
-CPPFLAGS+= -I"$(INCLUDE_PATH)/blasfeo/include"
-CPPFLAGS+= -I"$(INCLUDE_PATH)/hpipm/include"
+CPPFLAGS+= -I$(INCLUDE_PATH)
+CPPFLAGS+= -I$(INCLUDE_PATH)/acados
+CPPFLAGS+= -I$(INCLUDE_PATH)/blasfeo/include
+CPPFLAGS+= -I$(INCLUDE_PATH)/hpipm/include
  {%- if qp_solver == "FULL_CONDENSING_QPOASES" %}
-CPPFLAGS+= -I "$(INCLUDE_PATH)/qpOASES_e/"
+CPPFLAGS+= -I $(INCLUDE_PATH)/qpOASES_e/
  {%- endif %}
  {%- if qp_solver == "FULL_CONDENSING_DAQP" %}
-CPPFLAGS+= -I "$(INCLUDE_PATH)/daqp/include"
+CPPFLAGS+= -I $(INCLUDE_PATH)/daqp/include
  {%- endif %}
 
 {# c-compiler flags #}
 # define the c-compiler flags for make's implicit rules
-CFLAGS = -fPIC -std=c99 {{ openmp_flag }} {{ solver_options.ext_fun_compile_flags }}
+CFLAGS = -fPIC -std=c99 {{ openmp_flag }} {{ code_gen_options.ext_fun_compile_flags }}
 {% if solver_options.with_batch_functionality %}
 CFLAGS += -fopenmp
 {%- endif %}
@@ -184,7 +184,7 @@ CFLAGS += -fopenmp
 # CFLAGS += -g3 -fno-diagnostics-show-line-numbers -g
 
 # linker flags
-LDFLAGS+= -L"$(LIB_PATH)"
+LDFLAGS+= -L$(LIB_PATH)
 {% if solver_options.with_batch_functionality %}
 LDFLAGS += -fopenmp
 {%- endif %}
@@ -197,10 +197,10 @@ LDLIBS+= -lm
 LDLIBS+= {{ link_libs }}
 
 # libraries
-LIBACADOS_SOLVER=libacados_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }}
-LIBACADOS_OCP_SOLVER=libacados_ocp_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }}
+LIBACADOS_SOLVER=libacados_solver_{{ name }}{{ code_gen_options.shared_lib_ext }}
+LIBACADOS_OCP_SOLVER=libacados_ocp_solver_{{ name }}{{ code_gen_options.shared_lib_ext }}
 {%- if solver_options.integrator_type != "DISCRETE" and N_horizon > 0 %}
-LIBACADOS_SIM_SOLVER=lib$(SIM_SRC:.c={{ code_gen_opts.shared_lib_ext }})
+LIBACADOS_SIM_SOLVER=lib$(SIM_SRC:.c={{ code_gen_options.shared_lib_ext }})
 {%- endif %}
 
 # virtual targets
@@ -245,36 +245,36 @@ bundled_shared_lib: $(OBJ)
 
 ocp_shared_lib: $(OCP_OBJ) $(MODEL_OBJ)
 	$(CC) -shared $^ -o $(LIBACADOS_OCP_SOLVER) $(LDFLAGS) $(LDLIBS) \
-	$(if $(strip $(EXTERNAL_LIB)),-L"$(strip $(EXTERNAL_DIR))" -l$(strip $(EXTERNAL_LIB)))
+	-L$(EXTERNAL_DIR) -l$(EXTERNAL_LIB)
 
 
 # Cython targets
 ocp_cython_c: ocp_shared_lib
 	cython \
 	-o acados_ocp_solver_pyx.c \
-	-I "$(INCLUDE_PATH)/../interfaces/acados_template/acados_template" \
-	"$(INCLUDE_PATH)/../interfaces/acados_template/acados_template/acados_ocp_solver_pyx.pyx" \
-	-I "{{ code_gen_opts.code_export_directory }}" \
+	-I $(INCLUDE_PATH)/../interfaces/acados_template/acados_template \
+	$(INCLUDE_PATH)/../interfaces/acados_template/acados_template/acados_ocp_solver_pyx.pyx \
+	-I {{ code_gen_options.code_export_directory }} \
 
 ocp_cython_o: ocp_cython_c
 	$(CC) $(ACADOS_FLAGS) -c -O2 \
 	-fPIC \
 	-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION \
 	-o acados_ocp_solver_pyx.o \
-	-I "$(INCLUDE_PATH)/blasfeo/include/" \
-	-I "$(INCLUDE_PATH)/hpipm/include/" \
-	-I "$(INCLUDE_PATH)" \
-	{%- for path in code_gen_opts.cython_include_dirs %}
-	-I "{{ path }}" \
+	-I $(INCLUDE_PATH)/blasfeo/include/ \
+	-I $(INCLUDE_PATH)/hpipm/include/ \
+	-I $(INCLUDE_PATH) \
+	{%- for path in code_gen_options.cython_include_dirs %}
+	-I {{ path }} \
 	{%- endfor %}
 	acados_ocp_solver_pyx.c \
 
 ocp_cython: ocp_cython_o
 	$(CC) $(ACADOS_FLAGS) -shared \
-	-o acados_ocp_solver_pyx{{ code_gen_opts.shared_lib_ext }} \
-	"-Wl,-rpath=$(LIB_PATH)" \
+	-o acados_ocp_solver_pyx{{ code_gen_options.shared_lib_ext }} \
+	-Wl,-rpath=$(LIB_PATH) \
 	acados_ocp_solver_pyx.o \
-	"$(abspath .)/libacados_ocp_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }}" \
+	$(abspath .)/libacados_ocp_solver_{{ name }}{{ code_gen_options.shared_lib_ext }} \
 	$(LDFLAGS) $(LDLIBS)
 {%- endif %}
 
@@ -284,57 +284,57 @@ ocp_cython: ocp_cython_o
 sim_cython_c: sim_shared_lib
 	cython \
 	-o acados_sim_solver_pyx.c \
-	-I "$(INCLUDE_PATH)/../interfaces/acados_template/acados_template" \
-	"$(INCLUDE_PATH)/../interfaces/acados_template/acados_template/acados_sim_solver_pyx.pyx" \
-	-I "{{ code_gen_opts.code_export_directory }}" \
+	-I $(INCLUDE_PATH)/../interfaces/acados_template/acados_template \
+	$(INCLUDE_PATH)/../interfaces/acados_template/acados_template/acados_sim_solver_pyx.pyx \
+	-I {{ code_gen_options.code_export_directory }} \
 
 sim_cython_o: sim_cython_c
 	$(CC) $(ACADOS_FLAGS) -c -O2 \
 	-fPIC \
 	-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION \
 	-o acados_sim_solver_pyx.o \
-	-I "$(INCLUDE_PATH)/blasfeo/include/" \
-	-I "$(INCLUDE_PATH)/hpipm/include/" \
-	-I "$(INCLUDE_PATH)" \
-	{%- for path in code_gen_opts.cython_include_dirs %}
-	-I "{{ path }}" \
+	-I $(INCLUDE_PATH)/blasfeo/include/ \
+	-I $(INCLUDE_PATH)/hpipm/include/ \
+	-I $(INCLUDE_PATH) \
+	{%- for path in code_gen_options.cython_include_dirs %}
+	-I {{ path }} \
 	{%- endfor %}
 	acados_sim_solver_pyx.c \
 
 sim_cython: sim_cython_o
 	$(CC) $(ACADOS_FLAGS) -shared \
-	-o acados_sim_solver_pyx{{ code_gen_opts.shared_lib_ext }} \
-	"-Wl,-rpath=$(LIB_PATH)" \
+	-o acados_sim_solver_pyx{{ code_gen_options.shared_lib_ext }} \
+	-Wl,-rpath=$(LIB_PATH) \
 	acados_sim_solver_pyx.o \
-	"$(abspath .)/libacados_sim_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }}" \
+	$(abspath .)/libacados_sim_solver_{{ name }}{{ code_gen_options.shared_lib_ext }} \
 	$(LDFLAGS) $(LDLIBS)
 {%- endif %}
 
 
-{%- if code_gen_opts.os and code_gen_opts.os == "pc" %}
+{%- if code_gen_options.os and code_gen_options.os == "pc" %}
 
 clean:
 	del \Q *.o 2>nul
-	del \Q *{{ code_gen_opts.shared_lib_ext }} 2>nul
-	del \Q main_{{ model.name }} 2>nul
+	del \Q *{{ code_gen_options.shared_lib_ext }} 2>nul
+	del \Q main_{{ name }} 2>nul
 
 {%- if problem_class != "SIM" %}{# OCP related stuff#}
 clean_ocp_shared_lib:
-	del \Q libacados_ocp_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }} 2>nul
-	del \Q acados_solver_{{ model.name }}.o 2>nul
+	del \Q libacados_ocp_solver_{{ name }}{{ code_gen_options.shared_lib_ext }} 2>nul
+	del \Q acados_solver_{{ name }}.o 2>nul
 
 clean_ocp_cython:
-	del \Q libacados_ocp_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }} 2>nul
-	del \Q acados_solver_{{ model.name }}.o 2>nul
-	del \Q acados_ocp_solver_pyx{{ code_gen_opts.shared_lib_ext }} 2>nul
+	del \Q libacados_ocp_solver_{{ name }}{{ code_gen_options.shared_lib_ext }} 2>nul
+	del \Q acados_solver_{{ name }}.o 2>nul
+	del \Q acados_ocp_solver_pyx{{ code_gen_options.shared_lib_ext }} 2>nul
 	del \Q acados_ocp_solver_pyx.o 2>nul
 {%- endif %}
 
 {% if solver_options.integrator_type != "DISCRETE" and N_horizon > 0 -%}
 clean_sim_cython:
-	del \Q libacados_sim_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }} 2>nul
-	del \Q acados_sim_solver_{{ model.name }}.o 2>nul
-	del \Q acados_sim_solver_pyx{{ code_gen_opts.shared_lib_ext }} 2>nul
+	del \Q libacados_sim_solver_{{ name }}{{ code_gen_options.shared_lib_ext }} 2>nul
+	del \Q acados_sim_solver_{{ name }}.o 2>nul
+	del \Q acados_sim_solver_pyx{{ code_gen_options.shared_lib_ext }} 2>nul
 	del \Q acados_sim_solver_pyx.o 2>nul
 {%- endif %}
 
@@ -357,17 +357,17 @@ clean_ocp_shared_lib:
 	$(RM) $(OCP_OBJ)
 
 clean_ocp_cython:
-	$(RM) libacados_ocp_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }}
-	$(RM) acados_solver_{{ model.name }}.o
-	$(RM) acados_ocp_solver_pyx{{ code_gen_opts.shared_lib_ext }}
+	$(RM) libacados_ocp_solver_{{ name }}{{ code_gen_options.shared_lib_ext }}
+	$(RM) acados_solver_{{ name }}.o
+	$(RM) acados_ocp_solver_pyx{{ code_gen_options.shared_lib_ext }}
 	$(RM) acados_ocp_solver_pyx.o
 {%- endif %}
 
 {% if solver_options.integrator_type != "DISCRETE" and N_horizon > 0 -%}
 clean_sim_cython:
-	$(RM) libacados_sim_solver_{{ model.name }}{{ code_gen_opts.shared_lib_ext }}
-	$(RM) acados_sim_solver_{{ model.name }}.o
-	$(RM) acados_sim_solver_pyx{{ code_gen_opts.shared_lib_ext }}
+	$(RM) libacados_sim_solver_{{ name }}{{ code_gen_options.shared_lib_ext }}
+	$(RM) acados_sim_solver_{{ name }}.o
+	$(RM) acados_sim_solver_pyx{{ code_gen_options.shared_lib_ext }}
 	$(RM) acados_sim_solver_pyx.o
 {%- endif %}
 

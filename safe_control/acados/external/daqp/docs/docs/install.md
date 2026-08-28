@@ -2,8 +2,7 @@
 layout: page
 title: Installation
 permalink: /install/
-nav: 2 
-parent: Getting started 
+nav_order: 2
 ---
 <details open markdown="block">
 <summary>
@@ -38,6 +37,15 @@ cmake --build . --target install
 The commands mentioned above can be executed on Windows by, for example, using [Git BASH](https://gitforwindows.org/) after installing [CMake](https://cmake.org/) and [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/). Make sure that CMake is added to PATH during installation.) 
 
 
+## Installing the Eigen interface
+In the path where you cloned the source code, run the following commands
+
+```shell
+cd build
+cmake .. -D EIGEN=ON
+cmake --build . --target install
+```
+
 ## Installing the MATLAB interface
 The MATLAB interface can be installed directly in MATLAB by running the following commands in the directory where you want to store the m-files:
 ```shell
@@ -53,7 +61,15 @@ In the REPL run the command
 ```
 
 ## Installing the Python interface
-Move to the `daqp-python` subdirectory and call pip from the shell:
 ```shell
-pip install .
+pip install daqp 
+```
+
+## Installing the Simulink interface
+The Simulink interface can be installed directly by running the following commands in MATLAB in the directory where you want to store the interface:
+```shell
+websave('daqp.tar.gz','https://github.com/darnstrom/daqp/archive/refs/heads/master.tar.gz')
+untar('daqp.tar.gz')
+cd(fullfile('daqp-master','interfaces','daqp-simulink'))
+make_sfunc
 ```

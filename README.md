@@ -1,6 +1,6 @@
 # Dual Process Motion Planning
 
-This repository contains the code used for the AAAI 2027 submission *Dual Process Motion Planning*. It implements a SOFAI-based dual-process motion-planning stack for 2D obstacle-avoidance tasks under nonlinear dynamics.
+This repository implements a SOFAI-based dual-process motion-planning stack for 2D obstacle-avoidance tasks under nonlinear dynamics.
 
 The core idea is to combine:
 
@@ -18,7 +18,7 @@ The core idea is to combine:
 Follow the steps below to install the dual-process motion-planning stack:
 
 
-### 1. Install prerequisites
+### 1. Install prerequisites:
 
 On Ubuntu/Debian:
 
@@ -34,20 +34,26 @@ xcode-select --install
 brew install cmake uv
 ```
 
+### 2. Clone the Repository:
 
-### 2. Set up the environment
+```bash
+git clone https://github.com/verayannn/System-1-and-System-2-in-Motion-Planning.git
+cd System-1-and-System-2-in-Motion-Planning
+```
+
+### 3. Set up the environment:
 
 ```bash
 ./setup.sh
 ```
 
-### 3. Use the environment
+### 4. Use the environment
 
 ```bash
 source .venv/bin/activate
 ```
 
-### 4. Verify the installation
+### 5. Verify the installation
 
 `setup.sh` runs this check automatically and prints `[ok] imports: ...`. To repeat it later:
 

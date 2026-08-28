@@ -43,13 +43,13 @@ classdef core_test < matlab.unittest.TestCase
             tol = 1e-5;
             solve_times = zeros(nQPs,1);
             solve_errors = zeros(nQPs,1);
+
             for i = 1:nQPs
                 [xref,H,f,A,bupper,blower,sense]=generate_test_QP(n,m,ms,nAct,kappa);
                 d = daqp();
                 d.settings('eps_prox',1e-2);
                 d.setup(H,f,A,bupper,blower,sense);
                 [x,fval,exitflag, info] = d.solve();
-
                 testCase.verifyEqual(exitflag,int32(1));
                 testCase.verifyLessThan(norm(x-xref),tol);
                 testCase.verifyLessThan(norm(H*x+f+[eye(ms,n);A]'*info.lambda),tol);
@@ -96,6 +96,47 @@ classdef core_test < matlab.unittest.TestCase
             fprintf('=============================================================\n')
         end
 
+        function random_feasible_LDPs(testCase)
+            % Test on randomly generated feasible LPs
+            rng('default');
+            nQPs = 50;
+            n = 100; m = 500; ms = 50;
+            nAct = 80;
+            cond = 1e2;
+            tol = 1e-5;
+            solve_times = zeros(nQPs,1);
+            solve_errors = zeros(nQPs,1);
+            for i = 1:nQPs
+                [uref,M,dupper,dlower,sense]=generate_test_LDP(n,m,ms,nAct,cond);
+                d = daqp();
+                d.setup([],[],M,dupper,dlower,sense);
+                [u,fval,exitflag, info] = d.solve();
+
+                testCase.verifyEqual(exitflag,int32(1));
+                testCase.verifyLessThan(norm(u-uref),tol);
+                testCase.verifyLessThan(norm(u+[eye(ms,n);M]'*info.lambda),tol);
+                solve_times(i) = info.solve_time;
+                solve_errors(i) = norm(u-uref);
+            end
+            fprintf('\n========================== DALDP ============================\n')
+            fprintf('Solve times [s]: |avg: %2.6f| max: %2.6f| min %2.6f|\n',mean(solve_times),max(solve_times),min(solve_times))
+            fprintf('Solution Errors: |avg: %2.2e| max: %2.2e| min %2.2e|\n',mean(solve_errors),max(solve_errors),min(solve_errors))
+            fprintf('=============================================================\n')
+        end
+
+        function diagonalTest(testCase)
+            nQPs = 10;
+            n=50; m= 500; ms= 25;
+            nAct = 25; kappa = 1e2;
+            tol = 1e-5;
+            for i = 1:nQPs
+                [xref,H,f,A,bupper,blower,sense]=generate_test_QP(n,m,ms,nAct,kappa,1);
+                [x,fval,exitflag,info] = daqp.quadprog(H,f,A,bupper,blower,sense);
+                testCase.verifyLessThan(norm(x-xref),tol);
+            end
+
+        end
+
         function feasibility(testCase)
             n = 25; m = 500;
             nQPs = 50;
@@ -107,7 +148,7 @@ classdef core_test < matlab.unittest.TestCase
                 testCase.verifyEqual(exitflag,int32(1));
             end
 
-            r =  -1e-6-1e-7
+            r =  -1e-6-1e-7;
             for i = 1:nQPs
                 [A,bupper,blower,sense] =generate_test_feasibility(n,m,r);
                 [x,fval,exitflag,daqp_infeas_info] = daqp.quadprog([],[],A,bupper,blower,sense);
@@ -133,6 +174,39 @@ classdef core_test < matlab.unittest.TestCase
             [~,~,exitflag,soft_info] = d.solve();
             testCase.verifyEqual(exitflag,int32(2));
             soft_info
+        end
+
+        function soft_QP(testCase)
+            n=10;
+            m=30;
+            H = eye(n);
+            f = zeros(n,1);
+            A = randn(m,n);
+            tol = 1e-5;
+            rho = 1e-3;
+            bupper = randn(m,1);
+            blower = -1e30*ones(m,1)
+            sense= int32(8*ones(m,1));
+            d = daqp();
+            d.setup(H,f,A,bupper,blower,sense);
+            d.settings('rho_soft',rho);
+            [xi,fval,exitflag, soft_info] = d.solve();
+            wi = soft_info.lambda*rho.*(vecnorm(A,2,2).^2)
+            bupper-A*xi
+
+            % Explicit solve the problem with slacks 
+            He = blkdiag(H,(1/rho)*eye(m));
+            fe = [f;zeros(m,1)];
+            Ae = [A -diag(vecnorm(A,2,2))];
+            sense= int32(zeros(m,1));
+            
+            [xw,fval,exitflag,info] = daqp.quadprog(He,fe,Ae,bupper,blower,sense);
+            xe = xw(1:n);
+            we = xw(n+1:end).*vecnorm(A,2,2);
+            testCase.verifyLessThan(norm(xi-xe),tol);
+            testCase.verifyLessThan(norm(wi-we),tol);
+
+
         end
 
         function trivial_infeasible_QP(testCase)
@@ -191,7 +265,6 @@ classdef core_test < matlab.unittest.TestCase
             testCase.verifyEqual(exitflag,int32(-3));
             unb_lp_info
         end
-
         function random_bnb(testCase)
             % generate and solve with daqp
             rng('default');
@@ -269,7 +342,109 @@ classdef core_test < matlab.unittest.TestCase
                 fprintf('fval_daqp:%f fval_grb:%f, rel_error:%f',fval,gurobi_result.objval,rel_error);
                 testCase.verifyLessThan((fval-gurobi_result.objval)/fval,0.1);
             end
+        end
 
+        function hierarchical_qp(testCase)
+            %  Larger example 
+            rng(1);
+            break_points = [0;5;13;20;25;30;40;43;50];
+            n = 25; 
+            m = break_points(end);
+            bu_cpy = zeros(m,1); bl_cpy = zeros(m,1);
+            H = []; 
+            f = []; 
+            A = randn(m,n); 
+            scale = 10;
+            bupper = scale*randn(m,1);
+            blower = bupper-scale*rand(m,1);
+            sense= int32(8*ones(m,1));
+            d = daqp();
+            bu_cpy(:) = bupper; bl_cpy(:) = blower;
+            d.setup(H,f,A,bu_cpy,bl_cpy,sense,break_points);
+            [x_hi,fval,exitflag, hier_info] = d.solve(); 
+            hier_info
+
+
+            % Solve without hierarchy
+            d = daqp();
+            bu_cpy(:) = bupper;
+            bl_cpy(:) = blower;
+            H = eye(n);
+            f = zeros(n,1);
+            sense= int32(8*ones(m,1));
+            d.setup(H,f,A,bu_cpy,bl_cpy,sense);
+            d.settings('rho_soft',1e-6);
+            [x_ref,fval,exitflag, hier_ref_info] = d.solve(); 
+            hier_ref_info
+            % Compute slacks
+            start = 1;
+            slacks_hier = zeros(length(break_points)-1,1);
+            for i = 2:length(break_points)
+                inds = start:break_points(i);
+                slacks_hier(i) = min(min(bupper(inds)-A(inds,:)*x_hi),... 
+                    min(-(blower(inds)-A(inds,:)*x_hi)));
+                start = break_points(i)+1;
+            end
+            start = 1;
+            ref_slacks_hier = zeros(length(break_points)-1,1);
+            for i = 2:length(break_points)
+                inds = start:break_points(i);
+                ref_slacks_hier(i) = min(min(bupper(inds)-A(inds,:)*x_ref),... 
+                    min(-(blower(inds)-A(inds,:)*x_ref)));
+                start = break_points(i)+1;
+            end
+            [slacks_hier,ref_slacks_hier]
+
+            testCase.verifyLessThanOrEqual(ref_slacks_hier(1),slacks_hier(1));
+            testCase.verifyLessThan(norm(ref_slacks_hier,2),norm(slacks_hier,2));
+
+        end
+
+        function warm_start_QP(testCase)
+            % Verify that primal and dual warm starts give the same optimal
+            % solution as a cold start and do not require more iterations.
+            tol = 1e-8;
+            H = eye(2);
+            f = [1; 1];
+            A = [1 1];
+            bupper = [2; 2; 10];
+            blower = [-2; -2; -1];
+            sense = zeros(3, 1, 'int32');
+
+            % Cold start – reference
+            d = daqp();
+            d.setup(H, f, A, bupper, blower, sense);
+            [x_cold, fval_cold, ef_cold, info_cold] = d.solve();
+            testCase.verifyEqual(ef_cold, int32(1));
+
+            % Dual warm start
+            sense_before = sense;
+            d2 = daqp();
+            d2.setup(H, f, A, bupper, blower, sense, ...  % problem data
+                [], 0, ...                                  % break_points, problem_type
+                [], info_cold.lambda);                      % primal_start=[], dual_start
+            [x_dual, fval_dual, ef_dual, info_dual] = d2.solve();
+            testCase.verifyEqual(ef_dual, int32(1));
+            testCase.verifyLessThan(norm(x_dual - x_cold), tol);
+            testCase.verifyLessThan(abs(fval_dual - fval_cold), tol);
+            % Warm start must not increase iteration count
+            testCase.verifyLessThanOrEqual(info_dual.iter, info_cold.iter);
+            % sense must be unchanged
+            testCase.verifyEqual(sense, sense_before);
+
+            % Primal warm start
+            d3 = daqp();
+            d3.setup(H, f, A, bupper, blower, sense, ...  % problem data
+                [], 0, ...                                  % break_points, problem_type
+                x_cold, []);                                % primal_start, dual_start=[]
+            [x_prim, fval_prim, ef_prim, info_prim] = d3.solve();
+            testCase.verifyEqual(ef_prim, int32(1));
+            testCase.verifyLessThan(norm(x_prim - x_cold), tol);
+            testCase.verifyLessThan(abs(fval_prim - fval_cold), tol);
+            % Warm start must not increase iteration count
+            testCase.verifyLessThanOrEqual(info_prim.iter, info_cold.iter);
+            % sense must be unchanged
+            testCase.verifyEqual(sense, sense_before);
         end
     end
 end

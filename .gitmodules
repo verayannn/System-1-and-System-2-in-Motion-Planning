@@ -1,0 +1,3 @@
+[submodule "safe_control/acados"]
+	path = safe_control/acados
+	url = https://github.com/acados/acados

@@ -329,11 +329,17 @@ void ocp_nlp_dynamics_cont_opts_set(void *config_, void *opts_, const char *fiel
         config->sim_solver->opts_set(config->sim_solver, opts->sim_solver, "sens_adj", &tmp_bool);
         config->sim_solver->opts_set(config->sim_solver, opts->sim_solver, "sens_hess", &tmp_bool);
     }
-    else if(!strcmp(field, "with_solution_sens_wrt_params"))
+    else if(!strcmp(field, "with_solution_sens_wrt_params_forw"))
     {
         // Not implemented yet
         // int *int_ptr = value;
-        // opts->with_solution_sens_wrt_params = *int_ptr;
+        // opts->with_solution_sens_wrt_params_forw = *int_ptr;
+    }
+    else if(!strcmp(field, "with_solution_sens_wrt_params_adj"))
+    {
+        // Not implemented yet
+        // int *int_ptr = value;
+        // opts->with_solution_sens_wrt_params_adj = *int_ptr;
     }
     else
     {
@@ -1093,12 +1099,16 @@ int ocp_nlp_dynamics_cont_precompute(void *config_, void *dims_, void *model_, v
     int status = config->sim_solver->precompute(config->sim_solver, work->sim_in, work->sim_out,
                                    opts->sim_solver, mem->sim_solver, work->sim_solver);
 
-    config->sim_solver->memory_set_to_zero(config->sim_solver, work->sim_in->dims,
-                                    opts->sim_solver, mem->sim_solver, "guesses");
+    config->sim_solver->memory_set_to_zero(config->sim_solver, work->sim_in->dims, opts->sim_solver, mem->sim_solver);
 
     return status;
 }
 
+void ocp_nlp_dynamics_cont_compute_adj_sol_sens_pdiff(void* config_, void *dims_, void *model_, void *opts_, void *mem_, void *work_)
+{
+    printf("\nerror: ocp_nlp_dynamics_cont_compute_adj_sol_sens_pdiff not implemented yet\n");
+    exit(1);
+}
 
 void ocp_nlp_dynamics_cont_compute_jac_hess_p(void *config_, void *dims, void *model_, void *opts, void *mem, void *work_)
 {
@@ -1110,6 +1120,19 @@ void ocp_nlp_dynamics_cont_compute_adj_p(void* config_, void *dims_, void *model
 {
     printf("\nerror: ocp_nlp_dynamics_cont_compute_adj_p not implemented\n");
     exit(1);
+}
+
+void ocp_nlp_dynamics_cont_reset(void *config_, void *dims_, void *model_, void *opts_, void *mem_, void *work_)
+{
+    ocp_nlp_dynamics_cont_cast_workspace(config_, dims_, opts_, work_, mem_);
+
+    ocp_nlp_dynamics_config *config = config_;
+    ocp_nlp_dynamics_cont_opts *opts = opts_;
+    ocp_nlp_dynamics_cont_memory *mem = mem_;
+    ocp_nlp_dynamics_cont_workspace *work = work_;
+
+    // reset integrator memory
+    config->sim_solver->memory_set_to_zero(config->sim_solver, work->sim_in->dims, opts->sim_solver, mem->sim_solver);
 }
 
 
@@ -1175,10 +1198,12 @@ void ocp_nlp_dynamics_cont_config_initialize_default(void *config_, int stage)
     config->update_qp_matrices = &ocp_nlp_dynamics_cont_update_qp_matrices;
     config->compute_fun = &ocp_nlp_dynamics_cont_compute_fun;
     config->compute_fun_and_adj = &ocp_nlp_dynamics_cont_compute_fun_and_adj;
+    config->compute_adj_sol_sens_pdiff = &ocp_nlp_dynamics_cont_compute_adj_sol_sens_pdiff;
     config->compute_adj_p = &ocp_nlp_dynamics_cont_compute_adj_p;
     config->precompute = &ocp_nlp_dynamics_cont_precompute;
     config->config_initialize_default = &ocp_nlp_dynamics_cont_config_initialize_default;
     config->compute_jac_hess_p = &ocp_nlp_dynamics_cont_compute_jac_hess_p;
+    config->reset = &ocp_nlp_dynamics_cont_reset;
     config->stage = stage;
 
     return;

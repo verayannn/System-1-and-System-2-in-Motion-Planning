@@ -33,7 +33,7 @@ from deprecated.sphinx import deprecated
 import casadi as ca
 import numpy as np
 
-from .utils import casadi_length
+from .utils import casadi_length, str_to_status_ipopt
 from .acados_ocp import AcadosOcp
 from .acados_ocp_iterate import AcadosOcpIterate, AcadosOcpFlattenedIterate
 from .acados_casadi_ocp import AcadosCasadiOcp
@@ -59,7 +59,8 @@ class AcadosCasadiOcpSolver:
     def __init__(self, ocp: AcadosOcp, solver: str = "ipopt", verbose=True,
                  casadi_solver_opts: Optional[dict] = None,
                  use_acados_hessian: bool = False,
-                 use_single_shooting: bool = False):
+                 use_single_shooting: bool = False,
+                 with_casados: bool = False):
 
         if not isinstance(ocp, AcadosOcp):
             raise TypeError('ocp should be of type AcadosOcp.')
@@ -69,6 +70,7 @@ class AcadosCasadiOcpSolver:
         # create casadi NLP formulation
         casadi_nlp_obj = AcadosCasadiOcp(ocp = ocp,
                                          with_hessian = use_acados_hessian,
+                                         with_casados = with_casados,
                                          multiple_shooting= self.multiple_shooting
                                         )
 
@@ -80,6 +82,7 @@ class AcadosCasadiOcpSolver:
         self.p = casadi_nlp_obj.p_nlp_values
         self.index_map = casadi_nlp_obj.index_map
         self.nlp_hess_l_custom = casadi_nlp_obj.nlp_hess_l_custom
+        self.f_discr_fun = casadi_nlp_obj.f_discr_fun
         if use_single_shooting:
             self.x_traj_fun = casadi_nlp_obj._x_traj_fun
 
@@ -103,6 +106,7 @@ class AcadosCasadiOcpSolver:
         self.lam_g0 = np.zeros(self.casadi_nlp['g'].shape).flatten()
         self.nlp_sol = None
         self._status = None
+        self._solver_name = solver
 
 
     def solve_for_x0(self, x0_bar):
@@ -145,13 +149,21 @@ class AcadosCasadiOcpSolver:
 
         # statistics
         solver_stats = self.casadi_solver.stats()
-        # timing = solver_stats['t_proc_total']
-        self._status = solver_stats['return_status'] if 'return_status' in solver_stats else solver_stats['success']
-        self.nlp_iter = solver_stats['iter_count'] if 'iter_count' in solver_stats else None
-        self.time_total = solver_stats['t_wall_total'] if 't_wall_total' in solver_stats else None
+        if self._solver_name == "ipopt":
+            self._status = str_to_status_ipopt(solver_stats['return_status'])
+            self.nlp_iter = solver_stats['iter_count']
+            self.time_total = solver_stats['t_wall_total']
+        elif self._solver_name == "fatrop":
+            self._status = solver_stats['return_status']
+            self.nlp_iter = solver_stats['iter_count']
+            self.time_total = solver_stats['t_wall_total']
+        else:
+            self._status = -1
+            print(f"Solver statistics parsing not implemented for solver {self._solver_name}.")
+            self.nlp_iter = solver_stats['iter_count'] if 'iter_count' in solver_stats else None
+            self.time_total = solver_stats['t_wall_total'] if 't_wall_total' in solver_stats else None
+
         self.solver_stats = solver_stats
-        # nlp_res = ca.norm_inf(sol['g']).full()[0][0]
-        # cost_val = ca.norm_inf(sol['f']).full()[0][0]
         return self.status
 
     def get_dim_flat(self, field: str):

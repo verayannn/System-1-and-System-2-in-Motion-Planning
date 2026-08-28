@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 
@@ -56,7 +56,8 @@ jobs:
       shell: bash
       run: |
         source ${{ github.workspace }}/acadosenv/bin/activate
-        python main.py
+        python test_ocpqp_solver.py
+        python test_dense_qp.py
 
     - name: tests
       working-directory: ${{ github.workspace }}/examples/acados_python/tests
@@ -123,7 +124,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 
@@ -160,6 +161,7 @@ jobs:
       shell: bash
       run: |
         source ${{ github.workspace }}/acadosenv/bin/activate
+        # run tests
         python test_casadi_get_set.py
         python test_casadi_parametric.py
         python test_casadi_constraint.py
@@ -168,7 +170,14 @@ jobs:
         python test_casadi_LICQ_violation.py
         python test_casadi_closed_loop.py
         python test_casadi_ocpqp.py
+        python test_casadi_solver.py
         python test_setting_bounds.py
+        # install casados and run additional tests.
+        git clone https://github.com/FreyJo/casados-integrators.git
+        cd casados-integrators
+        pip install -e .
+        cd ..
+        python test_casados.py
 
     - name: Anderson_acceleration
       working-directory: ${{ github.workspace }}/examples/acados_python/anderson_acceleration
@@ -190,7 +199,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 
@@ -218,7 +227,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 
@@ -264,7 +273,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 
@@ -322,7 +331,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 
@@ -453,6 +462,13 @@ jobs:
         source ${{ github.workspace }}/acadosenv/bin/activate
         python main.py
 
+    - name: python_multiphase_minimal_transition_example
+      working-directory: ${{ github.workspace }}/examples/acados_python/mocp_transition_example/
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/acadosenv/bin/activate
+        python minimal_transition_example.py
+
     - name: python_OSQP_test
       if: env.ACADOS_WITH_OSQP == 'ON'
       working-directory: ${{ github.workspace }}/examples/acados_python/tests
@@ -478,13 +494,13 @@ jobs:
         python test_qp_solver.py --qp_solver=PARTIAL_CONDENSING_HPIPM
         python load_ocp.py
 
-  python_interface_new_casadi_and_py2octave:
+  python_octave_transfer:
     needs: call_core_build
     runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 
@@ -500,11 +516,6 @@ jobs:
       working-directory: ${{ github.workspace }}
       shell: bash
       run: ${{ github.workspace }}/.github/linux/install_simde.sh
-
-    # - name: Install new CasADi Python
-    #   working-directory: ${{ github.workspace }}
-    #   shell: bash
-    #   run: ${{ github.workspace }}/.github/linux/install_new_casadi_python.sh
 
     - name: Prepare Octave
       working-directory: ${{ github.workspace }}/external
@@ -529,7 +540,9 @@ jobs:
       run: |
         ${{ github.workspace }}/.github/linux/export_paths.sh ${{ github.workspace }}
 
+
     - name: Run Python tests that need new CasADi & test py2matlab
+      if: always()
       working-directory: ${{ github.workspace }}/build
       shell: bash
       run: |
@@ -539,7 +552,41 @@ jobs:
         echo "\nPython run done; testing OCP tranfer to Octave\n"
         octave code_reuse_py2matlab.m
 
+    - name: Octave OCP reuse
+      if: always()
+      working-directory: ${{ github.workspace }}/build
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/acadosenv/bin/activate
+        cd ${{ github.workspace }}/examples/acados_matlab_octave/test
+        octave test_code_reuse.m
+        octave test_code_reuse_true_positive.m
+
+    - name: Octave OCP + Python reuse
+      if: always()
+      working-directory: ${{ github.workspace }}/build
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/acadosenv/bin/activate
+        cd ${{ github.workspace }}/examples/acados_matlab_octave/pendulum_on_cart_model
+        octave example_ocp.m
+        python test_ocp_reuse.py
+
+    - name: Octave MOCP + Python reuse
+      if: always()
+      working-directory: ${{ github.workspace }}/build
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/acadosenv/bin/activate
+        cd ${{ github.workspace }}/examples/acados_matlab_octave/mocp_transition_example
+        octave main_multiphase_ocp.m
+        python load_matlab_mocp.py
+        cd ${{ github.workspace }}/examples/acados_matlab_octave/p_global_example
+        octave minimal_mocp_octave.m
+        python load_matlab_mocp.py
+
     - name: Run Python to Octave sim transfer test
+      if: always()
       working-directory: ${{ github.workspace }}/build
       shell: bash
       run: |
@@ -549,7 +596,50 @@ jobs:
         echo "\nPython run done; testing SIM tranfer to Octave\n"
         octave code_reuse_py2matlab_sim.m
 
+
+  python_interface_new_casadi:
+    needs: call_core_build
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+      with:
+        submodules: 'recursive'
+
+    - name: Setup Test Environment
+      uses: ./.github/actions/setup-test-environment
+      with:
+        artifact-name-prefix: ${{ needs.call_core_build.outputs.artifact-name-prefix }}
+
+    - name: Setup Python Environment
+      uses: ./.github/actions/setup-python-environment
+
+    - name: Prepare Octave
+      working-directory: ${{ github.workspace }}/external
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install liboctave-dev -y --fix-missing
+        octave --version
+        ${{ github.workspace }}/.github/linux/install_new_casadi_octave.sh
+
+    # just needed for blasfeo_target.h in MEX interface
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{ github.workspace }}/build
+      run: |
+        cmake --version
+        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DACADOS_WITH_QPOASES=$ACADOS_WITH_QPOASES -DACADOS_WITH_DAQP=$ACADOS_WITH_DAQP -DACADOS_WITH_QPDUNES=$ACADOS_WITH_QPDUNES -DACADOS_WITH_OSQP=$ACADOS_WITH_OSQP -DACADOS_WITH_CLARABEL=$ACADOS_WITH_CLARABEL -DACADOS_OCTAVE=OFF
+
+    - name: Export Paths for octave
+      working-directory: ${{ github.workspace }}
+      shell: bash
+      run: |
+        ${{ github.workspace }}/.github/linux/export_paths.sh ${{ github.workspace }}
+
     - name: Run more Python tests
+      if: always()
       working-directory: ${{ github.workspace }}/build
       shell: bash
       run: |
@@ -561,6 +651,7 @@ jobs:
         python test_casadi_formulation.py
 
     - name: Python sensitivity examples
+      if: always()
       working-directory: ${{ github.workspace }}/build
       shell: bash
       run: |
@@ -587,9 +678,8 @@ jobs:
         cd ${{ github.workspace }}/examples/acados_python/chain_mass/
         python solution_sensitivity_example.py
 
-
-
-    - name: Python Furuta pendulum timeout test
+    - name: Python Furuta pendulum timeout test, batch tests
+      if: always()
       working-directory: ${{ github.workspace }}/build
       shell: bash
       run: |
@@ -597,8 +687,16 @@ jobs:
         cd ${{ github.workspace }}/examples/acados_python/furuta_pendulum
         python main_closed_loop.py
         python anderson_convergence_experiment.py
+        cd ${{ github.workspace }}/examples/acados_python/pendulum_on_cart/ocp
+        python minimal_example_batch_ocp_solver.py
+        cd ${{ github.workspace }}/examples/acados_python/pendulum_on_cart/sim
+        python minimal_example_batch_sim_solver.py
+        cd ${{ github.workspace }}/examples/acados_python/tests
+        python test_batch_solvers.py
+
 
     - name: Python evaluator test
+      if: always()
       working-directory: ${{ github.workspace }}/build
       shell: bash
       run: |
@@ -614,7 +712,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 
@@ -671,7 +769,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 
@@ -741,7 +839,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 
@@ -800,7 +898,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 
@@ -880,7 +978,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 
@@ -888,6 +986,9 @@ jobs:
       uses: ./.github/actions/setup-test-environment
       with:
         artifact-name-prefix: ${{ needs.call_core_build.outputs.artifact-name-prefix }}
+
+    - name: Setup Python Environment
+      uses: ./.github/actions/setup-python-environment
 
     - name: Prepare Octave
       working-directory: ${{ github.workspace }}/external
@@ -912,13 +1013,21 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{ github.workspace }}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DACADOS_WITH_QPOASES=$ACADOS_WITH_QPOASES -DACADOS_WITH_DAQP=$ACADOS_WITH_DAQP -DACADOS_WITH_QPDUNES=$ACADOS_WITH_QPDUNES -DACADOS_WITH_OSQP=$ACADOS_WITH_OSQP -DACADOS_WITH_CLARABEL=$ACADOS_WITH_CLARABEL -DACADOS_OCTAVE=$ACADOS_OCTAVE
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DACADOS_WITH_QPOASES=$ACADOS_WITH_QPOASES -DACADOS_WITH_DAQP=$ACADOS_WITH_DAQP -DACADOS_WITH_QPDUNES=$ACADOS_WITH_QPDUNES -DACADOS_WITH_OSQP=$ACADOS_WITH_OSQP -DACADOS_WITH_CLARABEL=$ACADOS_WITH_CLARABEL -DACADOS_OCTAVE=ON
 
     - name: Run CMake Octave tests (ctest)
       working-directory: ${{ github.workspace }}/build
       shell: bash
-      run: ctest -C $BUILD_TYPE --output-on-failure -j 4 --parallel 4;
+      run: |
+        ctest -C $BUILD_TYPE --output-on-failure -j 4 --parallel 4
 
+    - name: Show CTest failure log
+      if: failure()
+      working-directory: ${{ github.workspace }}/build
+      shell: bash
+      run: |
+        echo "==== LastTest.log ===="
+        cat Testing/Temporary/LastTest.log || true
 
 # ===== ROS TESTS =====
   ros2_humble_test:
@@ -927,7 +1036,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'recursive'
 

@@ -1,0 +1,73 @@
+name: Releases
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.runs-on }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runs-on: ubuntu-22.04
+            architecture: linux-amd64
+          - runs-on: macos-14
+            architecture: osx-amd64
+          - runs-on: windows-2022
+            architecture: windows-amd64
+          - runs-on: ubuntu-22.04-arm
+            architecture: linux-arm64
+          - runs-on: windows-11-arm
+            architecture: windows-arm64
+          - runs-on: macos-15
+            architecture: osx-arm64
+
+    name: Build on ${{ matrix.architecture }}
+
+    steps:
+      - name: Setup | Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build
+        run: |
+          cargo build --verbose --release;
+
+      - name: Set tag variable
+        id: tag
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "tag=-${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set extension variable
+        id: ext
+        shell: bash
+        run: |
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            echo "ext=.exe" >> $GITHUB_OUTPUT
+          else
+            echo "ext=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Rename & move built t_renderer
+        shell: bash
+        run: mv target/release/t_renderer${{ steps.ext.outputs.ext }} t_renderer${{ steps.tag.outputs.tag }}-${{ matrix.architecture }}${{ steps.ext.outputs.ext }}
+
+      - name: Upload t_renderer Artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: t_renderer${{ steps.tag.outputs.tag }}-${{ matrix.architecture }}${{ steps.ext.outputs.ext }}
+          path: t_renderer${{ steps.tag.outputs.tag }}-${{ matrix.architecture }}${{ steps.ext.outputs.ext }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          files: t_renderer${{ steps.tag.outputs.tag }}-${{ matrix.architecture }}${{ steps.ext.outputs.ext }}

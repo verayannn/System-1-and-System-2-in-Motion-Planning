@@ -2,3 +2,8 @@
 *.egg
 __pycache__/
 .Python
+.pytest_cache
+daqp.c
+dist
+
+*.so

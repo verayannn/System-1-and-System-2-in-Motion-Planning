@@ -2,7 +2,7 @@
 layout: page
 title: Parameters 
 permalink: /parameters/
-nav: 3 
+nav_order: 4
 ---
 <details open markdown="block">
 <summary>
@@ -24,13 +24,16 @@ Table of contents
 | `pivot_tol` | Value used for determining if rows in the LDL' factorization should be exchanged. A higher value improves stability. | 1e-6|
 | `progress_tol` | Minimum change in objective function to consider it progress | 1e-6|
 | `cycle_tol` | Allowed number of iterations without progress before terminating| 10 |
-| `iter_limit` | Maximum number of iterations before terminating| 1000 |
+| `iter_limit` | Maximum number of iterations before terminating| 10000 |
 | `fval_bound` | Maximum allowed objective function value. The solver terminates if the dual objective exceeds this value (since it is a lower bound of the optimal value). | 1e30|
-| `eps_prox` | Regularization parameter used for proximal-point iterations (0 means that no proximal-point iterations are performed) | 0|
+| `eps_prox` | Regularization parameter used for proximal-point iterations | 1e-6|
 | `eta_prox` | Tolerance that determines if a fix-point has been reached during proximal-point iterations | 1e-6|
-| `rho_soft` | Weight used for soft constraints (higher enables more violations) | 1e-3|
+| `rho_soft` | Weight used for soft constraints (higher enables more violations) | 1e-6|
 | `rel_subopt` | Allowed relative suboptimality in branch and bound | 0 |
 | `abs_subopt` | Allowed absolute suboptimality in branch and bound | 0 |
+| `sing_tol` | Tolerance for checking if the LDL' factorization is singular| 3.7e-11 |
+| `refactor_tol` | Tolerance for refactoring the LDL' factorization before terminating | 1e-9 |
+| `time_limit` | Maximum wall-clock time in seconds before terminating (0 means no limit) | 0 |
 
 
 ## Exit flags 
@@ -45,6 +48,7 @@ Table of contents
 |-4|Iteration limit reached|
 |-5|Nonconvex problem|
 |-6|Initial working set overdetermined|
+|-7|Time limit reached|
 
 ## Constraint classification
 The type of a constraint is classified through an integer value (called sense), where the bits in this integer encode different properties: 
