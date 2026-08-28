@@ -34,10 +34,13 @@ xcode-select --install
 brew install cmake uv
 ```
 
-### 2. Clone the Repository:
+
+### 2. Clone the Repository
+
+`acados` is included as a Git submodule at `safe_control/acados`. Clone the repository recursively to check out the revision pinned by this project:
 
 ```bash
-git clone https://github.com/verayannn/System-1-and-System-2-in-Motion-Planning.git
+git clone --recurse-submodules https://github.com/verayannn/System-1-and-System-2-in-Motion-Planning.git
 cd System-1-and-System-2-in-Motion-Planning
 ```
 
@@ -107,7 +110,8 @@ System-1-and-System-2-in-Motion-Planning/
 │   ├── run_suite.py                    # Run benchmark suites and continual learning
 │   └── train_s1_nonlinear.py           # Train or fine-tune the neural S1 policy
 ├── sofai/                              # Vendored SOFAI framework
-└── safe_control/                       # Vendored CBF and acados dependencies
+└── safe_control/                       # Vendored safe_control library
+    └── acados/                         # Official acados Git submodule
 ```
 
 
