@@ -37,7 +37,7 @@ brew install cmake uv
 
 ### 2. Clone the Repository
 
-`acados` is included as a Git submodule at `safe_control/acados`. Clone the repository recursively to check out the revision pinned by this project:
+`acados` is included as a Git submodule under `safe_control/acados`. Clone the repository recursively to check out the `acados` revision pinned by this project:
 
 ```bash
 git clone --recurse-submodules https://github.com/verayannn/System-1-and-System-2-in-Motion-Planning.git
@@ -50,7 +50,7 @@ cd System-1-and-System-2-in-Motion-Planning
 ./setup.sh
 ```
 
-### 4. Use the environment
+### 4. Activate the environment
 
 ```bash
 source .venv/bin/activate
@@ -58,7 +58,7 @@ source .venv/bin/activate
 
 ### 5. Verify the installation
 
-`setup.sh` runs this check automatically and prints `[ok] imports: ...`. To repeat it later:
+`setup.sh` performs this verification automatically and prints `[ok] imports: ...`. To run the check again later:
 
 ```bash
 python - <<'PY'
@@ -78,8 +78,9 @@ assert root is not None, "acados shared libraries were not found"
 PY
 ```
 
+### Manual Installation Without `uv`
 
-Without `uv`, use Python 3.10 or 3.11:
+If `uv` is unavailable, create the environment manually using Python 3.10 or 3.11:
 
 ```bash
 python3.10 -m venv .venv
